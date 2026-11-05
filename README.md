@@ -23,7 +23,6 @@ supplied yet:
 - **Hashtag** — `#DenisAndMiaInBloom` is a guess from their first names
 - **RSVP deadline** — set to November 15, 2026 (30 days out)
 - **Full venue addresses** and the **dress code palette**
-- **Gallery photos** — still the template's stock images
 
 ## Getting started
 
@@ -58,10 +57,31 @@ src/
     useCountdown.ts  ticking countdown to the wedding date
   data/
     wedding.ts     all copy, image paths, entourage, FAQ, palette
-public/assets/     hero, story, gallery photos and the leaf overlay
-                   hero-a97.jpg is the couple's photo, resized from the
-                   6.4MB original, which lives outside this repo as a-97.jpg
+public/assets/     every photo is the couple's own, plus the leaf overlay
 ```
+
+## Photos
+
+All photos are Denis & Mia's own. The camera originals are ~6MB each at
+4528x3016 and live outside this repo (`a-8`, `a-36`, `a-53`, `a-72`, `a-97`,
+`a-116`); what ships here is resized and, where it helped, cropped to frame the
+couple:
+
+| File | From | Crop | Result |
+| --- | --- | --- | --- |
+| `hero-a97.jpg` | a-97 | none | 2400x1599, 331KB |
+| `story-a36.jpg` | a-36 | yes | 1400x1666, 290KB |
+| `g-a53.jpg` | a-53 | yes | 900x1286, 141KB |
+| `g-a8.jpg` | a-8 | none | 900x599, 61KB |
+| `g-a116.jpg` | a-116 | yes | 900x1286, 158KB |
+| `g-a72.jpg` | a-72 | none | 900x599, 62KB |
+
+The three cropped ones are portraits with a dark out-of-focus branch across the
+right edge; the crop removes it and tightens on the couple. Together these are
+2.0MB instead of the 37MB the originals would have been.
+
+To regenerate one after replacing a source, use `sharp` — see the commit that
+added them for the exact extract boxes.
 
 ## Design tokens
 

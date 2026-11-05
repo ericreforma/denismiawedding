@@ -66,23 +66,38 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 export const IMAGES = {
   /** Optimized from the full-res a-97.jpg (4528x3016, 6.4MB) -> 2400x1599, 0.3MB. */
   hero: `${BASE_PATH}/assets/hero-a97.jpg`,
-  story: `${BASE_PATH}/assets/story-BL62Dm0L.jpg`,
+  /** Cropped from a-36.jpg to frame the couple, then resized -> 1400x1666, 0.3MB. */
+  story: `${BASE_PATH}/assets/story-a36.jpg`,
   leaves: `${BASE_PATH}/assets/leaves-D8rPBbE0.png`,
-  g1: `${BASE_PATH}/assets/g1-DxwMwt42.jpg`,
-  g2: `${BASE_PATH}/assets/g2-BH78IkrI.jpg`,
-  g3: `${BASE_PATH}/assets/g3-DEuxgs49.jpg`,
-  g4: `${BASE_PATH}/assets/g4-DzQSwQmZ.jpg`,
-  g5: `${BASE_PATH}/assets/g5-BIlb7Qb4.jpg`,
-  g6: `${BASE_PATH}/assets/g6-CUSko8JJ.jpg`,
 } as const;
 
-export const GALLERY: { src: string; span: string }[] = [
-  { src: IMAGES.g1, span: "row-span-2" },
-  { src: IMAGES.g2, span: "" },
-  { src: IMAGES.g3, span: "row-span-2" },
-  { src: IMAGES.g4, span: "" },
-  { src: IMAGES.g5, span: "" },
-  { src: IMAGES.g6, span: "" },
+/**
+ * Four photos in a three-column grid. The two portraits take `row-span-2` and
+ * the two landscapes sit stacked between them, which fills a 3x2 block with no
+ * gaps on desktop and a 2x3 block on mobile. Adding a fifth photo will leave a
+ * hole unless the spans are rebalanced.
+ */
+export const GALLERY: { src: string; span: string; alt: string }[] = [
+  {
+    src: `${BASE_PATH}/assets/g-a53.jpg`,
+    span: "row-span-2",
+    alt: "Denis and Mia sitting together on the garden steps",
+  },
+  {
+    src: `${BASE_PATH}/assets/g-a8.jpg`,
+    span: "",
+    alt: "Denis and Mia laughing together under the trees",
+  },
+  {
+    src: `${BASE_PATH}/assets/g-a116.jpg`,
+    span: "row-span-2",
+    alt: "Denis and Mia on the steps beneath the garden foliage",
+  },
+  {
+    src: `${BASE_PATH}/assets/g-a72.jpg`,
+    span: "",
+    alt: "Denis and Mia arm in arm in the afternoon light",
+  },
 ];
 
 // --------------------------------------------------------------- their story

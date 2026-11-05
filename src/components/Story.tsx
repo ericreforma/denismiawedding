@@ -18,7 +18,7 @@ export function Story() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={IMAGES.story}
-              alt="The couple together"
+              alt="Denis and Mia seated together on the garden steps"
               loading="lazy"
               className="relative rounded-[2rem] shadow-xl shadow-sky-deep/15 w-full h-auto object-cover"
             />
