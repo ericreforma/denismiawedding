@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens — cloned 1:1 from the original "In Bloom" stylesheet.
+   ------------------------------------------------------------------ */
+:root {
+  --radius: 0.75rem;
+
+  /* ---- Brand primaries -------------------------------------------------
+     blue  #8CC0EB  ->  oklch(78.7% 0.082 244)
+     beige #FFEAD3  ->  oklch(94.8% 0.038 70)
+     Everything below is derived from these two hues.                     */
+  --sky: oklch(78.7% 0.082 244);
+  --beige: oklch(94.8% 0.038 70);
+
+  /* Deep blue for headings, the footer and primary buttons. */
+  --sky-deep: oklch(46% 0.095 248);
+  /* A saturated beige used as the warm accent (kickers, script flourishes). */
+  --clay: oklch(50% 0.125 52);
+  /* A deeper beige band, for the gallery section. */
+  --sand: oklch(89% 0.055 62);
+  /* Solid pale blue for section bands. A transparent blue over the warm beige
+     background composites to grey, so these bands need their own colour. */
+  --sky-tint: oklch(93.5% 0.032 240);
+  /* Form-field fill. The beige page background is too saturated to sit inside
+     the near-white RSVP card, so fields get their own soft blue-white. */
+  --field: oklch(96.5% 0.016 240);
+
+  --background: var(--beige);
+  --foreground: oklch(30% 0.035 252);
+
+  --card: oklch(98.5% 0.013 74);
+  --card-foreground: oklch(30% 0.035 252);
+  --popover: oklch(98.5% 0.013 74);
+  --popover-foreground: oklch(30% 0.035 252);
+  --primary: oklch(46% 0.095 248);
+  --primary-foreground: oklch(97% 0.02 74);
+  --secondary: oklch(90% 0.04 240);
+  --secondary-foreground: oklch(30% 0.035 252);
+  --muted: oklch(92% 0.03 70);
+  --muted-foreground: oklch(48% 0.028 250);
+  --accent: oklch(89% 0.055 62);
+  --accent-foreground: oklch(35% 0.06 55);
+  --destructive: oklch(60% 0.18 25);
+  --destructive-foreground: oklch(98% 0.01 85);
+  --border: oklch(86% 0.035 240);
+  --input: oklch(88% 0.032 240);
+  --ring: oklch(60% 0.08 246);
+}
+
+@theme inline {
+  /* Typography — wired to the next/font CSS variables set in layout.tsx */
+  --font-sans: var(--font-nunito-sans), sans-serif;
+  --font-serif: var(--font-cormorant-garamond), serif;
+  --font-script: var(--font-tangerine), cursive;
+  --default-font-family: var(--font-sans);
+
+  /* Palette */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sky: var(--sky);
+  --color-sky-tint: var(--sky-tint);
+  --color-field: var(--field);
+  --color-sky-deep: var(--sky-deep);
+  --color-beige: var(--beige);
+  --color-sand: var(--sand);
+  --color-clay: var(--clay);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Floating-leaf + entrance animations */
+  --animate-drift: drift 9s ease-in-out infinite;
+  --animate-drift-slow: drift-slow 13s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.9s ease-out both;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(0) rotate(0);
+  }
+  50% {
+    transform: translate(20px, -15px) rotate(8deg);
+  }
+  100% {
+    transform: translate(0) rotate(0);
+  }
+}
+
+@keyframes drift-slow {
+  0% {
+    transform: translate(0) rotate(0);
+  }
+  50% {
+    transform: translate(-25px, 20px) rotate(-10deg);
+  }
+  100% {
+    transform: translate(0) rotate(0);
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern", "liga";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility font-script {
+  font-family: var(--font-script);
+  font-weight: 700;
+}
+
+@utility font-serif-display {
+  font-family: var(--font-serif);
+}
+
+@utility leaf-divider {
+  display: block;
+  width: 180px;
+  height: 1px;
+  margin: 1.5rem auto;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-sky-deep),
+    transparent
+  );
+  opacity: 0.5;
+}
