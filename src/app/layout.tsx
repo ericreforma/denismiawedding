@@ -38,7 +38,7 @@ const DESCRIPTION = `Join ${COUPLE.one.first} and ${COUPLE.two.first} on ${EVENT
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: `${NAMES} · ${CEREMONY.city} Wedding ${EVENT.dateLong.slice(-4)}`,
+  title: EVENT.pageTitle,
   description: DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {

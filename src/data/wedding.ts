@@ -37,6 +37,8 @@ export const EVENT = {
   endISO: "2026-12-15T22:00:00+08:00",
   /** TODO: confirm RSVP deadline. */
   rsvpBy: "November 15, 2026",
+  /** Browser tab and search result. */
+  pageTitle: "Denis & Mia · San Jose del Monte Wedding 2026",
 } as const;
 
 export const CEREMONY = {
