@@ -220,6 +220,21 @@ export const PHOTOS = {
   coupleScratch: p("/photos/couple-scratch.webp"),
 } as const;
 
+/**
+ * The opening sequence: a still of the sealed envelope, then two clips —
+ * the envelope opening, then the ribboned invitation being unwrapped.
+ *
+ * These are the original's own files and together they weigh ~34MB, which is
+ * most of what a first-time visitor downloads. The wax seal in the envelope
+ * clip carries the template couple's monogram; unlike the still seals it
+ * cannot be re-lettered, so it still reads "C & J".
+ */
+export const INTRO = {
+  poster: p("/intro/envelope-poster.jpg"),
+  envelope: p("/intro/envelope.mp4"),
+  bridge: p("/intro/bridge.mp4"),
+} as const;
+
 export const AUDIO = {
   theme: p("/audio/wedding-theme.mp3"),
 } as const;

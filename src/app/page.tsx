@@ -19,21 +19,23 @@ import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { useReveal } from "@/hooks/useReveal";
 
 export default function Home() {
+  /** The hero text starts fading in under the intro's last beat. */
+  const [heroVisible, setHeroVisible] = useState(false);
+  /** The audio toggle only appears once the intro is out of the way. */
   const [entered, setEntered] = useState(false);
   const { isMuted, startMusic, toggleMute } = useBackgroundMusic();
   useReveal();
 
-  const handleEnter = () => {
-    startMusic();
-    setEntered(true);
-  };
-
   return (
     <>
-      <EnterOverlay onEnter={handleEnter} />
+      <EnterOverlay
+        onStartMusic={startMusic}
+        onShowHeroText={() => setHeroVisible(true)}
+        onEnter={() => setEntered(true)}
+      />
 
       <main className="bg-background text-foreground overflow-x-clip">
-        <Hero visible={entered} />
+        <Hero visible={heroVisible} />
         <Countdown />
         <ScratchReveal />
         <Location />

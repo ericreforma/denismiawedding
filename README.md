@@ -40,8 +40,9 @@ supplied yet. Edit that one file — no component needs touching.
 Two pieces of artwork are still the template's and do not depict the real
 venues: `venue-illustration.webp` (an Italianate villa) and the hotel frame.
 
-The opening animation is a rebuild rather than the original's video — see
-**Interaction notes**.
+The opening clips still show the template couple's **"C & J"** wax seal, which
+cannot be re-lettered the way the still seals were. Replacing it needs new
+footage. See **Interaction notes**.
 
 ## Stack
 
@@ -74,6 +75,7 @@ public/
   art/             the design's illustrated frames, seals and textures
   photos/          the couple's photo, cropped for the oval
   audio/           looping background track
+  intro/           the opening clips and their poster frame (34MB)
 ```
 
 ## Design tokens
@@ -97,18 +99,23 @@ and `font-sans` (Jost).
 
 ## Interaction notes
 
-- **Opening animation.** The invitation arrives as a sealed envelope: the wax
-  seal breathes and a sheen travels across the paper. Tapping lifts the seal
-  away, crossfades the flap open, then draws the whole card toward the viewer
-  as it fades, revealing the hero beneath (~2.5s end to end). The tap also
-  starts the music — browsers refuse `audio.play()` without a gesture.
+- **Opening sequence.** A still of the sealed envelope, then on tap two clips
+  back to back: `intro/envelope.mp4` (4.0s, the envelope opening) and
+  `intro/bridge.mp4` (6.0s, the ribboned invitation being unwrapped), then a 2s
+  fade to the hero — about 12s end to end. The poster hides as soon as the first
+  clip has a frame of its own; the first clip warms by `brightness(1.1)
+  saturate(0.97)` over its last 1.2s; the hero text starts fading in 1.8s before
+  the second clip ends, so the two overlap rather than cut. Both are muted and
+  `playsInline` so mobile runs them inline. The tap also starts the music —
+  browsers refuse `audio.play()` without a gesture.
 
-  The original ran two MP4s here (`envelope-oct.mp4` 18.7MB + `intro-bridge.mp4`
-  15.5MB = 34MB) of a real envelope opening. They are not used, for two reasons:
-  the weight, and the wax seal in every frame carries the template couple's
-  monogram, which cannot be re-lettered the way the still seals were. This
-  rebuilds the same beat from the re-lettered seal and the two envelope stills
-  at no extra download.
+  These are the original's own clips and together they are **34MB**, which is
+  most of what a first-time visitor downloads. Two caveats worth knowing:
+  the wax seal in the envelope clip carries the template couple's monogram and
+  still reads **"C & J"** — unlike the two still seals, video frames cannot be
+  re-lettered — and there is no `ffmpeg` on this machine, so they ship at the
+  original bitrate (~37 Mbps). Re-encoding would cut the weight substantially.
+
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
