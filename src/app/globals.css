@@ -158,3 +158,77 @@
     filter: blur(0);
   }
 }
+
+/* --------------------------------------------------------------------------
+   Intro sequence. The invitation opens on a sealed envelope; tapping lifts the
+   seal, opens the flap, and pulls the whole card away to reveal the hero.
+   -------------------------------------------------------------------------- */
+
+/* Before the tap: the seal breathes, so the screen is alive and reads as
+   something to press. */
+@keyframes sealBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+/* A slow sheen travelling across the envelope, like light moving over nacre. */
+@keyframes introSheen {
+  0% {
+    transform: translateX(-120%) rotate(8deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.55;
+  }
+  52% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(120%) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+/* On tap: the seal is lifted off and away. */
+@keyframes sealLift {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5) rotate(-11deg);
+    opacity: 0;
+  }
+}
+
+/* The opened card eases toward the viewer as it fades out. */
+@keyframes introLeave {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+}
+
+@keyframes introLabel {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-seal,
+  .intro-sheen,
+  .intro-label {
+    animation: none !important;
+  }
+}

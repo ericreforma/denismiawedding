@@ -40,6 +40,9 @@ supplied yet. Edit that one file — no component needs touching.
 Two pieces of artwork are still the template's and do not depict the real
 venues: `venue-illustration.webp` (an Italianate villa) and the hotel frame.
 
+The opening animation is a rebuild rather than the original's video — see
+**Interaction notes**.
+
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript), static export
@@ -94,10 +97,18 @@ and `font-sans` (Jost).
 
 ## Interaction notes
 
-- **Enter screen.** Browsers refuse `audio.play()` without a user gesture, so
-  the page opens on a tap-to-open panel. That tap starts the music and fades the
-  panel out over 2s. The original played two MP4 clips here; those are left out
-  deliberately (~20MB).
+- **Opening animation.** The invitation arrives as a sealed envelope: the wax
+  seal breathes and a sheen travels across the paper. Tapping lifts the seal
+  away, crossfades the flap open, then draws the whole card toward the viewer
+  as it fades, revealing the hero beneath (~2.5s end to end). The tap also
+  starts the music — browsers refuse `audio.play()` without a gesture.
+
+  The original ran two MP4s here (`envelope-oct.mp4` 18.7MB + `intro-bridge.mp4`
+  15.5MB = 34MB) of a real envelope opening. They are not used, for two reasons:
+  the weight, and the wax seal in every frame carries the template couple's
+  monogram, which cannot be re-lettered the way the still seals were. This
+  rebuilds the same beat from the re-lettered seal and the two envelope stills
+  at no extra download.
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
