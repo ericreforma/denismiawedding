@@ -75,7 +75,7 @@ public/
   art/             the design's illustrated frames, seals and textures
   photos/          the couple's photo, cropped for the oval
   audio/           looping background track
-  intro/           the opening clips and their poster frame (34MB)
+  intro/           the opening clips and their poster frame (2.9MB)
 ```
 
 ## Design tokens
@@ -109,12 +109,24 @@ and `font-sans` (Jost).
   `playsInline` so mobile runs them inline. The tap also starts the music —
   browsers refuse `audio.play()` without a gesture.
 
-  These are the original's own clips and together they are **34MB**, which is
-  most of what a first-time visitor downloads. Two caveats worth knowing:
-  the wax seal in the envelope clip carries the template couple's monogram and
-  still reads **"C & J"** — unlike the two still seals, video frames cannot be
-  re-lettered — and there is no `ffmpeg` on this machine, so they ship at the
-  original bitrate (~37 Mbps). Re-encoding would cut the weight substantially.
+  These are the original's own clips, re-encoded. They shipped at 37 Mbps and
+  20 Mbps — 34MB together — which made the intro unusable: GitHub Pages serves
+  this site at roughly 40–200 KB/s, so a visitor sat on the poster for minutes
+  while nothing played. At libx264 CRF 26 they are **2.6MB together**, 13x
+  smaller and visually indistinguishable from the source (mean per-channel
+  difference 1.3/255). Re-encode with:
+
+  ```bash
+  ffmpeg -i src.mp4 -an -c:v libx264 -crf 26 -preset slow          -pix_fmt yuv420p -movflags +faststart out.mp4
+  ```
+
+  `-movflags +faststart` matters: it puts the moov atom at the front so the
+  clip can start playing before it has fully downloaded.
+
+  One thing that cannot be fixed by re-encoding: the wax seal in the envelope
+  clip carries the template couple's monogram and reads **"C & J"**. The two
+  still seals were re-lettered to D & M; video frames cannot be. Replacing it
+  needs new footage.
 
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
