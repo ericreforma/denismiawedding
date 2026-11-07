@@ -5,10 +5,12 @@ import localFont from "next/font/local";
 import { CEREMONY, COUPLE, EVENT, RECEPTION } from "@/data/wedding";
 import "./globals.css";
 
+// Normal only. Google serves Cormorant Garamond italic at 400 but not at 500
+// or 600, and asking for a combination it does not have makes next/font's
+// Google loader throw at build time. Nothing on the page sets italic.
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
   variable: "--font-cormorant",
   display: "swap",
 });
