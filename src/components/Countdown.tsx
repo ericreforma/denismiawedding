@@ -1,47 +1,53 @@
 "use client";
 
-import { Leaf } from "./Leaf";
-import { WEDDING_DATE } from "@/data/wedding";
+import { ART, WEDDING_DATE } from "@/data/wedding";
 import { useCountdown } from "@/hooks/useCountdown";
 
 export function Countdown() {
   const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE);
 
   const units = [
-    { l: "Days", v: days },
-    { l: "Hours", v: hours },
-    { l: "Minutes", v: minutes },
-    { l: "Seconds", v: seconds },
+    { value: days, label: "Days" },
+    { value: hours, label: "Hours" },
+    { value: minutes, label: "Minutes" },
+    { value: seconds, label: "Seconds" },
   ];
 
   return (
-    <section className="relative py-24 px-6">
-      <Leaf className="absolute top-8 -left-12 w-48 opacity-40 animate-drift" />
-      <Leaf className="absolute bottom-8 -right-12 w-48 opacity-40 animate-drift-slow -scale-x-100" />
+    <section id="countdown" className="relative w-full overflow-hidden">
+      {/* The frame art fixes the aspect ratio; the numbers are placed on it
+          by percentage so they stay registered at every width. */}
+      <div className="relative w-full aspect-[1920/1126]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          loading="lazy"
+          decoding="async"
+          src={ART.countdownFrame}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          draggable={false}
+        />
 
-      <div className="mx-auto max-w-4xl text-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-sky-deep/70">
-          Counting down to
-        </p>
-        <h2 className="mt-3 font-script text-6xl sm:text-7xl text-clay">
-          in bloom
+        <h2 className="absolute left-0 right-0 top-[9%] text-center font-display text-[7vw] md:text-6xl leading-none text-[var(--frame-ink)]">
+          Countdown
         </h2>
 
-        <div className="mt-10 grid grid-cols-4 gap-3 sm:gap-6">
+        <div className="absolute left-[17%] right-[17%] top-[33%] bottom-[34%] grid grid-cols-4 items-center">
           {units.map((unit) => (
-            <div
-              key={unit.l}
-              className="rounded-2xl bg-card border border-sky/40 py-5 sm:py-8 shadow-sm"
-            >
-              <div className="font-serif-display text-3xl sm:text-5xl text-sky-deep tabular-nums">
-                {String(unit.v).padStart(2, "0")}
-              </div>
-              <div className="mt-1 text-[10px] sm:text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                {unit.l}
-              </div>
+            <div key={unit.label} className="flex min-w-0 flex-col items-center">
+              <span className="font-display text-[6.5vw] md:text-6xl text-foreground leading-none tabular-nums">
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="mt-1 md:mt-3 text-[2vw] md:text-xs uppercase tracking-[0.15em] text-foreground font-body">
+                {unit.label}
+              </span>
             </div>
           ))}
         </div>
+
+        <p className="absolute left-0 right-0 bottom-[7%] text-center font-doulaise text-[8vw] md:text-6xl leading-none text-[var(--frame-ink)]">
+          See you soon!
+        </p>
       </div>
     </section>
   );

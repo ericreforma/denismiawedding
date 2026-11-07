@@ -1,24 +1,36 @@
-import { Leaf } from "./Leaf";
-import { COUPLE, EVENT } from "@/data/wedding";
+import { Reveal } from "./Reveal";
+import { ART, COUPLE, EVENT, FOOTER } from "@/data/wedding";
 
 export function SiteFooter() {
   return (
-    <footer className="relative bg-sky-deep text-beige py-20 px-6 text-center overflow-hidden">
-      <Leaf className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 opacity-30" />
+    <Reveal>
+      <footer className="relative pt-32 md:pt-44 pb-20 text-center px-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={ART.footerSeal}
+          alt={COUPLE.initials}
+          draggable={false}
+          className="w-28 md:w-36 h-auto mx-auto mb-8 -mt-3 pointer-events-none select-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.15)]"
+        />
 
-      <div className="relative">
-        <h2 className="font-script text-6xl sm:text-7xl">
-          {COUPLE.groom.first} &amp; {COUPLE.bride.first}
-        </h2>
-        <p className="mt-2 tracking-[0.4em] uppercase text-beige/80 text-sm">
-          {EVENT.dateStacked}
+        <p className="font-display text-xl md:text-3xl text-foreground/80 mb-10 leading-relaxed">
+          {FOOTER.line}
         </p>
-        <span className="block w-24 h-px bg-beige/40 mx-auto my-8" />
-        <p className="font-serif-display text-xl italic">
-          Thank you for being part of our story.
+
+        <p className="text-[13px] text-foreground/60 font-helvetica mb-3">
+          {FOOTER.signOff}
         </p>
-        <p className="mt-6 font-script text-4xl text-sand">{COUPLE.hashtag}</p>
-      </div>
-    </footer>
+
+        <p className="font-doulaise text-6xl md:text-7xl text-foreground mb-4 leading-tight">
+          {COUPLE.one.first}{" "}
+          <span className="text-3xl md:text-4xl text-foreground/50">&amp;</span>{" "}
+          {COUPLE.two.first}
+        </p>
+
+        <p className="text-[13px] text-foreground/50 font-helvetica tracking-wide">
+          {EVENT.dateLong}
+        </p>
+      </footer>
+    </Reveal>
   );
 }

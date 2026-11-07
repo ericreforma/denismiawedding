@@ -1,182 +1,223 @@
 /**
- * Every piece of copy on the invitation lives here.
- * Edit this file to change names, dates, venues, entourage, FAQs or palette —
- * no component needs touching.
+ * Every piece of copy and every asset path lives here.
+ * Edit this file to change the invitation; no component needs touching.
  *
  * TODO markers flag details the couple has not supplied yet.
  */
-
-// ---------------------------------------------------------------- the couple
-
-export const COUPLE = {
-  groom: { first: "Denis", full: "Denis S. Taniajura" },
-  bride: { first: "Mia", full: "Mia Arr D.L. Santos" },
-  /** TODO: confirm — derived from their first names. */
-  hashtag: "#DenisAndMiaInBloom",
-} as const;
-
-// ----------------------------------------------------------------- the event
-
-/** Tuesday, December 15 2026, 2:00 PM Philippine time. */
-export const WEDDING_DATE = new Date("2026-12-15T14:00:00+08:00");
-
-export const EVENT = {
-  dateLong: "December 15, 2026",
-  dateStacked: "December 15 · 2026",
-  /** Shown under the couple's names in the hero. */
-  heroLine: "December 15 · 2026 · San Jose del Monte",
-  /** ISO strings for the Event structured data. */
-  startISO: "2026-12-15T14:00:00+08:00",
-  /** TODO: confirm end time — assumed a late-evening finish. */
-  endISO: "2026-12-15T22:00:00+08:00",
-  /** TODO: confirm RSVP deadline — set to 30 days before the wedding. */
-  rsvpBy: "November 15, 2026",
-} as const;
-
-export const CEREMONY = {
-  kicker: "Ceremony",
-  time: "2:00 PM",
-  venue: "St. Joseph the Worker Parish",
-  /** TODO: confirm barangay / street address. */
-  location: "San Jose del Monte, Bulacan",
-  mapQuery: "St+Joseph+the+Worker+Parish+San+Jose+del+Monte+Bulacan",
-} as const;
-
-export const RECEPTION = {
-  kicker: "Reception",
-  /** TODO: the couple has not given a reception start time yet. */
-  time: "TBA",
-  venue: "The Grounds Events Place",
-  /** TODO: confirm the branch / full address. */
-  location: "San Jose del Monte, Bulacan",
-  mapQuery: "The+Grounds+Events+Place+San+Jose+del+Monte+Bulacan",
-} as const;
-
-export const mapsUrl = (query: string) => `https://maps.google.com/?q=${query}`;
-
-// ------------------------------------------------------------------- imagery
 
 /**
  * Set by `env` in next.config.mjs. `basePath` prefixes the URLs Next generates
  * itself, but not the plain `<img src="/…">` paths below — so they prefix
  * themselves from the same single source. Empty in local dev.
  */
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const p = (path: string) => `${BASE}${path}`;
 
-export const IMAGES = {
-  /** Optimized from the full-res a-97.jpg (4528x3016, 6.4MB) -> 2400x1599, 0.3MB. */
-  hero: `${BASE_PATH}/assets/hero-a97.jpg`,
-  /** Cropped from a-36.jpg to frame the couple, then resized -> 1400x1666, 0.3MB. */
-  story: `${BASE_PATH}/assets/story-a36.jpg`,
-  leaves: `${BASE_PATH}/assets/leaves-D8rPBbE0.png`,
+// ---------------------------------------------------------------- the couple
+
+export const COUPLE = {
+  one: { first: "Denis", full: "Denis S. Taniajura" },
+  two: { first: "Mia", full: "Mia Arr D.L. Santos" },
+  /** Shown on the footer seal. */
+  initials: "D & M",
 } as const;
 
-/**
- * Four photos in a three-column grid. The two portraits take `row-span-2` and
- * the two landscapes sit stacked between them, which fills a 3x2 block with no
- * gaps on desktop and a 2x3 block on mobile. Adding a fifth photo will leave a
- * hole unless the spans are rebalanced.
- */
-export const GALLERY: { src: string; span: string; alt: string }[] = [
-  {
-    src: `${BASE_PATH}/assets/g-a53.jpg`,
-    span: "row-span-2",
-    alt: "Denis and Mia sitting together on the garden steps",
-  },
-  {
-    src: `${BASE_PATH}/assets/g-a8.jpg`,
-    span: "",
-    alt: "Denis and Mia laughing together under the trees",
-  },
-  {
-    src: `${BASE_PATH}/assets/g-a116.jpg`,
-    span: "row-span-2",
-    alt: "Denis and Mia on the steps beneath the garden foliage",
-  },
-  {
-    src: `${BASE_PATH}/assets/g-a72.jpg`,
-    span: "",
-    alt: "Denis and Mia arm in arm in the afternoon light",
-  },
-];
+// ----------------------------------------------------------------- the event
 
-// --------------------------------------------------------------- their story
+/** Tuesday, 15 December 2026, 2:00 PM Philippine time. */
+export const WEDDING_DATE = new Date("2026-12-15T14:00:00+08:00");
 
-/**
- * TODO: replace with Denis & Mia's own words — how they met, the proposal,
- * whatever they'd like guests to read. Three short paragraphs fits the layout.
- */
-export const STORY_PARAGRAPHS: string[] = [
-  "Our story, in our own words — coming soon.",
-  "We're still putting this part together. Check back before the big day.",
-];
-
-export const STORY_SIGNATURE = `— ${COUPLE.groom.first[0]} & ${COUPLE.bride.first[0]}`;
-
-// ----------------------------------------------------------------- entourage
-
-/**
- * TODO: all names below are placeholders. Replace with the real entourage.
- * Add or remove groups freely — the grid reflows on its own.
- */
-export const ENTOURAGE: { title: string; names: string[] }[] = [
-  { title: "Parents of the Groom", names: ["To be announced"] },
-  { title: "Parents of the Bride", names: ["To be announced"] },
-  { title: "Principal Sponsors", names: ["To be announced"] },
-  { title: "Best Man & Maid of Honor", names: ["To be announced"] },
-  { title: "Groomsmen", names: ["To be announced"] },
-  { title: "Bridesmaids", names: ["To be announced"] },
-];
-
-// -------------------------------------------------------------- dress code
-
-/**
- * TODO: confirm the couple's chosen palette.
- * Currently mirrors the site theme: the two brand colours plus supporting tones.
- */
-export const PALETTE = ["#8CC0EB", "#B8D8F0", "#FFEAD3", "#F6D3B6", "#265B8A"];
-
-export const ATTIRE = {
-  kicker: "Dress code",
-  title: "Garden Party Semi-Formal",
-  intro:
-    "Help us bring the garden to life. We invite you to wear soft pastels — sky blue, beige, and warm sand.",
-  gentlemen: "Light linen suit or barong tagalog in beige, sand, or stone.",
-  ladies:
-    "Flowy dresses in soft blue or beige. Block heels or flats recommended — we'll be on grass.",
-  note: "Please avoid white",
+export const EVENT = {
+  /** Hero, in the template's dotted style. */
+  dateDotted: "15.12.2026",
+  dateLong: "15 December 2026",
+  dateSentence: "December 15, 2026",
+  startISO: "2026-12-15T14:00:00+08:00",
+  /** TODO: confirm end time — assumed a late-evening finish. */
+  endISO: "2026-12-15T22:00:00+08:00",
+  /** TODO: confirm RSVP deadline. */
+  rsvpBy: "November 15, 2026",
 } as const;
 
-// ----------------------------------------------------------------------- faq
+export const CEREMONY = {
+  name: "St. Joseph the Worker Parish",
+  /** TODO: confirm barangay / street address. */
+  city: "San Jose del Monte, Bulacan",
+  mapQuery: "St+Joseph+the+Worker+Parish+San+Jose+del+Monte+Bulacan",
+} as const;
 
-export const FAQS: { q: string; a: string }[] = [
+export const RECEPTION = {
+  name: "The Grounds Events Place",
+  /** TODO: confirm the branch / full address. */
+  city: "San Jose del Monte, Bulacan",
+  mapQuery: "The+Grounds+Events+Place+San+Jose+del+Monte+Bulacan",
+} as const;
+
+export const mapsUrl = (query: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+// ------------------------------------------------------------------ location
+
+export const LOCATION = {
+  heading: "Location",
+  /** TODO: the couple may want their own words here. */
+  blurb:
+    "We will say our vows at St. Joseph the Worker Parish, then continue the celebration a short drive away at The Grounds Events Place.",
+  note: "We recommend arriving a little early to settle in before the ceremony begins.",
+  venues: [
+    { kicker: "Ceremony", ...CEREMONY },
+    { kicker: "Reception", ...RECEPTION },
+  ],
+} as const;
+
+// ------------------------------------------------------------------- the day
+
+/**
+ * TODO: only the 2:00 PM ceremony is confirmed. The couple still needs to
+ * supply the reception schedule — add entries here and the timeline grows.
+ */
+export const TIMELINE: {
+  time: string;
+  meridiem?: string;
+  title: string;
+  detail: string;
+}[] = [
   {
-    q: "Is the ceremony outdoors?",
-    a: `The ceremony is indoors at ${CEREMONY.venue}. The reception at ${RECEPTION.venue} is largely outdoors among the gardens — please dress for warm weather and grass underfoot.`,
+    time: "2:00",
+    meridiem: "PM",
+    title: "Ceremony",
+    detail: "We say “I do” at St. Joseph the Worker Parish.",
   },
   {
-    q: "What if it rains?",
-    a: `${RECEPTION.venue} has covered pavilions ready as a weather contingency. Rain or shine, the celebration goes on.`,
-  },
-  {
-    q: "Can I bring a plus-one?",
-    a: "Due to limited seating, kindly RSVP only for the names indicated on your invitation. Thank you for understanding.",
-  },
-  {
-    q: "Are children welcome?",
-    a: "We adore your little ones, but this will be an adults-only celebration so you can fully relax with us.",
-  },
-  {
-    q: "Where can I park?",
-    a: "Both venues offer ample on-site parking. Carpooling is encouraged.",
-  },
-  {
-    q: "Gift guidance?",
-    a: "Your presence is the truest gift. Should you wish, a monetary gift toward our future home would be lovingly received.",
+    time: "TBA",
+    title: "Reception",
+    detail: "Dinner and dancing at The Grounds Events Place.",
   },
 ];
 
-export const ATTENDING_OPTIONS = [
-  "Joyfully accepts",
-  "Regretfully declines",
-] as const;
+export const THE_DAY = {
+  heading: ["The", "Day"],
+  blurb: "A day to celebrate,\nfrom the first hello to the last dance.",
+} as const;
+
+// ----------------------------------------------------------------- dress code
+
+/** TODO: confirm the couple's dress code. */
+export const DRESS_CODE = {
+  heading: "Dress Code",
+  style: "Formal Attire",
+  blurb:
+    "We'd love for our guests to embrace the occasion with elegant evening attire.\nDress beautifully, feel comfortable,\nand come ready to celebrate\nwith us.",
+} as const;
+
+// -------------------------------------------------------------- transportation
+
+/** TODO: the couple has not confirmed any transport arrangements. */
+export const TRANSPORT = {
+  heading: "Transportation",
+  paragraphs: [
+    "We want getting to and from the celebration to be as easy as possible.",
+    "Details of any shuttle service between the church and the reception will be shared here closer to the day.",
+    "Both venues have parking available on site.",
+  ],
+  cta: "View Reception Venue",
+  mapQuery: RECEPTION.mapQuery,
+} as const;
+
+// --------------------------------------------------------------- where to stay
+
+/** TODO: all placeholders — the couple has not chosen hotels yet. */
+export const HOTELS: {
+  name: string;
+  stay: string;
+  rate: string;
+  parking: string;
+  blurb: string;
+  mapQuery: string;
+}[] = [
+  {
+    name: "To be announced",
+    stay: "14 – 16 December 2026",
+    rate: "To be confirmed",
+    parking: "To be confirmed",
+    blurb:
+      "We are still arranging recommended accommodation for guests travelling in. Details will appear here soon.",
+    mapQuery: RECEPTION.mapQuery,
+  },
+];
+
+export const STAY = {
+  heading: "Where to Stay",
+  blurb:
+    "For those joining us from out of town, we're putting together a short list of places to stay near the venue.",
+} as const;
+
+// ---------------------------------------------------------------------- gift
+
+/** TODO: confirm how the couple would like to receive gifts. */
+export const GIFT = {
+  heading: ["Wedding", "Gift"],
+  lead: "Your presence\nis our greatest gift.",
+  blurb:
+    "Should you wish to give a gift, a contribution toward our new home together would be lovingly received.",
+  detail: "Bank and e-wallet details to follow.",
+  cta: "View Registry",
+} as const;
+
+// ---------------------------------------------------------------------- rsvp
+
+export const RSVP = {
+  heading: "RSVP",
+  blurbPrefix:
+    "Nothing would make us happier than celebrating this day surrounded by our favourite people. Please let us know whether you'll be able to join us by ",
+  openLabel: "Tap to open",
+  attending: [
+    { value: "yes", label: "Joyfully accepts" },
+    { value: "no", label: "Regretfully declines" },
+  ],
+  plusOne: [
+    { value: "yes", label: "Yes, with pleasure" },
+    { value: "no", label: "Just me" },
+  ],
+  maxChildren: 4,
+} as const;
+
+// -------------------------------------------------------------------- footer
+
+export const FOOTER = {
+  line: "We can't wait to celebrate with you.",
+  signOff: "With love,",
+} as const;
+
+// -------------------------------------------------------------------- assets
+
+export const ART = {
+  heroFrame: p("/art/hero-frame.webp"),
+  countdownFrame: p("/art/countdown-frame.webp"),
+  welcomePanel: p("/art/welcome-families.webp"),
+  /** Doubles as the transport card stock — one file, two uses. */
+  paper: p("/art/paper-texture.webp"),
+  pearlDot: p("/art/pearl-dot.webp"),
+  venue: p("/art/venue-illustration.webp"),
+  timelineCurtain: p("/art/timeline-curtain.webp"),
+  dressFrame: p("/art/dresscode-frame.webp"),
+  dressSeal: p("/art/dresscode-seal.webp"),
+  dressAttire: p("/art/dresscode-attire.webp"),
+  transportBg: p("/art/transport-bg.webp"),
+  transportStamps: p("/art/transport-stamps.webp"),
+  hotelFrame: p("/art/hotel-frame.webp"),
+  giftFrame: p("/art/gift-frame.webp"),
+  rsvpTopBorder: p("/art/rsvp-top-border.webp"),
+  envelopeClosed: p("/art/envelope-closed.webp"),
+  envelopeOpen: p("/art/envelope-open.webp"),
+  footerSeal: p("/art/footer-seal.webp"),
+} as const;
+
+export const PHOTOS = {
+  /** Revealed by scratching the oval in the mother-of-pearl panel. */
+  coupleScratch: p("/photos/couple-scratch.webp"),
+} as const;
+
+export const AUDIO = {
+  theme: p("/audio/wedding-theme.mp3"),
+} as const;

@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Nunito_Sans, Tangerine } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
+import localFont from "next/font/local";
 
-import { CEREMONY, COUPLE, EVENT, IMAGES, RECEPTION } from "@/data/wedding";
+import { CEREMONY, COUPLE, EVENT, RECEPTION } from "@/data/wedding";
 import "./globals.css";
 
-const nunitoSans = Nunito_Sans({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  variable: "--font-nunito-sans",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
   display: "swap",
 });
 
-const cormorantGaramond = Cormorant_Garamond({
+const jost = Jost({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-cormorant-garamond",
+  weight: ["300", "400", "500"],
+  variable: "--font-jost",
   display: "swap",
 });
 
-const tangerine = Tangerine({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-tangerine",
+/** Not on Google Fonts, so it ships with the repo. */
+const doulaise = localFont({
+  src: "../fonts/MonsieurLaDoulaise-Regular.ttf",
+  weight: "400",
+  style: "normal",
+  variable: "--font-doulaise",
   display: "swap",
 });
 
@@ -29,26 +33,24 @@ const tangerine = Tangerine({
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://ericreforma.github.io/denismiawedding";
 
-const COUPLE_NAMES = `${COUPLE.groom.first} & ${COUPLE.bride.first}`;
-const DESCRIPTION = `A lush garden wedding celebration. ${CEREMONY.venue} & ${RECEPTION.venue}, ${CEREMONY.location}. ${COUPLE.hashtag}`;
+const NAMES = `${COUPLE.one.first} & ${COUPLE.two.first}`;
+const DESCRIPTION = `Join ${COUPLE.one.first} and ${COUPLE.two.first} on ${EVENT.dateLong} at ${CEREMONY.name}, with the reception at ${RECEPTION.name}. RSVP online.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: `${COUPLE_NAMES} — In Bloom · ${EVENT.dateLong}`,
+  title: `${NAMES} · ${CEREMONY.city} Wedding ${EVENT.dateLong.slice(-4)}`,
   description: DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    title: `${COUPLE_NAMES} — In Bloom`,
-    description: `Join us ${EVENT.dateLong} in ${CEREMONY.location}. ${COUPLE.hashtag}`,
     url: "/",
-    images: [IMAGES.hero],
+    title: `${NAMES} · ${EVENT.dateLong}`,
+    description: DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${COUPLE_NAMES} — ${EVENT.dateLong}`,
-    description: `Join us as ${COUPLE.groom.first} & ${COUPLE.bride.first} say 'I do' in a lush garden celebration — ${EVENT.dateLong}.`,
-    images: [IMAGES.hero],
+    title: `${NAMES} · ${EVENT.dateLong}`,
+    description: DESCRIPTION,
   },
 };
 
@@ -58,10 +60,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunitoSans.variable} ${cormorantGaramond.variable} ${tangerine.variable}`}
+      translate="no"
+      className={`${cormorant.variable} ${jost.variable} ${doulaise.variable}`}
     >
       <head>
-        <link rel="preload" as="image" href={IMAGES.hero} fetchPriority="high" />
+        <meta name="google" content="notranslate" />
       </head>
       <body>{children}</body>
     </html>

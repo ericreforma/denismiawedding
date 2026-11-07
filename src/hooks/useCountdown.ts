@@ -15,8 +15,8 @@ const MINUTE = 60_000;
 const SECOND = 1_000;
 
 /**
- * Counts down to `target`. `now` stays null until after mount so the server
- * and client render identical markup, then ticks once a second.
+ * Counts down to `target`. Stays at zero until after mount so the server and
+ * client render identical markup, then ticks once a second.
  */
 export function useCountdown(target: Date): TimeLeft {
   const [now, setNow] = useState<number | null>(null);

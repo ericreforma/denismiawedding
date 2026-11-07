@@ -1,144 +1,138 @@
-# Denis & Mia — In Bloom
+# Denis & Mia — Wedding Invitation
 
 Wedding invitation site for **Denis S. Taniajura** and **Mia Arr D.L. Santos**,
-Tuesday **December 15, 2026**.
+Tuesday **15 December 2026**.
 
-Built on a Next.js 15 + Tailwind CSS v4 port of the "In Bloom" garden template
-(originally a Vite/React single-page app) — fonts, colour tokens, layout,
-animations and effects all carried over.
+A Next.js 15 + Tailwind CSS v4 port of the "Mother of Pearl" invitation design
+(originally a Vite/React single-page app), wired to Denis & Mia's details.
 
 | | |
 | --- | --- |
 | Ceremony | 2:00 PM — St. Joseph the Worker Parish, San Jose del Monte, Bulacan |
 | Reception | TBA — The Grounds Events Place, San Jose del Monte, Bulacan |
 
-## Still needed
-
-`src/data/wedding.ts` carries a `TODO` on every detail the couple has not
-supplied yet:
-
-- **Reception start time** — currently renders as `TBA`
-- **Our Story** copy — placeholder text
-- **Entourage** — parents, sponsors, best man, maid of honor, groomsmen, bridesmaids
-- **Hashtag** — `#DenisAndMiaInBloom` is a guess from their first names
-- **RSVP deadline** — set to November 15, 2026 (30 days out)
-- **Full venue addresses** and the **dress code palette**
+**Live:** https://ericreforma.github.io/denismiawedding/
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000
+npm run dev     # http://localhost:3000/denismiawedding
 ```
 
-```bash
-npm run build && npm start   # production
-```
+The bare root redirects to the base path in development. See `next.config.mjs`.
+
+## Still needed
+
+`src/data/wedding.ts` carries a `TODO` on every detail the couple has not
+supplied yet. Edit that one file — no component needs touching.
+
+- **Reception start time** — the timeline and venue card both show `TBA`
+- **The rest of the day's schedule** — only the 2:00 PM ceremony is confirmed,
+  so the timeline has two entries where the design expects five or so
+- **Dress code** — currently the template's "Formal Attire"
+- **Transportation** — no arrangements confirmed; the copy says details follow
+- **Where to stay** — one placeholder card, no hotels chosen
+- **Gift details** — bank / e-wallet details are not published yet
+- **RSVP deadline** — set to 15 November 2026
+- **Full venue addresses**
+
+Two pieces of artwork are still the template's and do not depict the real
+venues: `venue-illustration.webp` (an Italianate villa) and the hotel frame.
 
 ## Stack
 
-- **Next.js 15** (App Router, TypeScript)
-- **Tailwind CSS v4** — theme configured in CSS via `@theme inline`, no JS config file
-- **next/font/google** — self-hosts Cormorant Garamond, Nunito Sans and Tangerine
-- **sonner** — RSVP confirmation toast
+- **Next.js 15** (App Router, TypeScript), static export
+- **Tailwind CSS v4** — theme in CSS via `@theme inline`, no JS config file
+- **next/font** — Cormorant Garamond and Jost from Google; Monsieur La Doulaise
+  self-hosted from `src/fonts`
+- No animation library: scroll reveals are an IntersectionObserver plus a CSS
+  transition (`useReveal` + the `.reveal` class), which keeps the bundle at
+  ~112 kB first load
 
 ## Structure
 
 ```
 src/
   app/
-    layout.tsx     fonts, metadata/OG tags, favicon
-    page.tsx       section composition + JSON-LD (Event, FAQPage)
-    globals.css    design tokens, keyframes, custom utilities
-    icon.svg       favicon
-  components/      one component per section
+    layout.tsx     fonts, metadata, favicon
+    page.tsx       section composition, enter screen, music wiring
+    globals.css    tokens, fonts, noise texture, reveal transition
+    icon.svg
+  components/      one component per section, plus Reveal / OutlineButton
   hooks/
-    useScrollY.ts    hero parallax scroll position
-    useCountdown.ts  ticking countdown to the wedding date
+    useCountdown.ts        ticks to the wedding date
+    useBackgroundMusic.ts  one shared looping <audio>
+    useReveal.ts           adds .is-visible as sections scroll in
   data/
-    wedding.ts     all copy, image paths, entourage, FAQ, palette
-public/assets/     every photo is the couple's own, plus the leaf overlay
+    wedding.ts     all copy and asset paths
+  fonts/           Monsieur La Doulaise (not on Google Fonts)
+public/
+  art/             the design's illustrated frames, seals and textures
+  photos/          the couple's photo, cropped for the oval
+  audio/           looping background track
 ```
-
-## Photos
-
-All photos are Denis & Mia's own. The camera originals are ~6MB each at
-4528x3016 and live outside this repo (`a-8`, `a-36`, `a-53`, `a-72`, `a-97`,
-`a-116`); what ships here is resized and, where it helped, cropped to frame the
-couple:
-
-| File | From | Crop | Result |
-| --- | --- | --- | --- |
-| `hero-a97.jpg` | a-97 | none | 2400x1599, 331KB |
-| `story-a36.jpg` | a-36 | yes | 1400x1666, 290KB |
-| `g-a53.jpg` | a-53 | yes | 900x1286, 141KB |
-| `g-a8.jpg` | a-8 | none | 900x599, 61KB |
-| `g-a116.jpg` | a-116 | yes | 900x1286, 158KB |
-| `g-a72.jpg` | a-72 | none | 900x599, 62KB |
-
-The three cropped ones are portraits with a dark out-of-focus branch across the
-right edge; the crop removes it and tightens on the couple. Together these are
-2.0MB instead of the 37MB the originals would have been.
-
-To regenerate one after replacing a source, use `sharp` — see the commit that
-added them for the exact extract boxes.
 
 ## Design tokens
 
-Brand primaries are **blue `#8CC0EB`** and **beige `#FFEAD3`**. Colours are
-authored in `oklch` on `:root` in `globals.css` and exposed to Tailwind through
-`@theme inline`, so `bg-sky`, `text-sky-deep`, `bg-sand/45` etc. work as
-utilities.
+Colours are HSL triplets on `:root` (no `hsl()` wrapper) so Tailwind can slot an
+alpha in — `text-foreground/70` resolves to `hsl(var(--foreground) / 0.7)`.
 
-| Token | oklch | Hex | Used for |
-| --- | --- | --- | --- |
-| `sky` | `78.7% 0.082 244` | `#8CC0EB` | brand blue — borders, accents |
-| `beige` / `background` | `94.8% 0.038 70` | `#FFEAD3` | brand beige — page ground |
-| `sky-deep` | `46% 0.095 248` | `#265B8A` | headings, footer, RSVP buttons |
-| `sky-tint` | `93.5% 0.032 240` | `#DCEBFA` | pale blue section bands |
-| `sand` | `89% 0.055 62` | `#F6D3B6` | warm band (gallery), footer hashtag |
-| `clay` | `50% 0.125 52` | `#964E18` | warm accent — kickers, script flourishes |
-| `foreground` | `30% 0.035 252` | `#212F3F` | body text |
-| `card` | `98.5% 0.013 74` | `#FFF9F1` | card surfaces |
-| `field` | `96.5% 0.016 240` | `#EFF5FB` | RSVP input fills |
+| Token | Value | |
+| --- | --- | --- |
+| `--background` | `30 21% 96%` | warm ivory |
+| `--foreground` | `212 22% 38%` | slate blue |
+| `--card` | `30 21% 89%` | |
+| `--border` | `30 14% 80%` | |
 
-Two notes on why some tokens exist:
+`body` carries a fractal-noise SVG at `background-blend-mode: overlay`, so flat
+ivory areas read as paper rather than a flat fill.
 
-- **`sky-tint` is a solid colour, not `bg-sky/15`.** A transparent blue over the
-  warm beige background composites to grey — the two hues are near
-  complementary — so the blue bands need their own opaque colour.
-- **`field` exists for the same reason.** The beige page background is too
-  saturated to sit inside the near-white RSVP card; fields get a soft blue-white.
+Fonts: `font-display` / `font-body` (Cormorant Garamond), `font-doulaise` and
+`font-ballet` (both Monsieur La Doulaise, as in the original), `font-helvetica`
+and `font-sans` (Jost).
 
-All text pairings meet WCAG AA: foreground on beige 11.6:1, `sky-deep` 6.1:1,
-`muted-foreground` 5.6:1, `clay` 5.4:1, beige on the `sky-deep` footer 6.1:1.
+## Interaction notes
 
-Custom utilities: `font-script` (Tangerine 700), `font-serif-display`
-(Cormorant Garamond), `leaf-divider` (the 180px gradient rule).
+- **Enter screen.** Browsers refuse `audio.play()` without a user gesture, so
+  the page opens on a tap-to-open panel. That tap starts the music and fades the
+  panel out over 2s. The original played two MP4 clips here; those are left out
+  deliberately (~20MB).
+- **Scratch to reveal.** The couple's photo sits under a canvas painted with a
+  paper texture and a script prompt. Pointer strokes erase it with
+  `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
+  The paint is skipped if the visitor already started scratching, otherwise a
+  late image load would wipe their progress.
+- **The Day.** The drapery is a `border-image` whose top and bottom slices are
+  fixed heights (up to 985px + 538px). The section carries a `min-height` that
+  clears both, because with a short timeline the stretchable middle collapses
+  and the two halves meet in a visible seam.
+- **RSVP.** The envelope opens, then the form unfolds 700ms later. Guest count
+  drives one dietary field per person. A hidden `website` field catches bots.
 
-## Animations & effects
+## Photos and artwork
 
-| Effect | Where |
-| --- | --- |
-| Hero parallax — `translate3d(0, scrollY * 0.35, 0) scale(1.08)` | `Hero.tsx` + `useScrollY` |
-| `drift` — 9s float, +20/-15px, 8° | floating leaves |
-| `drift-slow` — 13s float, -25/+20px, -10° | floating leaves |
-| `fade-up` — 0.9s entrance | hero text |
-| `bounce` | scroll-down arrow |
-| Gallery zoom — `hover:scale-105` over 700ms | `Gallery.tsx` |
-| FAQ `+` → `✕` — `group-open:rotate-45` | `Faq.tsx` |
-| Radio fill — `has-[:checked]:bg-sky/40` | `Rsvp.tsx` |
-| Live countdown to `2026-12-15T14:00:00+08:00` | `useCountdown` |
+The couple's camera originals (~6MB each) live outside this repo. The design's
+artwork came as PNG-24 with alpha; re-encoding to WebP took it from 18.9MB to
+1.9MB with no visible loss.
 
-The countdown renders `00` on the server and hydrates to live values, which
-keeps SSR and the client in agreement (same approach as the original).
+Both wax seals originally carried the template couple's monogram. They were
+re-lettered to **D & M**: the old initials were blurred out of the pearl and new
+ones composited with a bevel. The seals render at ~130px, so the blur is
+invisible at display size.
 
 ## Deploying
 
-Set `NEXT_PUBLIC_SITE_URL` to the real domain so Open Graph and canonical URLs
-resolve absolutely.
+Pushes to `main` build and publish to GitHub Pages via
+`.github/workflows/deploy.yml`. Requires **Settings → Pages → Source → "GitHub
+Actions"** once.
+
+`basePath` is `/denismiawedding`. It prefixes the URLs Next generates itself but
+not hand-written `<img src="/…">` paths, so those prefix themselves from
+`NEXT_PUBLIC_BASE_PATH` in `wedding.ts`. Set `NEXT_PUBLIC_SITE_URL` for a custom
+domain.
 
 ## Backend
 
-There is none yet. `Rsvp.tsx` intercepts submit, shows a success toast and
-resets the form — swap `handleSubmit` for a real API call when the backend lands.
+There is none. `Rsvp.tsx` acknowledges the submission locally and shows a
+thank-you panel — swap `handleSubmit` for a real call when the backend lands.

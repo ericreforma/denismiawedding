@@ -1,174 +1,160 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------
-   Design tokens — cloned 1:1 from the original "In Bloom" stylesheet.
-   ------------------------------------------------------------------ */
+/* The script face is self-hosted through next/font/local in layout.tsx, which
+   emits a hashed URL that already carries the basePath. A hand-written
+   @font-face here would not, and 404s once the site is served from a subpath. */
+
+/* --------------------------------------------------------------------------
+   Design tokens, taken verbatim from the original stylesheet. HSL triplets
+   with no hsl() wrapper, so Tailwind can slot an alpha in: hsl(var(--x) / 0.8).
+   -------------------------------------------------------------------------- */
 :root {
-  --radius: 0.75rem;
+  --background: 30 21% 96%; /* warm ivory */
+  --foreground: 212 22% 38%; /* slate blue */
 
-  /* ---- Brand primaries -------------------------------------------------
-     blue  #8CC0EB  ->  oklch(78.7% 0.082 244)
-     beige #FFEAD3  ->  oklch(94.8% 0.038 70)
-     Everything below is derived from these two hues.                     */
-  --sky: oklch(78.7% 0.082 244);
-  --beige: oklch(94.8% 0.038 70);
+  --card: 30 21% 89%;
+  --card-foreground: 212 22% 42%;
+  --popover: 30 21% 89%;
+  --popover-foreground: 212 22% 42%;
+  --primary: 212 22% 42%;
+  --primary-foreground: 30 21% 89%;
+  --secondary: 30 18% 86%;
+  --secondary-foreground: 212 22% 42%;
+  --muted: 30 16% 84%;
+  --muted-foreground: 212 22% 42%;
+  --accent: 212 22% 42%;
+  --accent-foreground: 30 21% 89%;
+  --destructive: 0 65% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 14% 80%;
+  --input: 30 14% 80%;
+  --ring: 212 22% 42%;
+  --radius: 0.5rem;
 
-  /* Deep blue for headings, the footer and primary buttons. */
-  --sky-deep: oklch(46% 0.095 248);
-  /* A saturated beige used as the warm accent (kickers, script flourishes). */
-  --clay: oklch(50% 0.125 52);
-  /* A deeper beige band, for the gallery section. */
-  --sand: oklch(89% 0.055 62);
-  /* Solid pale blue for section bands. A transparent blue over the warm beige
-     background composites to grey, so these bands need their own colour. */
-  --sky-tint: oklch(93.5% 0.032 240);
-  /* Form-field fill. The beige page background is too saturated to sit inside
-     the near-white RSVP card, so fields get their own soft blue-white. */
-  --field: oklch(96.5% 0.016 240);
+  /* Named shades the original kept around; most resolve to the same slate. */
+  --ivory: 30 21% 89%;
+  --cream: 30 18% 86%;
+  --pearl: 30 16% 84%;
 
-  --background: var(--beige);
-  --foreground: oklch(30% 0.035 252);
-
-  --card: oklch(98.5% 0.013 74);
-  --card-foreground: oklch(30% 0.035 252);
-  --popover: oklch(98.5% 0.013 74);
-  --popover-foreground: oklch(30% 0.035 252);
-  --primary: oklch(46% 0.095 248);
-  --primary-foreground: oklch(97% 0.02 74);
-  --secondary: oklch(90% 0.04 240);
-  --secondary-foreground: oklch(30% 0.035 252);
-  --muted: oklch(92% 0.03 70);
-  --muted-foreground: oklch(48% 0.028 250);
-  --accent: oklch(89% 0.055 62);
-  --accent-foreground: oklch(35% 0.06 55);
-  --destructive: oklch(60% 0.18 25);
-  --destructive-foreground: oklch(98% 0.01 85);
-  --border: oklch(86% 0.035 240);
-  --input: oklch(88% 0.032 240);
-  --ring: oklch(60% 0.08 246);
+  /* The cream used for text printed on the darker frames. */
+  --frame-ink: #f5f0e8;
 }
 
 @theme inline {
-  /* Typography — wired to the next/font CSS variables set in layout.tsx */
-  --font-sans: var(--font-nunito-sans), sans-serif;
-  --font-serif: var(--font-cormorant-garamond), serif;
-  --font-script: var(--font-tangerine), cursive;
-  --default-font-family: var(--font-sans);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-ivory: hsl(var(--ivory));
+  --color-cream: hsl(var(--cream));
+  --color-pearl: hsl(var(--pearl));
 
-  /* Palette */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-sky: var(--sky);
-  --color-sky-tint: var(--sky-tint);
-  --color-field: var(--field);
-  --color-sky-deep: var(--sky-deep);
-  --color-beige: var(--beige);
-  --color-sand: var(--sand);
-  --color-clay: var(--clay);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  /* Floating-leaf + entrance animations */
-  --animate-drift: drift 9s ease-in-out infinite;
-  --animate-drift-slow: drift-slow 13s ease-in-out infinite;
-  --animate-fade-up: fade-up 0.9s ease-out both;
-}
-
-@keyframes drift {
-  0% {
-    transform: translate(0) rotate(0);
-  }
-  50% {
-    transform: translate(20px, -15px) rotate(8deg);
-  }
-  100% {
-    transform: translate(0) rotate(0);
-  }
-}
-
-@keyframes drift-slow {
-  0% {
-    transform: translate(0) rotate(0);
-  }
-  50% {
-    transform: translate(-25px, 20px) rotate(-10deg);
-  }
-  100% {
-    transform: translate(0) rotate(0);
-  }
-}
-
-@keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  --font-display: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-body: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-script: var(--font-doulaise), cursive;
+  --font-sans: var(--font-jost), "Jost", "Helvetica Neue", Arial, sans-serif;
+  --default-font-family: var(--font-body);
 }
 
 @layer base {
   html {
+    color-scheme: light only;
     scroll-behavior: smooth;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    font-feature-settings: "kern", "liga";
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.55;
+    /* Fine fractal grain over the ivory, so flat areas read as paper. */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    background-size: 200px;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.01em;
+  @media (min-width: 768px) {
+    body {
+      font-size: 19px;
+    }
   }
 }
 
-@utility font-script {
+/* Font utilities, matching the original's class names. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+@utility font-body {
+  font-family: var(--font-body);
+}
+
+/* Both names map to the same script face in the original. */
+@utility font-doulaise {
   font-family: var(--font-script);
-  font-weight: 700;
+  font-weight: 400;
 }
 
-@utility font-serif-display {
-  font-family: var(--font-serif);
+@utility font-ballet {
+  font-family: var(--font-script);
+  font-weight: 400;
 }
 
-@utility leaf-divider {
-  display: block;
-  width: 180px;
-  height: 1px;
-  margin: 1.5rem auto;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--color-sky-deep),
-    transparent
-  );
-  opacity: 0.5;
+@utility font-helvetica {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* Scroll-reveal: hidden until the observer adds .is-visible. */
+@layer components {
+  .reveal {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift, 40px));
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}
+
+/* Used by the RSVP form and thank-you panel as they unfold. */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
