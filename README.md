@@ -123,11 +123,19 @@ and `font-sans` (Jost).
   `-movflags +faststart` matters: it puts the moov atom at the front so the
   clip can start playing before it has fully downloaded.
 
-  Even at 2.6MB the clips can still be buffering when someone taps — Pages
-  took ~110s to have both ready in one measurement from Manila. So the tap
-  carries a 2.5s grace: if the first clip has not produced a frame by then,
-  the intro is skipped and the guest goes straight to the invitation. A guest
-  who taps and gets nothing assumes the site is broken.
+  Two guards exist because a guest who taps and gets nothing assumes the site
+  is broken, and over a slow link there are two separate ways that happens.
+
+  **Before hydration.** The overlay is server-rendered, so the markup is on
+  screen well before the ~112kB of JS has arrived. "Tap to open" is therefore
+  withheld until a `useEffect` confirms the client has hydrated — otherwise
+  the invitation invites a tap seconds before anything is listening.
+
+  **Before the clips buffer.** Even at 2.6MB they can still be loading; one
+  measurement from Manila needed ~110s for both to report ready. The tap
+  starts a 2.5s grace timer, and if the first clip has not produced a frame
+  by then the intro is skipped straight to the invitation. The timer is
+  cleared as soon as a frame arrives, so a warm load is unaffected.
 
   One thing that cannot be fixed by re-encoding: the wax seal in the envelope
   clip carries the template couple's monogram and reads **"C & J"**. The two

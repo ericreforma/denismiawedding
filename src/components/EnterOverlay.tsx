@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { INTRO } from "@/data/wedding";
 
@@ -41,6 +41,13 @@ export function EnterOverlay({
   onStartMusic,
 }: EnterOverlayProps) {
   const [phase, setPhase] = useState<Phase>("idle");
+  /**
+   * False until the client has hydrated. The markup is server-rendered, so
+   * without this the invitation shows "Tap to open" while nothing is listening
+   * yet — over a slow connection that is seconds of tapping with no response,
+   * which reads as broken.
+   */
+  const [interactive, setInteractive] = useState(false);
   /** The poster hides once the first clip has a frame of its own to show. */
   const [envelopeVisible, setEnvelopeVisible] = useState(false);
   const [brightened, setBrightened] = useState(false);
@@ -60,6 +67,8 @@ export function EnterOverlay({
       stallTimer.current = null;
     }
   };
+
+  useEffect(() => setInteractive(true), []);
 
   const showHeroText = useCallback(() => {
     if (heroTextShown.current) return;
@@ -100,7 +109,7 @@ export function EnterOverlay({
   }, [beginFade]);
 
   const start = () => {
-    if (phase !== "idle") return;
+    if (phase !== "idle" || !interactive) return;
     setPhase("playing");
     onStartMusic();
 
@@ -173,7 +182,9 @@ export function EnterOverlay({
       onTransitionEnd={handleFadeEnd}
       style={{ transitionDuration: `${FADE_MS}ms` }}
       className={`fixed inset-0 z-50 bg-background transition-opacity ease-in-out ${
-        leaving ? "pointer-events-none opacity-0" : "cursor-pointer opacity-100"
+        leaving
+          ? "pointer-events-none opacity-0"
+          : `opacity-100 ${interactive ? "cursor-pointer" : "cursor-default"}`
       }`}
     >
       {/* Still of the sealed envelope, shown until the first clip has a frame. */}
@@ -218,7 +229,7 @@ export function EnterOverlay({
         style={{ opacity: bridgeVisible ? 1 : 0 }}
       />
 
-      {phase === "idle" && (
+      {phase === "idle" && interactive && (
         <span className="absolute bottom-10 left-0 right-0 z-10 text-center text-[10px] uppercase tracking-[0.32em] text-foreground/80 animate-pulse drop-shadow-[0_1px_3px_rgba(255,255,255,0.6)]">
           Tap to open
         </span>
