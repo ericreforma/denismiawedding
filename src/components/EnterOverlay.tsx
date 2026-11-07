@@ -23,6 +23,9 @@ type Phase = "idle" | "playing" | "fading" | "done";
  */
 const STALL_GRACE = 2500;
 
+/** Length of the overlay's own fade, and the fallback that completes it. */
+const FADE_MS = 2000;
+
 /**
  * The opening sequence, as the original plays it: a still of the sealed
  * envelope, then on tap two clips back to back — the envelope opening, then
@@ -49,6 +52,7 @@ export function EnterOverlay({
   const heroTextShown = useRef(false);
   const entered = useRef(false);
   const stallTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearStallTimer = () => {
     if (stallTimer.current) {
@@ -63,11 +67,29 @@ export function EnterOverlay({
     onShowHeroText();
   }, [onShowHeroText]);
 
+  const finish = useCallback(() => {
+    if (entered.current) return;
+    entered.current = true;
+    if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    setPhase("done");
+    onEnter();
+  }, [onEnter]);
+
   const beginFade = useCallback(() => {
     clearStallTimer();
     showHeroText();
-    setPhase((p) => (p === "playing" ? "fading" : p));
-  }, [showHeroText]);
+    setPhase((p) => {
+      if (p !== "playing") return p;
+      // `transitionend` is the fast path, but it does not always arrive — it
+      // is skipped when the element is not rendered, when the transition is
+      // interrupted, and (observed on the deployed site) sometimes for no
+      // visible reason. The timer guarantees the overlay always goes away.
+      if (!fadeTimer.current) {
+        fadeTimer.current = setTimeout(finish, FADE_MS + 150);
+      }
+      return "fading";
+    });
+  }, [showHeroText, finish]);
 
   /** Hand over to the second clip; if it will not play, just fade out. */
   const startBridge = useCallback(() => {
@@ -130,10 +152,8 @@ export function EnterOverlay({
    */
   const handleFadeEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
     if (e.target !== e.currentTarget || e.propertyName !== "opacity") return;
-    if (phase !== "fading" || entered.current) return;
-    entered.current = true;
-    setPhase("done");
-    onEnter();
+    if (phase !== "fading") return;
+    finish();
   };
 
   if (phase === "done") return null;
@@ -151,7 +171,8 @@ export function EnterOverlay({
         }
       }}
       onTransitionEnd={handleFadeEnd}
-      className={`fixed inset-0 z-50 bg-background transition-opacity duration-[2000ms] ease-in-out ${
+      style={{ transitionDuration: `${FADE_MS}ms` }}
+      className={`fixed inset-0 z-50 bg-background transition-opacity ease-in-out ${
         leaving ? "pointer-events-none opacity-0" : "cursor-pointer opacity-100"
       }`}
     >
