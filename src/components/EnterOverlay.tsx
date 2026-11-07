@@ -16,6 +16,14 @@ type EnterOverlayProps = {
 type Phase = "idle" | "playing" | "fading" | "done";
 
 /**
+ * How long to wait after the tap for the first clip to produce a frame before
+ * giving up on the intro. Pages can serve this site slowly enough that the
+ * clips are still buffering when someone taps, and a guest who taps and gets
+ * nothing will assume the invitation is broken.
+ */
+const STALL_GRACE = 2500;
+
+/**
  * The opening sequence, as the original plays it: a still of the sealed
  * envelope, then on tap two clips back to back — the envelope opening, then
  * the ribboned invitation being unwrapped — before the whole thing fades to
@@ -40,6 +48,14 @@ export function EnterOverlay({
   const bridgeStarted = useRef(false);
   const heroTextShown = useRef(false);
   const entered = useRef(false);
+  const stallTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearStallTimer = () => {
+    if (stallTimer.current) {
+      clearTimeout(stallTimer.current);
+      stallTimer.current = null;
+    }
+  };
 
   const showHeroText = useCallback(() => {
     if (heroTextShown.current) return;
@@ -48,6 +64,7 @@ export function EnterOverlay({
   }, [onShowHeroText]);
 
   const beginFade = useCallback(() => {
+    clearStallTimer();
     showHeroText();
     setPhase((p) => (p === "playing" ? "fading" : p));
   }, [showHeroText]);
@@ -64,6 +81,17 @@ export function EnterOverlay({
     if (phase !== "idle") return;
     setPhase("playing");
     onStartMusic();
+
+    // The clips are small, but GitHub Pages can be slow enough that they are
+    // still buffering when someone taps. Rather than leaving them staring at
+    // the poster, give the first clip a moment to produce a frame and
+    // otherwise go straight to the invitation.
+    clearStallTimer();
+    stallTimer.current = setTimeout(() => {
+      const v = envelopeRef.current;
+      if (!v || v.currentTime < 0.05) beginFade();
+    }, STALL_GRACE);
+
     envelopeRef.current?.play().catch(() => {
       // Some browsers still refuse; skip straight to the invitation.
       startBridge();
@@ -74,7 +102,10 @@ export function EnterOverlay({
   const onEnvelopeTime = () => {
     const v = envelopeRef.current;
     if (!v) return;
-    if (v.currentTime > 0.05 && !envelopeVisible) setEnvelopeVisible(true);
+    if (v.currentTime > 0.05 && !envelopeVisible) {
+      clearStallTimer();
+      setEnvelopeVisible(true);
+    }
     if (!v.duration) return;
     const left = v.duration - v.currentTime;
     if (left < 1.2 && !brightened) setBrightened(true);
@@ -92,7 +123,13 @@ export function EnterOverlay({
 
   const leaving = phase === "fading" || phase === "done";
 
-  const handleFadeEnd = () => {
+  /**
+   * Only our own opacity fade ends the intro. `transitionend` bubbles, and the
+   * children have their own fades — the second clip's 800ms fade-in was
+   * unmounting the overlay less than a second in, cutting the 2s fade short.
+   */
+  const handleFadeEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget || e.propertyName !== "opacity") return;
     if (phase !== "fading" || entered.current) return;
     entered.current = true;
     setPhase("done");

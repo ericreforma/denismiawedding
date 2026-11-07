@@ -123,6 +123,12 @@ and `font-sans` (Jost).
   `-movflags +faststart` matters: it puts the moov atom at the front so the
   clip can start playing before it has fully downloaded.
 
+  Even at 2.6MB the clips can still be buffering when someone taps — Pages
+  took ~110s to have both ready in one measurement from Manila. So the tap
+  carries a 2.5s grace: if the first clip has not produced a frame by then,
+  the intro is skipped and the guest goes straight to the invitation. A guest
+  who taps and gets nothing assumes the site is broken.
+
   One thing that cannot be fixed by re-encoding: the wax seal in the envelope
   clip carries the template couple's monogram and reads **"C & J"**. The two
   still seals were re-lettered to D & M; video frames cannot be. Replacing it
