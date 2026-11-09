@@ -200,7 +200,23 @@ not hand-written `<img src="/…">` paths, so those prefix themselves from
 `NEXT_PUBLIC_BASE_PATH` in `wedding.ts`. Set `NEXT_PUBLIC_SITE_URL` for a custom
 domain.
 
-## Backend
+## RSVP and the dashboard
 
-There is none. `Rsvp.tsx` acknowledges the submission locally and shows a
-thank-you panel — swap `handleSubmit` for a real call when the backend lands.
+Replies go to a Google Sheet through an Apps Script web app — the invitation
+is a static export, so it has nowhere of its own to store one.
+**`docs/rsvp-setup.md`** has the sheet layout, the script to paste, and how to
+publish it.
+
+Paste the `/exec` URL into `src/data/config.ts` (or set
+`NEXT_PUBLIC_RSVP_ENDPOINT` at build time). Left empty, nothing breaks: the
+form thanks the guest without sending anything and the dashboard says it is
+not connected yet.
+
+`/denismiawedding/dashboard` reads the replies back — four summary tiles,
+search, filter, sort, and a CSV export of whatever is on screen. It is
+unlinked and `noindex`, and gated by a passcode that is checked **inside the
+Apps Script**, never in the page, so reading the page source gets an attacker
+nothing.
+
+The sheet columns are exactly the form's fields: Timestamp, Name, Attending,
+Dietary requirements, Message.

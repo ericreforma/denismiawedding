@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Reveal } from "./Reveal";
 import { ART, COUPLE, EVENT, RSVP } from "@/data/wedding";
+import { RSVP_ENDPOINT, hasEndpoint } from "@/data/config";
 
 const labelCls =
   "block text-background font-sans text-[11px] tracking-[0.25em] uppercase";
@@ -56,6 +57,8 @@ export function Rsvp() {
   const [diet, setDiet] = useState("");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   /** The flap lifts, then the form unfolds 700ms later. */
   const openEnvelope = () => {
@@ -64,12 +67,46 @@ export function Rsvp() {
     setTimeout(() => setFormShown(true), 700);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Bots fill the hidden field; people never see it.
     if (honeypot) return;
-    // No backend yet — acknowledge locally.
-    setSent(true);
+    if (sending) return;
+
+    // Not wired to a sheet yet — acknowledge locally so the form still works.
+    if (!hasEndpoint()) {
+      setSent(true);
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+    try {
+      // text/plain on purpose: application/json triggers a CORS preflight,
+      // and Apps Script web apps cannot answer one. The body is still JSON.
+      const res = await fetch(RSVP_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          name: name.trim(),
+          attending,
+          dietary: diet.trim(),
+          message: message.trim(),
+          website: honeypot,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || `Request failed (${res.status})`);
+      }
+      setSent(true);
+    } catch {
+      setError(
+        "We couldn't send your reply just now. Please check your connection and try again.",
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -234,15 +271,25 @@ export function Rsvp() {
                       />
                     </div>
 
+                    {error && (
+                      <p
+                        role="alert"
+                        className="text-[13px] font-sans leading-relaxed text-background/90"
+                      >
+                        {error}
+                      </p>
+                    )}
+
                     <div className="pt-2">
                       <button
                         type="submit"
-                        className="group inline-flex flex-col items-center text-background"
+                        disabled={sending}
+                        className="group inline-flex flex-col items-center text-background disabled:opacity-60"
                       >
                         <span className="relative block border border-background/40 p-[3px] transition-colors duration-500 group-hover:border-background/70">
                           <span className="block border border-background/20 px-10 py-3 transition-colors duration-500 group-hover:bg-background group-hover:text-foreground">
                             <span className="block text-[10px] tracking-[0.32em] uppercase">
-                              Send RSVP
+                              {sending ? "Sending…" : "Send RSVP"}
                             </span>
                           </span>
                         </span>
