@@ -191,6 +191,27 @@ invisible at display size.
 
 ## Deploying
 
+### If CI fails with `Cannot read properties of null (reading '1')`
+
+That is `next/font`'s Google loader, and it almost always means the runner
+could not reach Google Fonts for a moment — the loader reports a failed fetch
+as a null dereference rather than as a network error, so the message names
+nothing useful. **Re-run the job**; it builds clean on a retry.
+
+It can also be a real fault, and the two look identical: asking for a
+weight/style combination Google does not serve throws exactly the same error.
+If a re-run fails the same way and the fonts in `layout.tsx` were just
+changed, suspect the axis before the network — Cormorant Garamond, for one,
+has italic at 400 only.
+
+Reproduce either locally with a clean clone, since a warm `next/font` cache
+hides both:
+
+```bash
+git clone <repo> /tmp/cicheck && cd /tmp/cicheck && npm ci && npm run build
+```
+
+
 Pushes to `main` build and publish to GitHub Pages via
 `.github/workflows/deploy.yml`. Requires **Settings → Pages → Source → "GitHub
 Actions"** once.
