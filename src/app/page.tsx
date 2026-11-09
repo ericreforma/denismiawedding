@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AudioToggle } from "@/components/AudioToggle";
 import { Countdown } from "@/components/Countdown";
+import { DressBoards } from "@/components/DressBoards";
 import { DressCode } from "@/components/DressCode";
 import { EnterOverlay } from "@/components/EnterOverlay";
 import { Hero } from "@/components/Hero";
@@ -43,6 +44,7 @@ export default function Home() {
         <Location />
         <TheDay />
         <DressCode />
+        <DressBoards />
         <Transportation />
         <WhereToStay />
         <WeddingGift />

@@ -130,13 +130,37 @@ export const THE_DAY = {
 
 // ----------------------------------------------------------------- dress code
 
-/** TODO: confirm the couple's dress code. */
+/**
+ * TODO: the framed card is still the template's wording for general guests.
+ * The couple's own boards below cover the entourage and the sponsors only, so
+ * guests have no stated dress code yet beyond "formal" — the colour motif on
+ * the sponsors board is beige and navy blue if they want guests pointed at it.
+ */
 export const DRESS_CODE = {
   heading: "Dress Code",
   style: "Formal Attire",
   blurb:
     "We'd love for our guests to embrace the occasion with elegant evening attire.\nDress beautifully, feel comfortable,\nand come ready to celebrate\nwith us.",
 } as const;
+
+/**
+ * The couple's own dress-code boards. Each is a finished graphic with its own
+ * heading and small print, so they are shown whole rather than picked apart —
+ * and they open full screen, because the role labels are unreadable at phone
+ * width.
+ */
+export const DRESS_BOARDS: { src: string; label: string; alt: string }[] = [
+  {
+    src: p("/photos/dresscode-entourage.webp"),
+    label: "For the Entourage",
+    alt: "Dress code for the entourage — maid of honor in navy blue, bridesmaids in beige, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
+  },
+  {
+    src: p("/photos/dresscode-sponsors.webp"),
+    label: "For our Ninong & Ninang",
+    alt: "Dress code for the principal sponsors — ninong in a barong, ninang in beige with a touch of navy blue. The wedding colour motif is beige and navy blue",
+  },
+];
 
 // -------------------------------------------------------------- transportation
 

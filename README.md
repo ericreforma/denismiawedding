@@ -30,7 +30,10 @@ supplied yet. Edit that one file — no component needs touching.
 - **Reception start time** — the timeline and venue card both show `TBA`
 - **The rest of the day's schedule** — only the 2:00 PM ceremony is confirmed,
   so the timeline has two entries where the design expects five or so
-- **Dress code** — currently the template's "Formal Attire"
+- **Dress code for general guests** — the framed card is still the
+  template's "Formal Attire". The couple's own boards cover the entourage
+  and the sponsors only; the colour motif is beige and navy blue if guests
+  should be pointed at it.
 - **Transportation** — no arrangements confirmed; the copy says details follow
 - **Where to stay** — one placeholder card, no hotels chosen
 - **Gift details** — the copy asks for a monetary gift without naming an
@@ -74,7 +77,8 @@ src/
   fonts/           Monsieur La Doulaise (not on Google Fonts)
 public/
   art/             the design's illustrated frames, seals and textures
-  photos/          the couple's photo, cropped for the oval
+  photos/          the couple's photo cropped for the oval, and the
+                   two dress-code boards
   audio/           looping background track
   intro/           the opening clips and their poster frame (2.9MB)
 ```
@@ -150,6 +154,13 @@ and `font-sans` (Jost).
   the prose but set in the serif rather than the script — Monsieur La Doulaise
   turns "YES." into an unreadable tangle of capitals and detaches the
   apostrophe in "Mia’s".
+- **Dress-code boards.** The couple's two finished graphics (entourage, and
+  ninong & ninang) sit below the framed card and open full screen. The
+  enlarge step is not decoration: fitted to a phone, a landscape board's role
+  labels are a few pixels tall. In the overlay the image is sized by viewport
+  height on small screens so it is wider than the phone and the wrapper pans
+  sideways — about 1040px against a 390px screen, versus 358px if it were
+  simply fitted. From `md` up it fits whole.
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
