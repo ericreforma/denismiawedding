@@ -25,12 +25,8 @@ export function WeddingGift() {
               {GIFT.lead}
             </p>
 
-            <p className="font-helvetica text-[11px] md:text-[14px] leading-relaxed text-foreground/80 mb-3 md:mb-4">
+            <p className="font-helvetica text-[11px] md:text-[14px] leading-relaxed text-foreground/80">
               {GIFT.blurb}
-            </p>
-
-            <p className="font-helvetica text-[10px] md:text-[13px] leading-relaxed text-foreground break-words">
-              {GIFT.detail}
             </p>
           </div>
         </div>

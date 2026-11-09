@@ -17,7 +17,8 @@ const p = (path: string) => `${BASE}${path}`;
 
 export const COUPLE = {
   one: { first: "Denis", full: "Denis S. Taniajura" },
-  two: { first: "Mia", full: "Mia Arr D.L. Santos" },
+  /** She goes by "Mia Arr", not "Mia". */
+  two: { first: "Mia Arr", full: "Mia Arr D.L. Santos" },
   /** Shown on the footer seal. */
   initials: "D & M",
 } as const;
@@ -38,7 +39,7 @@ export const EVENT = {
   /** TODO: confirm RSVP deadline. */
   rsvpBy: "November 15, 2026",
   /** Browser tab and search result. */
-  pageTitle: "Denis & Mia · San Jose del Monte Wedding 2026",
+  pageTitle: "Denis & Mia Arr · San Jose del Monte Wedding 2026",
 } as const;
 
 export const CEREMONY = {
@@ -72,10 +73,10 @@ export const STORY = {
     "It all began with simple text messages that eventually led to their first meet-up. When they finally met, neither of them fell in love right away, but there was something special—a feeling that made them want to see each other again.",
     "What they thought would be their last meeting turned into more frequent encounters, until little by little, they became fond of each other. Through sincere courtship, sweet moments, and growing affection, their hearts eventually found their way to love.",
   ],
-  quote: "And then came Mia’s sweetest “YES.”",
+  quote: "And then came Mia Arr’s sweetest “YES.”",
   after: [
     "Years passed, and their love continued to grow stronger. Together, they decided to take the next beautiful step—to build a family and spend forever side by side.",
-    "Now, as they stand before a new beginning, Mia and Denis are ready to embrace a lifetime of love, faith, and togetherness.",
+    "Now, as they stand before a new beginning, Mia Arr and Denis are ready to embrace a lifetime of love, faith, and togetherness.",
   ],
   closing: [
     "From unexpected beginnings to a forever kind of love.",
@@ -181,14 +182,19 @@ export const STAY = {
 
 // ---------------------------------------------------------------------- gift
 
-/** TODO: confirm how the couple would like to receive gifts. */
+/**
+ * TODO: no bank or e-wallet details are published. The copy asks for a
+ * monetary gift without saying where to send it, which is normal for a
+ * Philippine wedding (guests bring an envelope) — add a `detail` line and
+ * render it in WeddingGift if that changes.
+ */
 export const GIFT = {
   heading: ["Wedding", "Gift"],
-  lead: "Your presence\nis our greatest gift.",
+  /** Broken by hand: the frame is narrow, and left to wrap the first line
+      orphans "wedding" onto a line of its own. */
+  lead: "Your presence\nat our wedding\nis the greatest gift\nwe could ever receive.",
   blurb:
-    "Should you wish to give a gift, a contribution toward our new home together would be lovingly received.",
-  detail: "Bank and e-wallet details to follow.",
-  cta: "View Registry",
+    "However, should you wish to bless us with a gift, a monetary contribution would be sincerely appreciated as we begin our future together.",
 } as const;
 
 // ---------------------------------------------------------------------- rsvp
@@ -197,16 +203,17 @@ export const RSVP = {
   heading: "RSVP",
   blurbPrefix:
     "Nothing would make us happier than celebrating this day surrounded by our favourite people. Please let us know whether you'll be able to join us by ",
+  /**
+   * Seating is by named guest only. This is also why the form has no +1 and
+   * no children stepper — the template offered both, and leaving controls
+   * that add guests next to a note saying not to would just invite confusion.
+   */
+  note: "Kindly note that this invitation is exclusively reserved for the named guest. We respectfully request no additional guests or plus-ones. Thank you for your understanding.",
   openLabel: "Tap to open",
   attending: [
     { value: "yes", label: "Joyfully accepts" },
     { value: "no", label: "Regretfully declines" },
   ],
-  plusOne: [
-    { value: "yes", label: "Yes, with pleasure" },
-    { value: "no", label: "Just me" },
-  ],
-  maxChildren: 4,
 } as const;
 
 // -------------------------------------------------------------------- footer

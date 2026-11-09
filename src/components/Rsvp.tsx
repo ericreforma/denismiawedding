@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Reveal } from "./Reveal";
 import { ART, COUPLE, EVENT, RSVP } from "@/data/wedding";
@@ -53,9 +53,7 @@ export function Rsvp() {
 
   const [name, setName] = useState("");
   const [attending, setAttending] = useState("yes");
-  const [plusOne, setPlusOne] = useState("no");
-  const [children, setChildren] = useState(0);
-  const [diets, setDiets] = useState<string[]>([]);
+  const [diet, setDiet] = useState("");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
 
@@ -65,15 +63,6 @@ export function Rsvp() {
     setOpened(true);
     setTimeout(() => setFormShown(true), 700);
   };
-
-  const adults = 1 + (plusOne === "yes" ? 1 : 0);
-  const guestLabels = useMemo(() => {
-    if (attending !== "yes") return [];
-    return [
-      ...Array.from({ length: adults }, (_, i) => `Guest ${i + 1}`),
-      ...Array.from({ length: children }, (_, i) => `Child ${i + 1}`),
-    ];
-  }, [attending, adults, children]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -107,6 +96,12 @@ export function Rsvp() {
                 <p className="text-background/80 text-[15px] font-sans leading-relaxed max-w-md mt-4">
                   {RSVP.blurbPrefix}
                   {EVENT.rsvpBy}.
+                </p>
+
+                {/* Seating is by named guest. Set apart from the warm opening
+                    line so the restriction is not missed. */}
+                <p className="mt-7 max-w-md border-t border-background/15 pt-6 text-background/65 text-[13px] font-sans leading-relaxed">
+                  {RSVP.note}
                 </p>
               </div>
 
@@ -211,83 +206,18 @@ export function Rsvp() {
                     </div>
 
                     {attending === "yes" && (
-                      <>
-                        <div>
-                          <span className={labelCls}>Will you be bringing a +1?</span>
-                          <div className="flex flex-col items-center gap-3 mt-3">
-                            {RSVP.plusOne.map((opt) => (
-                              <Choice
-                                key={opt.value}
-                                name="plusOne"
-                                value={opt.value}
-                                checked={plusOne === opt.value}
-                                onChange={setPlusOne}
-                              >
-                                {opt.label}
-                              </Choice>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <span className={labelCls}>Children</span>
-                          <div className="mt-3 flex items-center justify-center gap-5">
-                            <button
-                              type="button"
-                              aria-label="Remove one child"
-                              onClick={() => setChildren((c) => Math.max(0, c - 1))}
-                              disabled={children === 0}
-                              className="grid h-9 w-9 place-items-center rounded-full border border-background/30 text-background text-lg leading-none transition-colors hover:bg-background/10 disabled:opacity-30"
-                            >
-                              &minus;
-                            </button>
-                            <span className="font-display text-background text-base min-w-[7.5rem]">
-                              {children === 0
-                                ? "No children"
-                                : `${children} ${children === 1 ? "child" : "children"}`}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label="Add one child"
-                              onClick={() =>
-                                setChildren((c) => Math.min(RSVP.maxChildren, c + 1))
-                              }
-                              disabled={children === RSVP.maxChildren}
-                              className="grid h-9 w-9 place-items-center rounded-full border border-background/30 text-background text-lg leading-none transition-colors hover:bg-background/10 disabled:opacity-30"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <span className={labelCls}>Dietary Requirements</span>
-                          <div className="mt-3 space-y-3">
-                            {guestLabels.map((guest, i) => (
-                              <div
-                                key={guest}
-                                className="flex flex-col items-center gap-1"
-                              >
-                                <span className="font-sans text-[10px] tracking-[0.2em] uppercase text-background/60">
-                                  {guest}
-                                </span>
-                                <input
-                                  value={diets[i] ?? ""}
-                                  onChange={(e) =>
-                                    setDiets((prev) => {
-                                      const next = [...prev];
-                                      next[i] = e.target.value;
-                                      return next;
-                                    })
-                                  }
-                                  placeholder="Allergies or dietary requirements"
-                                  className={fieldCls}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </>
+                      <div>
+                        <label htmlFor="rsvp-diet" className={labelCls}>
+                          Dietary Requirements
+                        </label>
+                        <input
+                          id="rsvp-diet"
+                          value={diet}
+                          onChange={(e) => setDiet(e.target.value)}
+                          placeholder="Allergies or dietary requirements"
+                          className={fieldCls}
+                        />
+                      </div>
                     )}
 
                     <div>

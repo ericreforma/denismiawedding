@@ -33,7 +33,8 @@ supplied yet. Edit that one file — no component needs touching.
 - **Dress code** — currently the template's "Formal Attire"
 - **Transportation** — no arrangements confirmed; the copy says details follow
 - **Where to stay** — one placeholder card, no hotels chosen
-- **Gift details** — bank / e-wallet details are not published yet
+- **Gift details** — the copy asks for a monetary gift without naming an
+  account. Add a `detail` line to `GIFT` and render it if that changes.
 - **RSVP deadline** — set to 15 November 2026
 - **Full venue addresses**
 
@@ -158,8 +159,13 @@ and `font-sans` (Jost).
   fixed heights (up to 985px + 538px). The section carries a `min-height` that
   clears both, because with a short timeline the stretchable middle collapses
   and the two halves meet in a visible seam.
-- **RSVP.** The envelope opens, then the form unfolds 700ms later. Guest count
-  drives one dietary field per person. A hidden `website` field catches bots.
+- **RSVP.** The envelope opens, then the form unfolds 700ms later. A hidden
+  `website` field catches bots.
+
+  Seating is by named guest, so the form asks only for a name, attendance, one
+  dietary note and a message. The template's +1 radio and children stepper are
+  gone: keeping controls whose only purpose is to add guests, directly beneath
+  a note asking guests not to, would have been a contradiction.
 
 ## Photos and artwork
 
