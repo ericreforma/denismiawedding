@@ -8,6 +8,7 @@ import { DressCode } from "@/components/DressCode";
 import { EnterOverlay } from "@/components/EnterOverlay";
 import { Hero } from "@/components/Hero";
 import { Location } from "@/components/Location";
+import { LoveStory } from "@/components/LoveStory";
 import { Rsvp } from "@/components/Rsvp";
 import { ScratchReveal } from "@/components/ScratchReveal";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -38,6 +39,7 @@ export default function Home() {
         <Hero visible={heroVisible} />
         <Countdown />
         <ScratchReveal />
+        <LoveStory />
         <Location />
         <TheDay />
         <DressCode />

@@ -58,6 +58,31 @@ export const RECEPTION = {
 export const mapsUrl = (query: string) =>
   `https://www.google.com/maps/search/?api=1&query=${query}`;
 
+// --------------------------------------------------------------- love story
+
+/**
+ * The couple's own words. `lead` and `closing` are set in the display serif,
+ * the quote in the script face, and `before`/`after` are the body paragraphs
+ * either side of it. `closing` is one line per rendered line.
+ */
+export const STORY = {
+  heading: "Our Love Story",
+  lead: "In a season of sadness, two hearts unexpectedly found happiness in each other.",
+  before: [
+    "It all began with simple text messages that eventually led to their first meet-up. When they finally met, neither of them fell in love right away, but there was something special—a feeling that made them want to see each other again.",
+    "What they thought would be their last meeting turned into more frequent encounters, until little by little, they became fond of each other. Through sincere courtship, sweet moments, and growing affection, their hearts eventually found their way to love.",
+  ],
+  quote: "And then came Mia’s sweetest “YES.”",
+  after: [
+    "Years passed, and their love continued to grow stronger. Together, they decided to take the next beautiful step—to build a family and spend forever side by side.",
+    "Now, as they stand before a new beginning, Mia and Denis are ready to embrace a lifetime of love, faith, and togetherness.",
+  ],
+  closing: [
+    "From unexpected beginnings to a forever kind of love.",
+    "Their greatest adventure begins here.",
+  ],
+} as const;
+
 // ------------------------------------------------------------------ location
 
 export const LOCATION = {

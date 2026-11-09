@@ -142,6 +142,13 @@ and `font-sans` (Jost).
   still seals were re-lettered to D & M; video frames cannot be. Replacing it
   needs new footage.
 
+- **Our Love Story.** The couple's own words, between the scratch panel and
+  the location. The design had no story section, so this one is built from its
+  existing language: script heading, display-serif lead and closing, body in
+  Jost, and pearl rules between movements. The proposal line is pulled out of
+  the prose but set in the serif rather than the script — Monsieur La Doulaise
+  turns "YES." into an unreadable tangle of capitals and detaches the
+  apostrophe in "Mia’s".
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
