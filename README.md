@@ -79,7 +79,7 @@ public/
   art/             the design's illustrated frames, seals and textures
   photos/          the couple's photo cropped for the oval, and the
                    two dress-code boards
-  audio/           looping background track
+  audio/           looping background track (128kbps, 2.9MB)
   intro/           the opening clips and their poster frame (2.9MB)
 ```
 

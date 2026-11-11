@@ -292,5 +292,12 @@ export const INTRO = {
 } as const;
 
 export const AUDIO = {
-  theme: p("/audio/wedding-theme.mp3"),
+  /**
+   * "Beauty and the Beast" (violin / cello / piano arrangement), re-encoded
+   * from the couple's 192kbps file to 128kbps — 4.4MB down to 2.9MB, which
+   * matters because GitHub Pages serves this site slowly. Renamed too: the
+   * original filename carried an emoji, Korean text and a box-drawing
+   * character, none of which belong in a URL.
+   */
+  theme: p("/audio/beauty-and-the-beast.mp3"),
 } as const;
