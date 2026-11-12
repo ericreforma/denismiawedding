@@ -183,6 +183,177 @@ export const THE_DAY = {
   blurb: "A day to celebrate,\nfrom the first hello to the last dance.",
 } as const;
 
+// ------------------------------------------------------------------ entourage
+
+/** A titled column of names — the shape most of the entourage is built from. */
+export type EntourageGroup = { title: string; names: string[] };
+
+/**
+ * A role described by what it carries rather than by a job title. The couple
+ * wrote these lines themselves; `item` is only set where they also named the
+ * object, which they did for the bearers but not for the secondary sponsors.
+ */
+export type EntourageRole = { line: string; item?: string; names: string[] };
+
+/**
+ * The wedding party, in the order a Filipino invitation conventionally runs:
+ * the couple, their parents, the principal sponsors, then the attendants,
+ * the secondary sponsors, and the bearers.
+ *
+ * The couple's list put the ninongs and ninangs last, which is where a
+ * spreadsheet tends to push them; they are moved up here because the couple
+ * asked for the principal sponsors above the secondary ones on the dress
+ * code boards, and the same ranking should hold on the page.
+ */
+export const ENTOURAGE: {
+  heading: string;
+  blurb: string;
+  couple: EntourageGroup[];
+  parents: EntourageGroup[];
+  principalSponsors: { title: string; columns: EntourageGroup[] };
+  honorAttendants: EntourageGroup[];
+  weddingParty: EntourageGroup[];
+  secondarySponsors: { title: string; roles: EntourageRole[] };
+  bearers: { title: string; roles: EntourageRole[] };
+} = {
+  heading: "Entourage",
+  blurb: "The people walking this day with us.",
+
+  couple: [
+    { title: "Groom", names: [COUPLE.one.full] },
+    { title: "Bride", names: [COUPLE.two.full] },
+  ],
+
+  /** Mother then father, the order the couple's own list used. */
+  parents: [
+    {
+      title: "Parents of the Bride",
+      names: ["Maria Teresa B. De Leon", "Arturo G. Santos"],
+    },
+    {
+      title: "Parents of the Groom",
+      names: ["Flordeliza S. Taniajura", "Henry T. Taniajura"],
+    },
+  ],
+
+  /** The couple asked for "Mr." and "Mrs." on the principal sponsors. */
+  principalSponsors: {
+    title: "Principal Sponsors",
+    columns: [
+      {
+        title: "Ninongs",
+        names: [
+          "Mr. Donn Uriel Buenaventura",
+          "Mr. Larry Dabu",
+          "Mr. Edwin Policarpio",
+          "Mr. Edgar Allan Andres",
+          "Mr. Roldan Felipe",
+          "Mr. Apolinio Sarmiento",
+        ],
+      },
+      {
+        title: "Ninangs",
+        names: [
+          "Mrs. Raquel M. Morada",
+          "Mrs. Weng Samson",
+          "Mrs. Marites D.C. Erazo",
+          "Mrs. Jhonna R. Danieles",
+          "Mrs. Cora D. Bugayong",
+          "Mrs. Reneerose R. Sahurda",
+          "Mrs. Gisella C. Tumatag",
+          "Mrs. Ma. Susana H. Navarro",
+        ],
+      },
+    ],
+  },
+
+  honorAttendants: [
+    { title: "Best Man", names: ["Mhark Oliver Miranda"] },
+    { title: "Maid of Honor", names: ["Leai F. Batistis"] },
+  ],
+
+  weddingParty: [
+    {
+      title: "Groomsmen",
+      names: [
+        "Armie Leo D.L. Santos",
+        "Jesson Jugan",
+        "Agustin Dinlauso",
+        "Arman Macanit",
+        "Caleb Magpantay",
+        "Will Delos Reyes",
+        "Juven Christian Taniajura",
+        "Marc Noel De Leon",
+        "Manu Eli B. De Leon",
+        "Racky B. Laguerta",
+        "Marlon B. De Leon",
+        "Rogie Laguerta",
+        "Rommel Sicat",
+      ],
+    },
+    {
+      title: "Bridesmaids",
+      names: [
+        "Raquel Sto. Tomas",
+        "Pauline Torrenueva",
+        "Rose Ann S. Bernardo",
+        "Paula T. Laguerta",
+        "Katherine G. Laguerta",
+        "Ruby Rose B. Laguerta",
+        "Marian Boncacas",
+        "Jenny De Leon",
+        "Ma. Cristina Mariño",
+        "Eva Ruth D. Bandola",
+      ],
+    },
+  ],
+
+  secondarySponsors: {
+    title: "Secondary Sponsors",
+    roles: [
+      {
+        line: "To tie our hearts as one",
+        names: ["Paula Laguerta", "Racky Laguerta"],
+      },
+      {
+        line: "To guide our journey with light",
+        names: ["Ma. Cristina Mariño", "Marc Noel De Leon"],
+      },
+      {
+        line: "To cover us with love and protection",
+        names: ["Jenny De Leon", "Marlon De Leon"],
+      },
+    ],
+  },
+
+  bearers: {
+    title: "Bearers & Flower Girls",
+    roles: [
+      {
+        item: "Ring",
+        line: "To carry our promises together",
+        names: ["Wade De Leon"],
+      },
+      {
+        item: "Coin / Arrhae",
+        line: "To bless our union with abundance and prosperity",
+        /** TODO: the couple has not named the coin bearer yet. */
+        names: ["To be announced"],
+      },
+      {
+        item: "Bible",
+        line: "To guide our marriage with God’s word",
+        names: ["Josiah Manuel De Leon"],
+      },
+      {
+        item: "Flower Girls",
+        line: "To sprinkle our path with love and happiness",
+        names: ["Amirra Denise S. Taniajura", "Aeva D. Bandola"],
+      },
+    ],
+  },
+};
+
 // ----------------------------------------------------------------- dress code
 
 /**

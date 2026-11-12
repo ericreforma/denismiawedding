@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AudioToggle } from "@/components/AudioToggle";
 import { Countdown } from "@/components/Countdown";
 import { DressCode } from "@/components/DressCode";
+import { Entourage } from "@/components/Entourage";
 import { EnterOverlay } from "@/components/EnterOverlay";
 import { Gallery } from "@/components/Gallery";
 import { Hero } from "@/components/Hero";
@@ -40,12 +41,14 @@ export default function Home() {
         <Hero visible={heroVisible} />
         <Countdown />
         <ScratchReveal />
+        {/* Section order is the couple's own. */}
         <LoveStory />
+        <Gallery />
+        <SaveTheDate />
         <Location />
         <TheDay />
+        <Entourage />
         <DressCode />
-        <SaveTheDate />
-        <Gallery />
         <WhereToStay />
         <WeddingGift />
         <Rsvp />
