@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { Portal } from "./Portal";
 import { Reveal } from "./Reveal";
 import { DRESS_BOARDS } from "@/data/wedding";
 
@@ -72,41 +73,43 @@ export function DressBoards() {
       </div>
 
       {board && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={board.label}
-          onClick={() => setOpen(null)}
-          className="fixed inset-0 z-50 overflow-auto overscroll-contain bg-foreground/95 p-4 cursor-zoom-out animate-[fadeUp_0.25s_ease-out_both]"
-        >
-          <div className="flex min-h-full min-w-full items-center justify-center">
-            {/* Sized by height on small screens so a landscape board becomes
+        <Portal>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={board.label}
+            onClick={() => setOpen(null)}
+            className="fixed inset-0 z-50 overflow-auto overscroll-contain bg-foreground/95 p-4 cursor-zoom-out animate-[fadeUp_0.25s_ease-out_both]"
+          >
+            <div className="flex min-h-full min-w-full items-center justify-center">
+              {/* Sized by height on small screens so a landscape board becomes
                 wider than the phone and the labels are actually legible; the
                 wrapper scrolls sideways. Fitted whole from md up, where there
                 is room for it. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={board.src}
-              alt={board.alt}
-              onClick={(e) => e.stopPropagation()}
-              className="h-[82vh] w-auto max-w-none object-contain md:h-auto md:max-h-[88vh] md:max-w-full"
-              draggable={false}
-            />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={board.src}
+                alt={board.alt}
+                onClick={(e) => e.stopPropagation()}
+                className="h-[82vh] w-auto max-w-none object-contain md:h-auto md:max-h-[88vh] md:max-w-full"
+                draggable={false}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setOpen(null)}
+              aria-label="Close"
+              className="fixed top-5 right-5 grid h-10 w-10 place-items-center rounded-full border border-background/40 bg-foreground/60 text-background text-xl leading-none backdrop-blur-sm transition-colors hover:bg-background/15"
+            >
+              &times;
+            </button>
+
+            <span className="pointer-events-none fixed bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-[0.3em] text-background/60 md:hidden">
+              Drag to pan · tap to close
+            </span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setOpen(null)}
-            aria-label="Close"
-            className="fixed top-5 right-5 grid h-10 w-10 place-items-center rounded-full border border-background/40 bg-foreground/60 text-background text-xl leading-none backdrop-blur-sm transition-colors hover:bg-background/15"
-          >
-            &times;
-          </button>
-
-          <span className="pointer-events-none fixed bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-[0.3em] text-background/60 md:hidden">
-            Drag to pan · tap to close
-          </span>
-        </div>
+        </Portal>
       )}
     </>
   );

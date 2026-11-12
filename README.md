@@ -209,11 +209,34 @@ and `font-sans` (Jost).
   the rows runs the whole top row and then starts again at the bottom, so
   "next" appears to jump backwards.
 
+  **It drifts leftward on its own**, 22px a second, and stops the moment
+  anyone wants to steer: hover, tap, wheel, the arrow buttons, an open
+  lightbox, a backgrounded tab, or `prefers-reduced-motion`. It resumes
+  2.5s after the last of those. Each row is laid out twice and the drift
+  wraps by subtracting exactly one copy's width, so the loop lands on an
+  identical pixel instead of snapping back to the start; the duplicate is
+  hidden from assistive tech and the tab order. The scroll position is kept
+  in a ref rather than read back each frame — at this speed a frame advances
+  under a pixel, and a browser that rounds the stored offset would swallow
+  the remainder and leave the strip motionless.
+
+  One consequence worth knowing: drifting past a photo loads it, so a page
+  left open will eventually pull all 123 thumbnails rather than only the
+  ones someone scrolled to.
+
   **Regenerate with `node scripts/build-gallery.mjs`.** It reads
   `public/gallery/` and writes both tiers plus `src/data/gallery.ts`. The
   originals are 0.96GB and are git-ignored on purpose: committed once they
   are in history forever, and a stray `git add -A` is all it would take.
   Exclusions live in `EXCLUDE` at the top of that script.
+- **Full-screen overlays go through `Portal`.** `Reveal` leaves
+  `transform: translateY(0)` on its wrapper once a section has animated in,
+  and a transformed ancestor becomes the containing block for `position:
+  fixed` descendants — so `fixed inset-0` resolves against the section, and
+  a lightbox that should cover the screen renders as a panel floating in the
+  page. Both lightboxes render into `<body>` instead. Anything full-screen
+  added later needs the same treatment. (This is the same quirk that makes
+  the template's `mix-blend-multiply` inert in the Location block.)
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
