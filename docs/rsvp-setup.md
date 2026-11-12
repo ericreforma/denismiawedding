@@ -9,8 +9,8 @@ Two surfaces use it:
 
 | | |
 | --- | --- |
-| `/denismiawedding` | the RSVP form posts a reply |
-| `/denismiawedding/dashboard` | the couple reads the replies back |
+| `/` | the RSVP form posts a reply |
+| `/dashboard` | the couple reads the replies back |
 
 **Until you finish this, the site still works.** With `RSVP_ENDPOINT` empty in
 `src/data/config.ts`, the form thanks the guest without sending anything, and
@@ -226,14 +226,14 @@ export const RSVP_ENDPOINT = "https://script.google.com/macros/s/AKfycb…/exec"
 ```
 
 Rebuild and push. Send a test RSVP, check the row lands, open
-`/denismiawedding/dashboard`, enter the passcode, confirm the reply appears —
+`/dashboard`, enter the passcode, confirm the reply appears —
 then delete the test row.
 
 ---
 
 ## The dashboard
 
-`/denismiawedding/dashboard`. It is not linked from the invitation and carries
+`/dashboard`. It is not linked from the invitation and carries
 `noindex`, so it is reachable only by someone who knows the address.
 
 - **Four tiles** — replies, attending, cannot come, and how many left a

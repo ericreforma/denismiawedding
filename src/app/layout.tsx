@@ -31,9 +31,9 @@ const doulaise = localFont({
   display: "swap",
 });
 
-/** Where the site is published. Override with NEXT_PUBLIC_SITE_URL for a custom domain. */
+/** Where the site is published. Override with NEXT_PUBLIC_SITE_URL to move it. */
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://ericreforma.github.io/denismiawedding";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://denisandmiaarrforever.site";
 
 const NAMES = `${COUPLE.one.first} & ${COUPLE.two.first}`;
 const DESCRIPTION = `Join ${COUPLE.one.first} and ${COUPLE.two.first} on ${EVENT.dateLong} at ${CEREMONY.name}, with the reception at ${RECEPTION.name}. RSVP online.`;

@@ -11,16 +11,14 @@ A Next.js 15 + Tailwind CSS v4 port of the "Mother of Pearl" invitation design
 | Ceremony | 2:00 PM — St. Joseph the Worker Parish, San Jose del Monte, Bulacan |
 | Reception | TBA — The Grounds Events Place, San Jose del Monte, Bulacan |
 
-**Live:** https://ericreforma.github.io/denismiawedding/
+**Live:** https://denisandmiaarrforever.site
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000/denismiawedding
+npm run dev     # http://localhost:3000
 ```
-
-The bare root redirects to the base path in development. See `next.config.mjs`.
 
 ## Still needed
 
@@ -292,10 +290,16 @@ Pushes to `main` build and publish to GitHub Pages via
 `.github/workflows/deploy.yml`. Requires **Settings → Pages → Source → "GitHub
 Actions"** once.
 
-`basePath` is `/denismiawedding`. It prefixes the URLs Next generates itself but
+The site answers on its own domain, **denisandmiaarrforever.site**, so
+`basePath` in `next.config.mjs` is empty and `public/CNAME` is what tells Pages
+which domain to serve. `basePath` prefixes the URLs Next generates itself but
 not hand-written `<img src="/…">` paths, so those prefix themselves from
-`NEXT_PUBLIC_BASE_PATH` in `wedding.ts`. Set `NEXT_PUBLIC_SITE_URL` for a custom
-domain.
+`NEXT_PUBLIC_BASE_PATH` in `wedding.ts` — set both back to `/denismiawedding`
+(and delete the CNAME) if the domain is ever dropped.
+
+DNS lives at Hostinger: four A records and four AAAA records on the apex
+pointing at GitHub's Pages addresses, and a `www` CNAME to
+`ericreforma.github.io`.
 
 ## RSVP and the dashboard
 
@@ -309,7 +313,7 @@ Paste the `/exec` URL into `src/data/config.ts` (or set
 form thanks the guest without sending anything and the dashboard says it is
 not connected yet.
 
-`/denismiawedding/dashboard` reads the replies back — four summary tiles,
+`/dashboard` reads the replies back — four summary tiles,
 search, filter, sort, and a CSV export of whatever is on screen. It is
 unlinked and `noindex`, and gated by a passcode that is checked **inside the
 Apps Script**, never in the page, so reading the page source gets an attacker
