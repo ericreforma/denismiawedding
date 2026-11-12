@@ -87,6 +87,8 @@ public/
   photos/          the couple's photo cropped for the oval, and the
                    two dress-code boards
   audio/           looping background track (128kbps, 2.9MB)
+  gallery/         the couple's full-resolution originals — GIT-IGNORED
+  gallery-web/     thumb/ and full/ built from them (23MB, committed)
   intro/           the opening clips and their poster frame (2.9MB)
 ```
 
@@ -189,6 +191,29 @@ and `font-sans` (Jost).
   two soundtracks at once.
 
   Swap films by changing `FILM.embedUrl` and `youtubeId` in `wedding.ts`.
+- **Gallery.** 123 photos as a justified strip that scrolls sideways: two
+  rows of equal height, each photo keeping its own aspect ratio. Photos are
+  dealt to whichever row is currently shortest rather than alternately, so
+  the two rows end within a few hundred pixels of each other instead of one
+  trailing a ragged tail.
+
+  **Two sizes, and that is what keeps it quick.** The strip loads 520px-tall
+  thumbnails, lazily — measured, a first look fetches about 10 of 123 on
+  desktop and 5 on mobile, and the rest arrive only as they are scrolled to.
+  The 1280px copy is fetched only when a photo is enlarged. Each thumbnail
+  carries its intrinsic width and height so the row reserves the right space
+  before anything loads; without that the strip reflows as images arrive and
+  lazy loading cannot tell what is off screen.
+
+  The lightbox walks the photographer's order, not the row order — following
+  the rows runs the whole top row and then starts again at the bottom, so
+  "next" appears to jump backwards.
+
+  **Regenerate with `node scripts/build-gallery.mjs`.** It reads
+  `public/gallery/` and writes both tiers plus `src/data/gallery.ts`. The
+  originals are 0.96GB and are git-ignored on purpose: committed once they
+  are in history forever, and a stray `git add -A` is all it would take.
+  Exclusions live in `EXCLUDE` at the top of that script.
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.

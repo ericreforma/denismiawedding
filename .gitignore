@@ -37,3 +37,10 @@ yarn-error.log*
 .vscode/
 .idea/
 __pycache__/
+
+# The couple's full-resolution originals (~0.96GB). These are the source for
+# scripts/build-gallery.mjs, which writes the web-sized copies into
+# public/gallery-web/ — those ARE committed. Keeping the originals out means
+# a stray `git add -A` cannot push a gigabyte of camera JPEGs into history,
+# where they would stay forever.
+/public/gallery/

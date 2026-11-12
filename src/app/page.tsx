@@ -6,6 +6,7 @@ import { AudioToggle } from "@/components/AudioToggle";
 import { Countdown } from "@/components/Countdown";
 import { DressCode } from "@/components/DressCode";
 import { EnterOverlay } from "@/components/EnterOverlay";
+import { Gallery } from "@/components/Gallery";
 import { Hero } from "@/components/Hero";
 import { Location } from "@/components/Location";
 import { LoveStory } from "@/components/LoveStory";
@@ -44,6 +45,7 @@ export default function Home() {
         <TheDay />
         <DressCode />
         <SaveTheDate />
+        <Gallery />
         <WhereToStay />
         <WeddingGift />
         <Rsvp />
