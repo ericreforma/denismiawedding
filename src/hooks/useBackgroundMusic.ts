@@ -10,6 +10,32 @@ import { AUDIO } from "@/data/wedding";
  */
 let shared: HTMLAudioElement | null = null;
 let started = false;
+/** Set while something else — the save-the-date film — is holding the floor. */
+let duckedByVideo = false;
+
+/**
+ * Silence the background theme while another sound plays, and put it back
+ * afterwards. Exported as plain functions rather than through the hook so the
+ * video does not have to own a copy of the player's state.
+ *
+ * `duckTheme` reports whether it actually paused anything, but callers can
+ * ignore that: `restoreTheme` only resumes what this paused, so a guest who
+ * muted the music before pressing play does not get it back unasked.
+ */
+export function duckTheme() {
+  if (!shared || shared.paused) return false;
+  shared.pause();
+  duckedByVideo = true;
+  return true;
+}
+
+export function restoreTheme() {
+  if (!shared || !duckedByVideo) return;
+  duckedByVideo = false;
+  shared.play().catch(() => {
+    /* Nothing to do: the mute button can start it again. */
+  });
+}
 
 export function useBackgroundMusic() {
   const [isMuted, setIsMuted] = useState(false);

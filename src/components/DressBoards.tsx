@@ -33,7 +33,9 @@ export function DressBoards() {
 
   return (
     <>
-      <section className="w-full px-6 pb-20 md:pb-28">
+      {/* Rendered inside the dress-code section rather than as a section of
+          its own — these are the dress code, not a separate topic. */}
+      <div className="mt-16 md:mt-20">
         <div className="mx-auto max-w-3xl space-y-12 md:space-y-16">
           {DRESS_BOARDS.map((b, i) => (
             <Reveal key={b.src} shift={24} delayMs={i * 90}>
@@ -67,7 +69,7 @@ export function DressBoards() {
             </Reveal>
           ))}
         </div>
-      </section>
+      </div>
 
       {board && (
         <div

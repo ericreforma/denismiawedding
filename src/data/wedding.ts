@@ -206,29 +206,40 @@ export const DRESS_CODE = {
  */
 export const DRESS_BOARDS: { src: string; label: string; alt: string }[] = [
   {
-    src: p("/photos/dresscode-entourage.webp"),
-    label: "For the Entourage",
-    alt: "Dress code for the entourage — maid of honor in navy blue, bridesmaids in beige, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
-  },
-  {
     src: p("/photos/dresscode-sponsors.webp"),
     label: "For our Ninong & Ninang",
     alt: "Dress code for the principal sponsors — ninong in a barong, ninang in beige with a touch of navy blue. The wedding colour motif is beige and navy blue",
   },
+  {
+    src: p("/photos/dresscode-entourage.webp"),
+    label: "For the Entourage",
+    alt: "Dress code for the entourage — maid of honor in navy blue, bridesmaids in beige, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
+  },
 ];
 
-// -------------------------------------------------------------- transportation
+// -------------------------------------------------------- save the date film
 
-/** TODO: the couple has not confirmed any transport arrangements. */
-export const TRANSPORT = {
-  heading: "Transportation",
-  paragraphs: [
-    "We want getting to and from the celebration to be as easy as possible.",
-    "Details of any shuttle service between the church and the reception will be shared here closer to the day.",
-    "Both venues have parking available on site.",
-  ],
-  cta: "View Reception Venue",
-  mapUrl: RECEPTION.mapUrl,
+/**
+ * The couple's save-the-date film, in the slot the template used for a
+ * transportation card.
+ *
+ * Hosted on YouTube rather than in this repo, and that is the right call
+ * twice over. The master is 387MB; even re-encoded to 720p it was 25MB, and
+ * Pages serves this site at roughly 40-200 KB/s from Manila — smooth
+ * playback needs ~126 KB/s sustained, so guests on the slow end would have
+ * buffered through it. YouTube streams adaptively off a CDN built for this,
+ * and the 25MB stays out of git history.
+ *
+ * `youtube-nocookie.com` so nothing is set until a guest presses play;
+ * `rel=0` keeps the end screen to this channel; `enablejsapi=1` lets the page
+ * hear when the film starts so the background theme can step aside.
+ */
+export const FILM = {
+  heading: "Save the Date",
+  blurb: "A little film, from us to you.",
+  youtubeId: "R68Siur3se8",
+  embedUrl:
+    "https://www.youtube-nocookie.com/embed/R68Siur3se8?rel=0&enablejsapi=1",
 } as const;
 
 // --------------------------------------------------------------- where to stay
@@ -314,7 +325,6 @@ export const ART = {
   timelineCurtain: p("/art/timeline-curtain.webp"),
   dressFrame: p("/art/dresscode-frame.webp"),
   dressSeal: p("/art/dresscode-seal.webp"),
-  dressAttire: p("/art/dresscode-attire.webp"),
   transportBg: p("/art/transport-bg.webp"),
   transportStamps: p("/art/transport-stamps.webp"),
   hotelFrame: p("/art/hotel-frame.webp"),

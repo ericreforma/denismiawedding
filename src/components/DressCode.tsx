@@ -1,3 +1,4 @@
+import { DressBoards } from "./DressBoards";
 import { Reveal } from "./Reveal";
 import { ART, DRESS_CODE } from "@/data/wedding";
 
@@ -33,26 +34,17 @@ export function DressCode() {
                 {DRESS_CODE.style}
               </p>
 
-              <div className="mt-[30px] md:mt-[33px] mb-[9px] md:mb-[33px] w-full">
-                <div className="mx-auto w-fit h-[150px] md:h-[270px] shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    loading="lazy"
-                    decoding="async"
-                    src={ART.dressAttire}
-                    alt="Wedding suit and dress illustration"
-                    className="h-full w-auto select-none pointer-events-none drop-shadow-[0_6px_6px_hsl(var(--foreground)/0.12)]"
-                    draggable={false}
-                  />
-                </div>
-              </div>
 
-              <p className="text-foreground/80 text-[11px] md:text-[13px] font-helvetica leading-snug mt-[30px] -mx-[12%] whitespace-pre-line">
+              <p className="text-foreground/80 text-[11px] md:text-[13px] font-helvetica leading-snug mt-6 md:mt-8 -mx-[12%] whitespace-pre-line">
                 {DRESS_CODE.blurb}
               </p>
             </div>
           </div>
         </Reveal>
+
+        {/* The couple's own boards, in the same section as the framed card
+            because they are the dress code rather than a separate topic. */}
+        <DressBoards />
       </section>
     </Reveal>
   );

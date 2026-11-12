@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { AudioToggle } from "@/components/AudioToggle";
 import { Countdown } from "@/components/Countdown";
-import { DressBoards } from "@/components/DressBoards";
 import { DressCode } from "@/components/DressCode";
 import { EnterOverlay } from "@/components/EnterOverlay";
 import { Hero } from "@/components/Hero";
@@ -14,7 +13,7 @@ import { Rsvp } from "@/components/Rsvp";
 import { ScratchReveal } from "@/components/ScratchReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TheDay } from "@/components/TheDay";
-import { Transportation } from "@/components/Transportation";
+import { SaveTheDate } from "@/components/SaveTheDate";
 import { WeddingGift } from "@/components/WeddingGift";
 import { WhereToStay } from "@/components/WhereToStay";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
@@ -44,8 +43,7 @@ export default function Home() {
         <Location />
         <TheDay />
         <DressCode />
-        <DressBoards />
-        <Transportation />
+        <SaveTheDate />
         <WhereToStay />
         <WeddingGift />
         <Rsvp />

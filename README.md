@@ -33,8 +33,10 @@ supplied yet. Edit that one file — no component needs touching.
 - **Dress code for general guests** — the framed card is still the
   template's "Formal Attire". The couple's own boards cover the entourage
   and the sponsors only; the colour motif is beige and navy blue if guests
-  should be pointed at it.
-- **Transportation** — no arrangements confirmed; the copy says details follow
+  should be pointed at it. The card also looks sparse now that the template's
+  suit-and-dress illustration has been removed from it — worth either giving
+  it something of the couple's own or dropping the frame and letting the
+  boards carry the section.
 - **Where to stay** — one placeholder card, no hotels chosen
 - **Gift details** — the copy asks for a monetary gift without naming an
   account. Add a `detail` line to `GIFT` and render it if that changes.
@@ -159,13 +161,34 @@ and `font-sans` (Jost).
   the prose but set in the serif rather than the script — Monsieur La Doulaise
   turns "YES." into an unreadable tangle of capitals and detaches the
   apostrophe in "Mia’s".
-- **Dress-code boards.** The couple's two finished graphics (entourage, and
-  ninong & ninang) sit below the framed card and open full screen. The
+- **Dress-code boards.** The couple's two finished graphics sit inside the
+  dress-code section, below the framed card — Ninong & Ninang first, since
+  the principal sponsors come before the entourage and open full screen. The
   enlarge step is not decoration: fitted to a phone, a landscape board's role
   labels are a few pixels tall. In the overlay the image is sized by viewport
   height on small screens so it is wider than the phone and the wrapper pans
   sideways — about 1040px against a 390px screen, versus 358px if it were
   simply fitted. From `md` up it fits whole.
+- **Save the date.** The couple's film, in the slot the template used for a
+  transportation card — the postage stamps were kept, since a save-the-date is
+  a thing that arrives in the post.
+
+  It plays from **YouTube**, not from this repo, and that was the right call
+  twice over. The master is 387MB; even re-encoded to 720p it was 25MB, and
+  Pages serves this site at roughly 40-200 KB/s from Manila while smooth
+  playback needs ~126 KB/s sustained — guests on the slow end would have
+  buffered through it. YouTube streams adaptively, and 25MB stays out of git
+  history. `youtube-nocookie.com` so nothing is set until a guest presses
+  play, and `rel=0` keeps the end screen to this channel.
+
+  A bare iframe gives the page no way to know the film is playing, so the
+  **YouTube IFrame API** is loaded to hear it: starting the film pauses the
+  background theme, and pausing or ending it brings the theme back — but only
+  if the theme was what got paused, so someone who muted the music beforehand
+  does not have it restored against their wishes. Without this a guest hears
+  two soundtracks at once.
+
+  Swap films by changing `FILM.embedUrl` and `youtubeId` in `wedding.ts`.
 - **Scratch to reveal.** The couple's photo sits under a canvas painted with a
   paper texture and a script prompt. Pointer strokes erase it with
   `destination-out`; once a sampled 55% of pixels are clear the canvas fades.
