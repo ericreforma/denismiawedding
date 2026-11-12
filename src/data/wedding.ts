@@ -242,6 +242,19 @@ export const FILM = {
     "https://www.youtube-nocookie.com/embed/R68Siur3se8?rel=0&enablejsapi=1",
 } as const;
 
+// ------------------------------------------------------------------- gallery
+
+/**
+ * The strip's own words. The photographs themselves live in
+ * `src/data/gallery.ts`, which is generated — this is the part anyone is
+ * likely to want to reword.
+ */
+export const GALLERY_COPY = {
+  heading: "Our Gallery",
+  blurb:
+    "A few of our favourite moments from the years that brought us here — tap any photo to linger a while.",
+} as const;
+
 // --------------------------------------------------------------- where to stay
 
 /** TODO: all placeholders — the couple has not chosen hotels yet. */

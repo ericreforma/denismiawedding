@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Portal } from "./Portal";
 import { Reveal } from "./Reveal";
 import { GALLERY, type GalleryPhoto } from "@/data/gallery";
+import { GALLERY_COPY } from "@/data/wedding";
 
 const ROWS = 2;
 
@@ -176,10 +177,10 @@ export function Gallery() {
       <section id="gallery" className="relative w-full py-20 md:py-28">
         <Reveal shift={20} className="px-6 text-center">
           <h2 className="font-doulaise text-6xl md:text-8xl text-foreground leading-none">
-            Our Gallery
+            {GALLERY_COPY.heading}
           </h2>
-          <p className="mt-5 text-foreground/70 text-[13px] font-helvetica">
-            Scroll sideways — tap any photo to enlarge.
+          <p className="mx-auto mt-5 max-w-md text-foreground/70 text-[13px] font-helvetica leading-relaxed">
+            {GALLERY_COPY.blurb}
           </p>
         </Reveal>
 
