@@ -1,6 +1,6 @@
 import { OutlineButton } from "./OutlineButton";
 import { Reveal } from "./Reveal";
-import { ART, TRANSPORT, mapsUrl } from "@/data/wedding";
+import { ART, TRANSPORT } from "@/data/wedding";
 
 export function Transportation() {
   return (
@@ -57,7 +57,7 @@ export function Transportation() {
             ))}
 
             <div className="mt-8">
-              <OutlineButton href={mapsUrl(TRANSPORT.mapQuery)}>
+              <OutlineButton href={TRANSPORT.mapUrl}>
                 {TRANSPORT.cta}
               </OutlineButton>
             </div>

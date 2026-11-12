@@ -44,20 +44,57 @@ export const EVENT = {
 
 export const CEREMONY = {
   name: "St. Joseph the Worker Parish",
-  /** TODO: confirm barangay / street address. */
+  /** Short form, for the hero where a full address will not fit. */
   city: "San Jose del Monte, Bulacan",
-  mapQuery: "St+Joseph+the+Worker+Parish+San+Jose+del+Monte+Bulacan",
+  address: "Brgy. Poblacion I, City of San Jose del Monte, Bulacan",
+  /**
+   * The couple's own Maps link to the exact place, with the `entry`/`g_ep`
+   * session parameters stripped — those are per-visit analytics tags, not
+   * part of the address. The `!1s0x3397...` feature id inside `data` is what
+   * pins it to this church rather than a name search that could land on
+   * another parish of the same name.
+   */
+  mapUrl:
+    "https://www.google.com/maps/place/St.+Joseph+the+Worker+Parish+Church/@14.8099506,121.0454103,675m/data=!3m1!1e3!4m14!1m7!3m6!1s0x3397af09ad9f5253:0x71d12b0d28b22a59!2sSt.+Joseph+the+Worker+Parish+Church!8m2!3d14.8099454!4d121.0479852!16s%2Fg%2F11b6hxzyc4!3m5!1s0x3397af09ad9f5253:0x71d12b0d28b22a59!8m2!3d14.8099454!4d121.0479852!16s%2Fg%2F11b6hxzyc4",
+  /**
+   * The city tourism office's promotional graphic, which is what the couple
+   * supplied. It carries their orange-and-blue branding, three agency logos
+   * and the church name burned in — none of which match this design. There is
+   * no clean crop: the swoosh crosses the sky exactly where the towers are.
+   * A plain photograph of the church would sit far better here.
+   */
+  image: p("/photos/venue-church.webp"),
 } as const;
 
 export const RECEPTION = {
   name: "The Grounds Events Place",
-  /** TODO: confirm the branch / full address. */
+  /** Short form, for prose that should not carry the whole address. */
   city: "San Jose del Monte, Bulacan",
-  mapQuery: "The+Grounds+Events+Place+San+Jose+del+Monte+Bulacan",
+  address:
+    "9022 Provincial Road, Sitio Gulod, Sapang Palay Proper, San Jose del Monte, Bulacan 3023",
+  /**
+   * TODO: swap for the venue's own Maps link when the couple sends one, the
+   * way the church has. This searches the name and address, which is accurate
+   * but not pinned to a specific place id.
+   */
+  mapUrl:
+    "https://www.google.com/maps/search/?api=1&query=" +
+    encodeURIComponent(
+      "The Grounds Events Place, 9022 Provincial Road, Sapang Palay, San Jose del Monte, Bulacan",
+    ),
+  /**
+   * The venue's own logo, shown instead of the name in script.
+   *
+   * It is black and gold on a white ground, which was multiplied into the
+   * page's ivory when the file was made. The template's `mix-blend-multiply`
+   * looks like it would do this at runtime but does not: `Reveal`'s transform
+   * puts the block in its own stacking context, so the blend never reaches
+   * the page backdrop and the white rendered as a visible box. Baking it in
+   * is also one less thing to break. If `--background` ever changes, this
+   * file has to be regenerated against the new colour.
+   */
+  logo: p("/photos/grounds-logo.webp"),
 } as const;
-
-export const mapsUrl = (query: string) =>
-  `https://www.google.com/maps/search/?api=1&query=${query}`;
 
 // --------------------------------------------------------------- love story
 
@@ -86,7 +123,25 @@ export const STORY = {
 
 // ------------------------------------------------------------------ location
 
-export const LOCATION = {
+/**
+ * A venue block shows either a picture above its name (`image`) or a logo
+ * standing in for the name (`logo`). One or the other, never both.
+ */
+export type Venue = {
+  kicker: string;
+  name: string;
+  address: string;
+  mapUrl: string;
+  image?: string;
+  logo?: string;
+};
+
+export const LOCATION: {
+  heading: string;
+  blurb: string;
+  note: string;
+  venues: Venue[];
+} = {
   heading: "Location",
   /** TODO: the couple may want their own words here. */
   blurb:
@@ -96,7 +151,7 @@ export const LOCATION = {
     { kicker: "Ceremony", ...CEREMONY },
     { kicker: "Reception", ...RECEPTION },
   ],
-} as const;
+};
 
 // ------------------------------------------------------------------- the day
 
@@ -173,7 +228,7 @@ export const TRANSPORT = {
     "Both venues have parking available on site.",
   ],
   cta: "View Reception Venue",
-  mapQuery: RECEPTION.mapQuery,
+  mapUrl: RECEPTION.mapUrl,
 } as const;
 
 // --------------------------------------------------------------- where to stay
@@ -185,7 +240,7 @@ export const HOTELS: {
   rate: string;
   parking: string;
   blurb: string;
-  mapQuery: string;
+  mapUrl: string;
 }[] = [
   {
     name: "To be announced",
@@ -194,7 +249,7 @@ export const HOTELS: {
     parking: "To be confirmed",
     blurb:
       "We are still arranging recommended accommodation for guests travelling in. Details will appear here soon.",
-    mapQuery: RECEPTION.mapQuery,
+    mapUrl: RECEPTION.mapUrl,
   },
 ];
 
@@ -256,7 +311,6 @@ export const ART = {
   /** Doubles as the transport card stock — one file, two uses. */
   paper: p("/art/paper-texture.webp"),
   pearlDot: p("/art/pearl-dot.webp"),
-  venue: p("/art/venue-illustration.webp"),
   timelineCurtain: p("/art/timeline-curtain.webp"),
   dressFrame: p("/art/dresscode-frame.webp"),
   dressSeal: p("/art/dresscode-seal.webp"),

@@ -1,6 +1,6 @@
 import { OutlineButton } from "./OutlineButton";
 import { Reveal } from "./Reveal";
-import { ART, HOTELS, STAY, mapsUrl } from "@/data/wedding";
+import { ART, HOTELS, STAY } from "@/data/wedding";
 
 export function WhereToStay() {
   return (
@@ -61,7 +61,7 @@ export function WhereToStay() {
 
                     <div className="mt-7">
                       <OutlineButton
-                        href={mapsUrl(hotel.mapQuery)}
+                        href={hotel.mapUrl}
                         tracking="tracking-[0.24em]"
                         padding="px-3 py-3"
                       >

@@ -39,10 +39,15 @@ supplied yet. Edit that one file — no component needs touching.
 - **Gift details** — the copy asks for a monetary gift without naming an
   account. Add a `detail` line to `GIFT` and render it if that changes.
 - **RSVP deadline** — set to 15 November 2026
-- **Full venue addresses**
+- **A Maps link for the reception** — the church has the couple's own pinned
+  link; the reception still searches its name and address
+- **A plainer photograph of the church.** What is there is the city tourism
+  office's promotional graphic: orange-and-blue branding, three agency logos,
+  and the name and address burned in, none of which match this design. It
+  cannot be cropped clean — the swoosh crosses the sky exactly where the
+  towers are.
 
-Two pieces of artwork are still the template's and do not depict the real
-venues: `venue-illustration.webp` (an Italianate villa) and the hotel frame.
+The hotel frame is still the template's artwork.
 
 The opening clips still show the template couple's **"C & J"** wax seal, which
 cannot be re-lettered the way the still seals were. Replacing it needs new
