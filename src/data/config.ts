@@ -11,7 +11,7 @@
  * and the dashboard says it has not been connected yet.
  */
 export const RSVP_ENDPOINT =
-  process.env.NEXT_PUBLIC_RSVP_ENDPOINT ?? "";
+  process.env.NEXT_PUBLIC_RSVP_ENDPOINT ?? "https://script.google.com/macros/s/AKfycbx0g8kbrafefpSzgqh6dfxD-v5Vg3TdMoVeqBxHECUtOeD1WvxdCiKjkADeLcQCBIk2/exec";
 
 export const hasEndpoint = () => RSVP_ENDPOINT.trim().length > 0;
 
