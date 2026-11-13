@@ -152,14 +152,17 @@ export function DashboardClient() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-[100svh] bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-5 py-10 md:px-8 md:py-14">
-        <header className="flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6">
-          <div>
+        {/* Stacked on a phone, shoulder to shoulder from sm up: the title and
+            the two actions never fit on one narrow line without the buttons
+            wrapping underneath half-width. */}
+        <header className="flex flex-col gap-4 border-b border-foreground/15 pb-6 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+          <div className="min-w-0">
             <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-foreground/50">
               RSVP Dashboard
             </p>
-            <h1 className="mt-2 font-display text-3xl md:text-4xl">
+            <h1 className="mt-2 font-display text-[1.75rem] leading-tight sm:text-3xl md:text-4xl">
               {COUPLE.one.first} &amp; {COUPLE.two.first}
             </h1>
             <p className="mt-1 font-sans text-[13px] text-foreground/60">
@@ -172,14 +175,14 @@ export function DashboardClient() {
               type="button"
               onClick={() => fetchEntries(passcode)}
               disabled={load.state === "loading"}
-              className="rounded-full border border-foreground/25 px-4 py-2 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-50"
+              className="flex-1 rounded-full border border-foreground/25 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-50 sm:flex-none sm:py-2"
             >
               {load.state === "loading" ? "Refreshing…" : "Refresh"}
             </button>
             <button
               type="button"
               onClick={signOut}
-              className="rounded-full border border-transparent px-3 py-2 font-sans text-[12px] uppercase tracking-[0.18em] text-foreground/50 transition-colors hover:text-foreground"
+              className="rounded-full border border-foreground/15 px-5 py-2.5 font-sans text-[12px] uppercase tracking-[0.18em] text-foreground/50 transition-colors hover:text-foreground sm:border-transparent sm:px-3 sm:py-2"
             >
               Lock
             </button>
@@ -210,21 +213,24 @@ export function DashboardClient() {
               <StatTile label="Dietary notes" value={counts.dietary} />
             </section>
 
-            <section className="mt-8 flex flex-wrap items-center gap-3">
-              <label className="relative flex-1 min-w-[12rem]">
+            {/* A phone gets one control per row — search, then the filter as
+                a full-width three-up, then sort and export sharing a line.
+                From md up they run together on a single flex row. */}
+            <section className="mt-8 space-y-3 md:flex md:flex-wrap md:items-center md:gap-3 md:space-y-0">
+              <label className="relative block md:min-w-[12rem] md:flex-1">
                 <span className="sr-only">Search replies</span>
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search a name, note or message…"
-                  className="w-full rounded-full border border-foreground/20 bg-card px-5 py-2.5 font-sans text-[14px] placeholder:text-foreground/40 focus:border-foreground/50 focus:outline-none"
+                  className="w-full rounded-full border border-foreground/20 bg-card px-5 py-3 font-sans text-[16px] placeholder:text-foreground/40 focus:border-foreground/50 focus:outline-none md:py-2.5 md:text-[14px]"
                 />
               </label>
 
               <div
                 role="group"
                 aria-label="Filter by attendance"
-                className="flex rounded-full border border-foreground/20 p-1"
+                className="grid grid-cols-3 rounded-full border border-foreground/20 p-1 md:flex"
               >
                 {(
                   [
@@ -238,7 +244,7 @@ export function DashboardClient() {
                     type="button"
                     onClick={() => setFilter(v)}
                     aria-pressed={filter === v}
-                    className={`rounded-full px-3.5 py-1.5 font-sans text-[12px] uppercase tracking-[0.14em] transition-colors ${
+                    className={`rounded-full px-2 py-2.5 font-sans text-[11px] uppercase tracking-[0.1em] transition-colors md:px-3.5 md:py-1.5 md:text-[12px] md:tracking-[0.14em] ${
                       filter === v
                         ? "bg-foreground text-background"
                         : "text-foreground/60 hover:text-foreground"
@@ -249,32 +255,36 @@ export function DashboardClient() {
                 ))}
               </div>
 
-              <label className="font-sans text-[12px] text-foreground/60">
-                <span className="sr-only">Sort replies</span>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as Sort)}
-                  className="rounded-full border border-foreground/20 bg-card px-4 py-2.5 font-sans text-[13px] text-foreground focus:border-foreground/50 focus:outline-none"
-                >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="name">By name</option>
-                </select>
-              </label>
+              {/* `md:contents` dissolves this row from md up, so the two
+                  controls rejoin the flex line above. */}
+              <div className="flex gap-3 md:contents">
+                <label className="flex-1 font-sans text-[12px] text-foreground/60 md:flex-none">
+                  <span className="sr-only">Sort replies</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as Sort)}
+                    className="w-full rounded-full border border-foreground/20 bg-card px-4 py-3 font-sans text-[16px] text-foreground focus:border-foreground/50 focus:outline-none md:w-auto md:py-2.5 md:text-[13px]"
+                  >
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="name">By name</option>
+                  </select>
+                </label>
 
-              <button
-                type="button"
-                onClick={() =>
-                  downloadCsv(
-                    `rsvp-${new Date().toISOString().slice(0, 10)}.csv`,
-                    toCsv(shown),
-                  )
-                }
-                disabled={shown.length === 0}
-                className="rounded-full border border-foreground/25 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-40"
-              >
-                Export CSV
-              </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    downloadCsv(
+                      `rsvp-${new Date().toISOString().slice(0, 10)}.csv`,
+                      toCsv(shown),
+                    )
+                  }
+                  disabled={shown.length === 0}
+                  className="flex-1 whitespace-nowrap rounded-full border border-foreground/25 px-4 py-3 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-40 md:flex-none md:py-2.5"
+                >
+                  Export CSV
+                </button>
+              </div>
             </section>
 
             <p className="mt-5 font-sans text-[12px] text-foreground/50">

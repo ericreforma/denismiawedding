@@ -20,7 +20,7 @@ export function PasscodeGate({ onSubmit, error }: PasscodeGateProps) {
   const [code, setCode] = useState("");
 
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-6 text-foreground">
+    <main className="grid min-h-[100svh] place-items-center bg-background px-6 py-12 text-foreground">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -31,7 +31,7 @@ export function PasscodeGate({ onSubmit, error }: PasscodeGateProps) {
         <p className="font-sans text-[11px] uppercase tracking-[0.3em] text-foreground/50">
           RSVP Dashboard
         </p>
-        <h1 className="mt-3 font-doulaise text-5xl leading-none">
+        <h1 className="mt-3 font-doulaise text-[2.75rem] leading-none sm:text-5xl">
           {COUPLE.one.first} &amp; {COUPLE.two.first}
         </h1>
 
@@ -46,7 +46,7 @@ export function PasscodeGate({ onSubmit, error }: PasscodeGateProps) {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Enter the dashboard passcode"
-            className="mt-2 w-full rounded-lg border border-foreground/20 bg-card px-4 py-3 font-sans text-[15px] placeholder:text-foreground/35 focus:border-foreground/50 focus:outline-none"
+            className="mt-2 w-full rounded-lg border border-foreground/20 bg-card px-4 py-3.5 font-sans text-[16px] placeholder:text-foreground/35 focus:border-foreground/50 focus:outline-none md:py-3 md:text-[15px]"
           />
         </label>
 
@@ -62,7 +62,7 @@ export function PasscodeGate({ onSubmit, error }: PasscodeGateProps) {
         <button
           type="submit"
           disabled={!code.trim()}
-          className="mt-6 w-full rounded-full bg-foreground px-6 py-3 font-sans text-[12px] uppercase tracking-[0.25em] text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="mt-6 w-full rounded-full bg-foreground px-6 py-3.5 font-sans text-[12px] uppercase tracking-[0.25em] text-background transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           View replies
         </button>

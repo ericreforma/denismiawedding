@@ -53,23 +53,25 @@ export function ReplyTable({
         {entries.map((e, i) => (
           <li
             key={`${e.timestamp}-${e.name}-${i}`}
-            className="rounded-xl border border-foreground/15 bg-card px-4 py-4"
+            className="overflow-hidden rounded-xl border border-foreground/15 bg-card px-4 py-4"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="font-display text-xl leading-tight">{e.name}</p>
+              <p className="min-w-0 break-words font-display text-xl leading-tight">
+                {e.name}
+              </p>
               <Badge attending={e.attending} />
             </div>
             <p className="mt-1 font-sans text-[12px] text-foreground/45">
               {when(e.timestamp)}
             </p>
             {e.dietary.trim() && (
-              <p className="mt-3 font-sans text-[13px] leading-relaxed">
+              <p className="mt-3 break-words font-sans text-[13px] leading-relaxed">
                 <span className="text-foreground/50">Dietary · </span>
                 {e.dietary}
               </p>
             )}
             {e.message.trim() && (
-              <p className="mt-2 font-sans text-[13px] leading-relaxed text-foreground/80">
+              <p className="mt-2 break-words font-sans text-[13px] leading-relaxed text-foreground/80">
                 “{e.message}”
               </p>
             )}
