@@ -29,8 +29,8 @@ export const COUPLE = {
 export const WEDDING_DATE = new Date("2026-12-15T14:00:00+08:00");
 
 export const EVENT = {
-  /** Hero, in the template's dotted style. */
-  dateDotted: "15.12.2026",
+  /** Hero, in the template's dotted style (mm.dd.yyyy). */
+  dateDotted: "12.15.2026",
   dateLong: "15 December 2026",
   dateSentence: "December 15, 2026",
   startISO: "2026-12-15T14:00:00+08:00",
@@ -160,7 +160,9 @@ export const LOCATION: {
  * supply the reception schedule — add entries here and the timeline grows.
  */
 export const TIMELINE: {
-  time: string;
+  /** Left out where the hour is not settled yet — the row then reads as
+      title and detail alone rather than announcing a placeholder. */
+  time?: string;
   meridiem?: string;
   title: string;
   detail: string;
@@ -172,7 +174,6 @@ export const TIMELINE: {
     detail: "We say “I do” at St. Joseph the Worker Parish.",
   },
   {
-    time: "TBA",
     title: "Reception",
     detail: "Dinner and dancing at The Grounds Events Place.",
   },
@@ -426,34 +427,6 @@ export const GALLERY_COPY = {
     "A few of our favourite moments from the years that brought us here — tap any photo to linger a while.",
 } as const;
 
-// --------------------------------------------------------------- where to stay
-
-/** TODO: all placeholders — the couple has not chosen hotels yet. */
-export const HOTELS: {
-  name: string;
-  stay: string;
-  rate: string;
-  parking: string;
-  blurb: string;
-  mapUrl: string;
-}[] = [
-  {
-    name: "To be announced",
-    stay: "14 – 16 December 2026",
-    rate: "To be confirmed",
-    parking: "To be confirmed",
-    blurb:
-      "We are still arranging recommended accommodation for guests travelling in. Details will appear here soon.",
-    mapUrl: RECEPTION.mapUrl,
-  },
-];
-
-export const STAY = {
-  heading: "Where to Stay",
-  blurb:
-    "For those joining us from out of town, we're putting together a short list of places to stay near the venue.",
-} as const;
-
 // ---------------------------------------------------------------------- gift
 
 /**
@@ -511,7 +484,6 @@ export const ART = {
   dressSeal: p("/art/dresscode-seal.webp"),
   transportBg: p("/art/transport-bg.webp"),
   transportStamps: p("/art/transport-stamps.webp"),
-  hotelFrame: p("/art/hotel-frame.webp"),
   giftFrame: p("/art/gift-frame.webp"),
   rsvpTopBorder: p("/art/rsvp-top-border.webp"),
   envelopeClosed: p("/art/envelope-closed.webp"),

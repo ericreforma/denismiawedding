@@ -17,7 +17,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TheDay } from "@/components/TheDay";
 import { SaveTheDate } from "@/components/SaveTheDate";
 import { WeddingGift } from "@/components/WeddingGift";
-import { WhereToStay } from "@/components/WhereToStay";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { useReveal } from "@/hooks/useReveal";
 
@@ -49,7 +48,6 @@ export default function Home() {
         <TheDay />
         <Entourage />
         <DressCode />
-        <WhereToStay />
         <WeddingGift />
         <Rsvp />
         <SiteFooter />

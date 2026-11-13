@@ -55,15 +55,23 @@ export function TheDay() {
                     className="mt-1.5 w-3 h-3 rounded-full shadow-[0_1px_2px_hsl(var(--foreground)/0.3)]"
                   />
                   <div className="leading-snug">
-                    <span className="block font-display text-2xl md:text-3xl text-foreground leading-none">
-                      {item.time}
-                      {item.meridiem && (
-                        <span className="ml-1 text-[0.5em] tracking-[0.1em]">
-                          {item.meridiem}
-                        </span>
-                      )}
-                    </span>
-                    <span className="block mt-2 font-body text-sm tracking-[0.2em] uppercase text-foreground">
+                    {/* A row with no settled hour leads with its title
+                        instead, so nothing stands in for the missing time. */}
+                    {item.time && (
+                      <span className="block font-display text-2xl md:text-3xl text-foreground leading-none">
+                        {item.time}
+                        {item.meridiem && (
+                          <span className="ml-1 text-[0.5em] tracking-[0.1em]">
+                            {item.meridiem}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                    <span
+                      className={`block font-body text-sm tracking-[0.2em] uppercase text-foreground${
+                        item.time ? " mt-2" : ""
+                      }`}
+                    >
                       {item.title}
                     </span>
                     <span className="block mt-1 font-helvetica text-foreground/70 text-[12px] md:text-[13px] leading-relaxed">
