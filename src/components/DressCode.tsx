@@ -19,7 +19,7 @@ export function DressCode() {
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={ART.dressSeal}
+              src={ART.seal}
               alt=""
               aria-hidden
               className="pointer-events-none select-none absolute right-[2%] bottom-[4%] w-[26%] h-auto rotate-[24deg] drop-shadow-[0_2px_3px_hsl(var(--foreground)/0.15)] z-20"

@@ -481,14 +481,20 @@ export const ART = {
   pearlDot: p("/art/pearl-dot.webp"),
   timelineCurtain: p("/art/timeline-curtain.webp"),
   dressFrame: p("/art/dresscode-frame.webp"),
-  dressSeal: p("/art/dresscode-seal.webp"),
   transportBg: p("/art/transport-bg.webp"),
   transportStamps: p("/art/transport-stamps.webp"),
   giftFrame: p("/art/gift-frame.webp"),
   rsvpTopBorder: p("/art/rsvp-top-border.webp"),
   envelopeClosed: p("/art/envelope-closed.webp"),
   envelopeOpen: p("/art/envelope-open.webp"),
-  footerSeal: p("/art/footer-seal.webp"),
+  /**
+   * The couple's own wax seal, used everywhere a seal appears — the dress
+   * code frame and the footer both press the same one. Resized from their
+   * 1254px PNG to 512px, which covers the largest of those (144px CSS) at
+   * 3x; `scripts/` has no step for single pieces of art, so it was made with
+   * the same sharp settings by hand.
+   */
+  seal: p("/art/d-and-m-seal.webp"),
 } as const;
 
 export const PHOTOS = {

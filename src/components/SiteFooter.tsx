@@ -7,7 +7,7 @@ export function SiteFooter() {
       <footer className="relative pt-32 md:pt-44 pb-20 text-center px-6">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={ART.footerSeal}
+          src={ART.seal}
           alt={COUPLE.initials}
           draggable={false}
           className="w-28 md:w-36 h-auto mx-auto mb-8 -mt-3 pointer-events-none select-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.15)]"

@@ -44,3 +44,9 @@ __pycache__/
 # a stray `git add -A` cannot push a gigabyte of camera JPEGs into history,
 # where they would stay forever.
 /public/gallery/
+
+# The couple's full-resolution seal, the source for public/art/d-and-m-seal.webp
+# (2MB against 58KB). Same reasoning as the gallery above: the web-sized copy
+# is committed, the original is not, so a stray `git add -A` cannot park it in
+# history for good.
+/public/art/d_and_m_seal.png
