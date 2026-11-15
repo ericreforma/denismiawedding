@@ -38,19 +38,30 @@ import { RSVP_ENDPOINT, SITE_URL, hasEndpoint } from "./config";
 export const INVITE_PARAM = "youareinvited";
 
 /**
- * Whether the invitation is personal links only.
+ * Whether the invitation is personal links only. It is.
  *
- * `false` — today — means the site stays public and a token only adds the
- * personal layer on top. Setting it to `true` turns the address itself into
- * something only a named guest can open: anyone arriving without a working
- * token gets the closed screen. Left off because the couple share the plain
- * address too, and because every device-lock false positive (see below)
- * would otherwise lock a real guest out of the invitation entirely.
+ * On, the bare address opens nothing: a visitor needs a token the sheet
+ * knows, unclaimed or claimed by this very browser. A missing token, an
+ * invented one and a stranger's all meet the same closed door.
+ *
+ * Worth being straight about what this is worth. The gate is JavaScript, and
+ * the invitation's words and pictures are in the bundle it has already sent.
+ * Someone who knows to open devtools can read them without ever passing it.
+ * What the lock really buys is that a link cannot be casually forwarded and
+ * reused — which is the thing the couple actually asked for. Anything
+ * stronger would mean rendering the invitation on a server, which a static
+ * site on Pages is not.
+ *
+ * Turning it off returns the site to a public invitation where a token only
+ * adds the personal layer on top.
  */
-export const INVITE_ONLY = false;
+export const INVITE_ONLY = true;
 
 /** Where this browser's id is kept between visits. */
 const DEVICE_KEY = "dm-device-id";
+
+/** Where the last invitation this browser passed is kept. */
+const PASSED_KEY = "dm-invite-passed";
 
 /**
  * - `ok` — the token is real and this device holds it.
@@ -178,6 +189,15 @@ async function post<T>(body: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 
+/** Drop a remembered pass — used when the script says the token is not ours. */
+function forget() {
+  try {
+    localStorage.removeItem(PASSED_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
+
 /** The guest's side: hand over the token, find out whether it is theirs. */
 export async function claimInvite(token: string): Promise<InviteClaim> {
   if (!hasEndpoint()) return { status: "offline" };
@@ -194,9 +214,42 @@ export async function claimInvite(token: string): Promise<InviteClaim> {
       device: deviceLabel(),
     });
     if (!data.ok || !data.status) return { status: "offline" };
+    if (data.status === "ok" && data.name) remember(token, data.name);
+    // A token this browser no longer holds should not keep letting it in.
+    if (data.status === "blocked") forget();
     return { status: data.status, name: data.name, firstOpen: data.firstOpen };
   } catch {
     return { status: "offline" };
+  }
+}
+
+/**
+ * Remember that this browser passed, so a later visit survives the script
+ * being slow, rate-limited or briefly down.
+ *
+ * Only a claim that already succeeded is ever written here, and only the
+ * token it succeeded with will match on the way back — so this shortens a
+ * second visit, it does not open a first one. Someone willing to forge the
+ * entry by hand has devtools open, and devtools already reads the invitation
+ * straight out of the bundle.
+ */
+function remember(token: string, name: string) {
+  try {
+    localStorage.setItem(PASSED_KEY, JSON.stringify({ token, name }));
+  } catch {
+    /* Nothing to remember with; the next visit simply asks again. */
+  }
+}
+
+/** The name this browser last passed with, if it was for this same token. */
+export function recall(token: string): string | null {
+  try {
+    const raw = localStorage.getItem(PASSED_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as { token?: string; name?: string };
+    return saved.token === token ? saved.name?.trim() || null : null;
+  } catch {
+    return null;
   }
 }
 

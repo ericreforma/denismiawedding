@@ -332,6 +332,11 @@ so anything it could decrypt, a guest could decrypt and forge. The name lives
 beside the token in the sheet's `Invites` tab, and only the Apps Script can
 match them.
 
+The bare address opens nothing: without a token the sheet recognises, a
+visitor gets a closed screen. The couple need a link of their own to see their
+own site. The gate is client-side — devtools can still read the bundle — so
+what it really buys is that a link cannot be forwarded and reused.
+
 The first device to open a link claims it; any other is turned away, which is
 what makes a forwarded link useless. "Device" means a random id in that
 browser's `localStorage`, so an in-app browser, a private window, or cleared
@@ -340,6 +345,7 @@ be locked out of their own invitation. **Reset device** on the dashboard
 clears the binding and is the fix for that as well as for a link the wrong
 person opened first.
 
-`src/data/invite.ts` holds the client, the honest limits, and an `INVITE_ONLY`
-switch that would close the site to anyone without a working link. It is off:
-the couple share the plain address too.
+`src/data/invite.ts` holds the client, the honest limits, and the
+`INVITE_ONLY` switch — on — that closes the site to anyone without a working
+link. A browser that has passed once remembers it, so a later visit survives
+the script being slow or briefly down.

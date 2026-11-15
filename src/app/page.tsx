@@ -17,9 +17,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TheDay } from "@/components/TheDay";
 import { SaveTheDate } from "@/components/SaveTheDate";
 import { WeddingGift } from "@/components/WeddingGift";
-import { InviteBlocked } from "@/components/invite/InviteBlocked";
+import { InviteGate } from "@/components/invite/InviteGate";
 import { InviteProvider, useGuest } from "@/components/invite/InviteProvider";
-import { INVITE_ONLY } from "@/data/invite";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { useReveal } from "@/hooks/useReveal";
 
@@ -41,11 +40,9 @@ function Invitation() {
   const { isMuted, startMusic, toggleMute } = useBackgroundMusic();
   useReveal();
 
-  // A link someone else's device claimed, and — only when the couple have
-  // closed the site — a visitor with no working invitation at all.
-  if (state === "blocked" || (INVITE_ONLY && state === "none")) {
-    return <InviteBlocked />;
-  }
+  // Anything but a recognised guest — including the moment before the token
+  // has been checked, so the invitation is never shown and then taken away.
+  if (state !== "welcome") return <InviteGate />;
 
   return (
     <>

@@ -445,6 +445,27 @@ A second tab appears on first use:
 |---|---|---|---|---|---|---|---|
 | Token | Name | Device ID | Device | First opened | Last opened | Opens | Created |
 
+### The invitation is closed
+
+The bare address opens nothing. A visitor needs a token the `Invites` tab
+knows, and one that is either unclaimed or already claimed by their own
+browser — a missing token, an invented one and a stranger's all meet the same
+closed screen, worded to suit each case.
+
+**This means you cannot open your own invitation without a link.** Make one
+for yourselves in the Invitations tab and keep it; it behaves exactly as a
+guest's does.
+
+What the lock is honestly worth: it is JavaScript, and the invitation's words
+and pictures are already in the page it downloaded. Someone who knows to open
+developer tools can read them without ever passing the gate. What it does buy
+is that a link cannot be casually forwarded and reused, which is the thing
+worth having. Anything stronger would mean rendering the invitation on a
+server, which a static site on Pages is not.
+
+To reopen the site to everyone, set `INVITE_ONLY` to `false` in
+`src/data/invite.ts` and rebuild.
+
 ### One link, one device
 
 The first device to open a link claims it — its id goes in column C. From then

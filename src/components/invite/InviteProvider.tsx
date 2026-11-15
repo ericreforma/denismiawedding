@@ -2,33 +2,58 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-import { INVITE_PARAM, claimInvite, type InviteStatus } from "@/data/invite";
+import {
+  INVITE_ONLY,
+  INVITE_PARAM,
+  claimInvite,
+  recall,
+  type InviteStatus,
+} from "@/data/invite";
 
 /**
- * How the page sees the guest.
+ * How the page sees whoever is reading it.
  *
- * `checking` is its own state because the claim is a network round trip, and
- * a greeting that pops in halfway through the intro reads as a glitch. The
- * overlay covers it: by the time anyone has tapped through, this has settled.
+ * - `checking` — the token is being verified. Nothing of the invitation is
+ *   shown yet: a closed site that flashes its contents first is not closed.
+ * - `welcome` — a real token, held by this device. The invitation proper.
+ * - `closed` — no token at all. Someone has the bare address.
+ * - `invalid` — a token the sheet does not know. A link edited, truncated by
+ *   a messaging app, or typed out by hand with a character wrong.
+ * - `blocked` — a real token that another device claimed first.
+ * - `offline` — the script could not be reached, so nothing could be proved
+ *   either way. Kept separate from the rest because it is the one state that
+ *   is the site's fault, and the one worth offering a retry for.
  */
+export type GuestState =
+  | "checking"
+  | "welcome"
+  | "closed"
+  | "invalid"
+  | "blocked"
+  | "offline";
+
 export type Guest = {
-  state: "none" | "checking" | "welcome" | "blocked";
+  state: GuestState;
   /** The invited person's name, once the script has confirmed it is theirs. */
   name: string | null;
-  /** The token from the link, kept for the RSVP to send back with the reply. */
+  /** The token from the link. */
   token: string | null;
+  /** Re-run the check. Only meaningful from `offline`. */
+  retry: () => void;
 };
 
 const GuestContext = createContext<Guest>({
-  state: "none",
+  state: INVITE_ONLY ? "closed" : "welcome",
   name: null,
   token: null,
+  retry: () => {},
 });
 
 /** What the invitation knows about who is reading it. */
@@ -40,55 +65,73 @@ export function useGuest() {
  * Reads `?youareinvited=…`, asks the Apps Script whose it is, and puts the
  * answer where the page can reach it.
  *
- * A visitor with no token is `none` and sees the ordinary invitation — the
- * site stays public, and the token is the personal layer on top. Flip
- * `INVITE_ONLY` in `src/data/invite.ts` if the couple ever want the stricter
- * version, where only a named guest gets in at all.
+ * With `INVITE_ONLY` on, every state but `welcome` is a closed door — a
+ * missing token and an invented one included. That is the point: a token the
+ * sheet cannot match is not a guest, however much it looks like one.
+ *
+ * With it off, only a token that provably belongs to another device closes
+ * the door; everything else falls through to the ordinary invitation.
  */
 export function InviteProvider({ children }: { children: React.ReactNode }) {
-  const [guest, setGuest] = useState<Guest>({
-    state: "none",
-    name: null,
-    token: null,
-  });
+  const [state, setState] = useState<GuestState>("checking");
+  const [name, setName] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  /** Bumped by `retry` to re-run the effect. */
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = useCallback(() => {
+    setState("checking");
+    setAttempt((n) => n + 1);
+  }, []);
 
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search)
+    const found = new URLSearchParams(window.location.search)
       .get(INVITE_PARAM)
       ?.trim();
-    if (!token) return;
+    setToken(found || null);
 
-    setGuest({ state: "checking", name: null, token });
+    if (!found) {
+      setState(INVITE_ONLY ? "closed" : "welcome");
+      return;
+    }
 
     let live = true;
-    claimInvite(token).then((claim) => {
+    claimInvite(found).then((claim) => {
       if (!live) return;
-      setGuest({
-        state: stateFor(claim.status),
-        name: claim.name?.trim() || null,
-        token,
-      });
+
+      // Unreachable script, but this browser passed with this same token
+      // before: let them back in rather than shut a known guest out over a
+      // dropped connection.
+      if (claim.status === "offline") {
+        const known = recall(found);
+        if (known) {
+          setName(known);
+          setState("welcome");
+          return;
+        }
+      }
+
+      setName(claim.name?.trim() || null);
+      setState(resolve(claim.status));
     });
     return () => {
       live = false;
     };
-  }, []);
+  }, [attempt]);
 
-  const value = useMemo(() => guest, [guest]);
+  const value = useMemo(
+    () => ({ state, name, token, retry }),
+    [state, name, token, retry],
+  );
   return (
     <GuestContext.Provider value={value}>{children}</GuestContext.Provider>
   );
 }
 
-/**
- * An unrecognised token, or one that could not be checked, falls through to
- * the ordinary invitation rather than to the wall. A guest whose link got
- * truncated by a messaging app, or who is on a train, should still see that
- * they are invited — only a token that demonstrably belongs to someone else
- * is turned away.
- */
-function stateFor(status: InviteStatus): Guest["state"] {
+function resolve(status: InviteStatus): GuestState {
   if (status === "ok") return "welcome";
   if (status === "blocked") return "blocked";
-  return "none";
+  if (status === "unknown") return INVITE_ONLY ? "invalid" : "welcome";
+  // offline
+  return INVITE_ONLY ? "offline" : "welcome";
 }
