@@ -170,6 +170,26 @@ export function fromRows(rows: EntourageRow[]): EntourageData {
   };
 }
 
+/**
+ * Does this list look like damage rather than a wedding party?
+ *
+ * One real failure, worth guarding against for good: the script's separator
+ * was mangled on its way through a copy and paste, so every name was split
+ * into its own letters and the invitation showed 917 single characters where
+ * the entourage should be. Nothing about that is a judgement call — a list
+ * that is mostly one-letter "names" is broken, and guests are better served
+ * by the built-in list than by nonsense.
+ *
+ * Deliberately narrow. A short list, or one with a couple of initials in it,
+ * is left alone.
+ */
+export function looksCorrupt(rows: EntourageRow[]) {
+  const names = rows.flatMap((r) => r.names);
+  if (names.length < 20) return false;
+  const single = names.filter((n) => n.trim().length <= 1).length;
+  return single > names.length / 2;
+}
+
 /** Rows as the sheet has them, or an empty list meaning "use the built-in". */
 export async function listEntourage(): Promise<EntourageRow[]> {
   if (!hasEndpoint()) return [];

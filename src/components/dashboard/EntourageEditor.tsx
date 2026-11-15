@@ -6,6 +6,7 @@ import {
   SECTIONS,
   clearEntourage,
   listEntourage,
+  looksCorrupt,
   saveEntourage,
   toRows,
   type EntourageRow,
@@ -53,10 +54,15 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
       const fromSheet = await listEntourage();
       // Nothing saved yet means the site is showing the built-in list, so
       // that is what the couple should see here and start editing from.
-      const start = fromSheet.length ? fromSheet : toRows(ENTOURAGE);
+      //
+      // Damaged rows are treated the same way. The guests are already being
+      // shown the built-in list by the same rule, and opening the editor on
+      // the wreckage would only invite them to save it back.
+      const usable = fromSheet.length > 0 && !looksCorrupt(fromSheet);
+      const start = usable ? fromSheet : toRows(ENTOURAGE);
       setRows(start);
       setSaved(start);
-      setCustom(fromSheet.length > 0);
+      setCustom(usable);
       setLoad({ state: "ready" });
     } catch {
       setLoad({

@@ -8,6 +8,7 @@ import {
   cachedEntourage,
   fromRows,
   listEntourage,
+  looksCorrupt,
   type EntourageData,
 } from "@/data/entourage";
 
@@ -28,16 +29,18 @@ export function useEntourage(): EntourageData {
 
   useEffect(() => {
     const cached = cachedEntourage();
-    if (cached) setData(fromRows(cached));
+    if (cached && !looksCorrupt(cached)) setData(fromRows(cached));
 
     let live = true;
     listEntourage()
       .then((rows) => {
         if (!live) return;
-        if (rows.length) {
+        if (rows.length && !looksCorrupt(rows)) {
           setData(fromRows(rows));
           cacheEntourage(rows);
         } else {
+          // Not customised, cleared back, or damaged — all three are best
+          // answered with the list the site was built with.
           setData(ENTOURAGE);
           cacheEntourage([]);
         }

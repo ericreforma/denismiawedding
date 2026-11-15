@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 6;
+const SCRIPT_VERSION = 7;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -59,6 +59,18 @@ const RSVP_SHEET = "RSVPs";
 const INVITE_SHEET = "Invites";
 const GALLERY_SHEET = "Gallery";
 const ENTOURAGE_SHEET = "Entourage";
+
+/**
+ * What separates one name from the next inside a Names cell.
+ *
+ * Built from its character code rather than written as a newline escape
+ * on purpose. This file is copied and pasted by hand, and an escape inside
+ * a string literal is exactly what a copy can lose: lose it and the
+ * separator silently becomes the empty string, which splits every name into
+ * its own letters and fills the invitation with hundreds of single
+ * characters. That happened once. It cannot happen to a character code.
+ */
+const NAME_SEP = String.fromCharCode(10);
 const GALLERY_FOLDER = "Denis & Mia — Gallery";
 const RSVP_HEADERS = ["Timestamp", "Name", "Attending", "Message"];
 const GALLERY_HEADERS = [
@@ -581,8 +593,7 @@ function allEntourage() {
       item: String(rows[i][3] || ""),
       // One name per line in the cell; blank lines are the couple's typing.
       names: String(rows[i][4] || "")
-        .split("
-")
+        .split(NAME_SEP)
         .map(function (n) { return n.trim(); })
         .filter(function (n) { return n.length > 0; }),
       order: Number(rows[i][5] || 0),
@@ -626,8 +637,7 @@ function entourageAction(action, data) {
         String(g.title || "").trim(),
         String(g.line || "").trim(),
         String(g.item || "").trim(),
-        names.join("
-"),
+        names.join(NAME_SEP),
         i,
       ]);
     }
