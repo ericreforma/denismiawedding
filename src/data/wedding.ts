@@ -237,7 +237,11 @@ export const ENTOURAGE: {
     },
   ],
 
-  /** The couple asked for "Mr." and "Mrs." on the principal sponsors. */
+  /**
+   * Honorifics are the couple's own and are not uniform: most sponsors are
+   * "Mr." or "Mrs.", four hold office and are "Hon.", and one is "Ms." —
+   * each as the couple wrote it. Do not tidy them into a pattern.
+   */
   principalSponsors: {
     title: "Principal Sponsors",
     columns: [
@@ -245,21 +249,22 @@ export const ENTOURAGE: {
         title: "Ninongs",
         names: [
           "Mr. Donn Uriel Buenaventura",
-          "Mr. Larry Dabu",
-          "Mr. Edwin Policarpio",
-          "Mr. Edgar Allan Andres",
+          "Hon. Larry Dabu",
+          "Hon. Edwin Policarpio",
+          "Hon. Edgar Allan Andres",
           "Mr. Roldan Felipe",
           "Mr. Apolinio Sarmiento",
+          "Mr. Reynaldo Fontanilla",
         ],
       },
       {
         title: "Ninangs",
         names: [
           "Mrs. Raquel M. Morada",
-          "Mrs. Weng Samson",
+          "Ms. Rowena D. Samson",
           "Mrs. Marites D.C. Erazo",
           "Mrs. Jhonna R. Danieles",
-          "Mrs. Cora D. Bugayong",
+          "Hon. Cora D. Bugayong",
           "Mrs. Reneerose R. Sahurda",
           "Mrs. Gisella C. Tumatag",
           "Mrs. Ma. Susana H. Navarro",
@@ -295,7 +300,6 @@ export const ENTOURAGE: {
     {
       title: "Bridesmaids",
       names: [
-        "Raquel Sto. Tomas",
         "Pauline Torrenueva",
         "Rose Ann S. Bernardo",
         "Paula T. Laguerta",
