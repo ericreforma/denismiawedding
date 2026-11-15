@@ -1,10 +1,12 @@
+"use client";
+
 import { Reveal } from "./Reveal";
 import {
   ART,
-  ENTOURAGE,
   type EntourageGroup,
   type EntourageRole,
 } from "@/data/wedding";
+import { useEntourage } from "@/hooks/useEntourage";
 
 /** The divider the love story uses, repeated here to separate the blocks. */
 function PearlRule() {
@@ -125,6 +127,13 @@ function Role({ role, i }: { role: EntourageRole; i: number }) {
 }
 
 export function Entourage() {
+  /**
+   * The couple's own list once they have saved one, the built-in list until
+   * then. It can change a moment after load, so everything below reads from
+   * here rather than from the module constant.
+   */
+  const ENTOURAGE = useEntourage();
+
   return (
     <Reveal>
       <section id="entourage" className="relative w-full py-20 md:py-28 px-6">

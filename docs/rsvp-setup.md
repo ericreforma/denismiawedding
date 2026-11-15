@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 5;
+const SCRIPT_VERSION = 6;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -58,6 +58,7 @@ const DASHBOARD_PASSCODE = "change-me";
 const RSVP_SHEET = "RSVPs";
 const INVITE_SHEET = "Invites";
 const GALLERY_SHEET = "Gallery";
+const ENTOURAGE_SHEET = "Entourage";
 const GALLERY_FOLDER = "Denis & Mia — Gallery";
 const RSVP_HEADERS = ["Timestamp", "Name", "Attending", "Message"];
 const GALLERY_HEADERS = [
@@ -69,6 +70,14 @@ const GALLERY_HEADERS = [
   "Height",
   "File ID",
   "Added",
+];
+const ENTOURAGE_HEADERS = [
+  "Section",
+  "Title",
+  "Line",
+  "Item",
+  "Names",
+  "Order",
 ];
 const INVITE_HEADERS = [
   "Token",
@@ -124,6 +133,9 @@ function doPost(e) {
     const action = String(data.action || "").trim();
     if (action.indexOf("gallery.") === 0) {
       return json(galleryAction(action, data));
+    }
+    if (action.indexOf("entourage.") === 0) {
+      return json(entourageAction(action, data));
     }
     if (action) return json(inviteAction(action, data));
 
@@ -538,6 +550,96 @@ function galleryAction(action, data) {
   return { ok: false, error: "Unknown action: " + action };
 }
 
+// ------------------------------------------------------------- the entourage
+
+/**
+ * The wedding party, when the couple have edited it.
+ *
+ * One row per group — "Ninongs", "Bridesmaids", a secondary sponsor's line —
+ * with the names in a single cell, one per line. Flat rows rather than one
+ * blob of JSON so the tab is still something a person can read and fix by
+ * hand if they ever need to.
+ *
+ * **An empty tab means the list built into the site.** Nothing here changes
+ * the invitation until the couple save something, and clearing it puts the
+ * original back.
+ */
+function allEntourage() {
+  const sheet = getSheet(ENTOURAGE_SHEET, ENTOURAGE_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return [];
+
+  const rows = sheet.getRange(2, 1, last - 1, 6).getValues();
+  const out = [];
+  for (let i = 0; i < rows.length; i++) {
+    const section = String(rows[i][0] || "").trim();
+    if (!section) continue;
+    out.push({
+      section: section,
+      title: String(rows[i][1] || ""),
+      line: String(rows[i][2] || ""),
+      item: String(rows[i][3] || ""),
+      // One name per line in the cell; blank lines are the couple's typing.
+      names: String(rows[i][4] || "")
+        .split("
+")
+        .map(function (n) { return n.trim(); })
+        .filter(function (n) { return n.length > 0; }),
+      order: Number(rows[i][5] || 0),
+    });
+  }
+  out.sort(function (a, b) { return a.order - b.order; });
+  return out;
+}
+
+/** Everything the dashboard does to the entourage. All of it passcode-gated. */
+function entourageAction(action, data) {
+  if (String(data.key || "") !== DASHBOARD_PASSCODE) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const sheet = getSheet(ENTOURAGE_SHEET, ENTOURAGE_HEADERS);
+  const last = sheet.getLastRow();
+
+  // Back to the list built into the site.
+  if (action === "entourage.clear") {
+    if (last > 1) sheet.deleteRows(2, last - 1);
+    return { ok: true, rows: 0 };
+  }
+
+  // The whole list arrives at once and replaces the whole tab. Editing in
+  // place would need every row to carry an id and would leave the tab in a
+  // half-saved state if one write failed; a wedding party is small enough
+  // that rewriting it is both simpler and atomic.
+  if (action === "entourage.save") {
+    const groups = data.groups;
+    if (!groups || !groups.length) return { ok: false, error: "Nothing to save" };
+
+    const rows = [];
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
+      const names = (g.names || []).map(function (n) {
+        return String(n || "").trim();
+      }).filter(function (n) { return n.length > 0; });
+      rows.push([
+        String(g.section || "").trim(),
+        String(g.title || "").trim(),
+        String(g.line || "").trim(),
+        String(g.item || "").trim(),
+        names.join("
+"),
+        i,
+      ]);
+    }
+
+    if (last > 1) sheet.deleteRows(2, last - 1);
+    sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+    return { ok: true, rows: rows.length };
+  }
+
+  return { ok: false, error: "Unknown action: " + action };
+}
+
 /**
  * Read requests: the dashboard, and a health check.
  *
@@ -548,6 +650,16 @@ function galleryAction(action, data) {
  */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+
+  // Public for the same reason the gallery is: every guest's browser needs
+  // it, and it is the wedding party the invitation was going to show them.
+  if (String(p.board || "") === "entourage") {
+    try {
+      return json({ ok: true, groups: allEntourage() });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    }
+  }
 
   // Public on purpose: every guest's browser needs the photo list, and it
   // is a list of pictures the invitation was going to show them anyway.
@@ -826,6 +938,43 @@ account that fixes `Anyone` deployments fixes this.
 **Drive is not a CDN.** These photos come from Google rather than from the
 site's own domain, so a large uploaded gallery feels slower than the baked-in
 one. For a set of favourites it is not noticeable; for 300 photos it would be.
+
+## The entourage
+
+The dashboard's **Entourage** tab edits the wedding party — the names the
+couple will change most, and the ones that used to need a developer.
+
+**An empty tab means the list built into the site.** Nothing changes until
+they save, and **Back to the original list** empties it again.
+
+A fourth tab appears on first use:
+
+`Entourage`:
+
+| A | B | C | D | E | F |
+|---|---|---|---|---|---|
+| Section | Title | Line | Item | Names | Order |
+
+One row per block, in the order guests read them. `Section` is which part of
+the list it belongs to — `couple`, `parents`, `principalSponsors`,
+`honorAttendants`, `weddingParty`, `secondarySponsors`, `bearers`. `Names`
+holds every name in one cell, one to a line.
+
+`Title` is for the plain groups ("Ninongs", "Bridesmaids"). `Line` and `Item`
+are for the two role-shaped sections, where the heading is a line of verse and
+the object carried is sometimes named. A row uses one or the other, never
+both.
+
+Flat rows rather than one blob of JSON so the tab stays something a person can
+read and repair by hand. Editing it in Sheets works; the dashboard is simply
+easier.
+
+### Saving replaces the whole tab
+
+`entourage.save` sends the entire list and rewrites every row. Editing in
+place would need an id per row and could leave the tab half-saved if one write
+failed. A wedding party is small enough that rewriting it is both simpler and
+all-or-nothing.
 
 ## Dropping the dietary column (sheet already live)
 

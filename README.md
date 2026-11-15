@@ -339,6 +339,18 @@ EXIF GPS a phone writes into every picture. `src/data/photos.ts` has the
 client; `src/hooks/useGallery.ts` decides which of the three sources — cache,
 built-in, sheet — the strip is showing at any moment.
 
+## The entourage
+
+The wedding party lives in `ENTOURAGE` in `src/data/wedding.ts`, and that is
+still what ships. The dashboard's **Entourage** tab overrides it: the nested
+shape is flattened into one row per block in an `Entourage` sheet tab, and the
+section reads the list at run time — **an empty tab means the built-in list**.
+
+`src/data/entourage.ts` holds `toRows`/`fromRows`, the two halves of that
+conversion; they must stay in step, since a section added to one is a section
+silently dropped by the other. The round trip is deep-equal on the built-in
+list.
+
 ## Personal invitation links
 
 The dashboard's second tab makes one link per guest —

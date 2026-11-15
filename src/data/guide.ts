@@ -100,6 +100,7 @@ export const GUIDE: GuideSection[] = [
       { action: "REPLIES", detail: "Who has answered your invitation, and what they said." },
       { action: "INVITATIONS", detail: "Make a personal link for each guest, and see who has opened theirs." },
       { action: "GALLERY", detail: "Change the photos on your website." },
+      { action: "ENTOURAGE", detail: "Change the names in your wedding party." },
       { action: "DOCUMENTATION", detail: "This guide. You are reading it." },
     ],
   },
@@ -400,6 +401,71 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: "entourage",
+    title: "Changing the entourage",
+    lead: "The list of names — ninongs, ninangs, bridesmaids, groomsmen, bearers — is yours to edit here. You do not need anyone's help to fix a spelling or add a sponsor.",
+    images: [
+      {
+        src: shot("11-entourage.webp"),
+        alt: "The Entourage tab, with each part of the wedding party as a closed row",
+        caption: "Each part of the wedding party, with how many names it holds.",
+      },
+      {
+        src: shot("12-entourage-open.webp"),
+        alt: "The principal sponsors opened, showing the ninongs and ninangs as editable lists",
+        caption: "Opened up: a heading, and the names one on each line.",
+      },
+    ],
+    steps: [
+      { action: "Tap the ENTOURAGE tab." },
+      {
+        action: "Tap the part you want to change, like Principal sponsors.",
+        detail: "It opens up. Tapping it again closes it.",
+      },
+      {
+        action: "Type in the box of names. One name on each line.",
+        detail:
+          "To add somebody, go to the end and press Enter for a new line. To remove somebody, delete their line. To fix a spelling, just type over it.",
+      },
+      {
+        action: "Tap SAVE CHANGES at the top.",
+        detail:
+          "Until you do, nothing on your website has changed. The button tells you when there is something waiting to be saved.",
+      },
+      {
+        action: "If you make a mess, tap UNDO MY CHANGES.",
+        detail: "That throws away everything you have typed since the last save.",
+      },
+    ],
+    notes: [
+      {
+        tone: "tip",
+        title: "Adding a whole new group",
+        body: "ADD ANOTHER BLOCK HERE makes an empty one — give it a heading, like \"Junior Bridesmaids\", and type the names underneath. MOVE UP and MOVE DOWN set the order they appear in.",
+      },
+      {
+        tone: "tip",
+        title: "The secondary sponsors and bearers are different",
+        body: "Those have a line of words instead of a heading — \"To tie our hearts as one\" — and a box for what they carry, like \"Ring\". Everything else works the same.",
+      },
+      {
+        tone: "warning",
+        title: "Nothing is saved until you tap Save",
+        body: "If you close the page with changes still showing, they are gone. The page tells you plainly when you have unsaved changes.",
+      },
+      {
+        tone: "tip",
+        title: "Going back to the original",
+        body: "BACK TO THE ORIGINAL LIST returns the entourage to the one your website was built with. Your edits are removed, but nothing else about the website changes.",
+      },
+      {
+        tone: "tip",
+        title: "Only some guests see this",
+        body: "Remember the two versions — a guest whose link was made without the entourage will not see any of these names, however you edit them.",
+      },
+    ],
+  },
+  {
     id: "problems",
     title: "If something looks wrong",
     lead: "The short list of things that actually go wrong, and what to do about each.",
@@ -431,6 +497,11 @@ export const GUIDE: GuideSection[] = [
       {
         action: "\"A reply is wrong.\"",
         detail: "Fix the row in the Google Sheet, then tap REFRESH here.",
+      },
+      {
+        action: "\"I changed the entourage but my website still shows the old names.\"",
+        detail:
+          "Check that you tapped SAVE CHANGES. If you did, close the invitation and open it again — it keeps a copy of the last list it saw, and a fresh open picks up the new one.",
       },
       {
         action: "\"A photo will not upload.\"",
