@@ -9,12 +9,13 @@ import { PasscodeGate } from "./PasscodeGate";
 import { ReplyTable } from "./ReplyTable";
 import { InviteManager } from "./InviteManager";
 import { GalleryManager } from "./GalleryManager";
+import { Documentation } from "./Documentation";
 import { toCsv, downloadCsv } from "./csv";
 
 /** Remembered so a refresh does not ask for the passcode again. */
 const PASSCODE_KEY = "dm-rsvp-passcode";
 
-type Tab = "replies" | "invites" | "gallery";
+type Tab = "replies" | "invites" | "gallery" | "guide";
 type Filter = "all" | "yes" | "no";
 type Sort = "newest" | "oldest" | "name";
 
@@ -194,13 +195,14 @@ export function DashboardClient() {
         <div
           role="tablist"
           aria-label="Dashboard sections"
-          className="mt-6 grid grid-cols-3 rounded-full border border-foreground/20 p-1 sm:inline-grid sm:w-auto sm:grid-cols-[auto_auto_auto]"
+          className="mt-6 grid grid-cols-2 gap-1 rounded-[1.5rem] border border-foreground/20 p-1 sm:inline-grid sm:w-auto sm:grid-cols-[auto_auto_auto_auto] sm:gap-0 sm:rounded-full"
         >
           {(
             [
               ["replies", "Replies"],
               ["invites", "Invitations"],
               ["gallery", "Gallery"],
+              ["guide", "Documentation"],
             ] as [Tab, string][]
           ).map(([v, label]) => (
             <button
@@ -223,6 +225,8 @@ export function DashboardClient() {
         {tab === "invites" && <InviteManager passcode={passcode} />}
 
         {tab === "gallery" && <GalleryManager passcode={passcode} />}
+
+        {tab === "guide" && <Documentation />}
 
         {tab === "replies" && load.state === "error" && (
           <p
