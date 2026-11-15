@@ -17,16 +17,35 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TheDay } from "@/components/TheDay";
 import { SaveTheDate } from "@/components/SaveTheDate";
 import { WeddingGift } from "@/components/WeddingGift";
+import { InviteBlocked } from "@/components/invite/InviteBlocked";
+import { InviteProvider, useGuest } from "@/components/invite/InviteProvider";
+import { INVITE_ONLY } from "@/data/invite";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 import { useReveal } from "@/hooks/useReveal";
 
 export default function Home() {
+  return (
+    <InviteProvider>
+      <Invitation />
+    </InviteProvider>
+  );
+}
+
+function Invitation() {
+  const { state } = useGuest();
+
   /** The hero text starts fading in under the intro's last beat. */
   const [heroVisible, setHeroVisible] = useState(false);
   /** The audio toggle only appears once the intro is out of the way. */
   const [entered, setEntered] = useState(false);
   const { isMuted, startMusic, toggleMute } = useBackgroundMusic();
   useReveal();
+
+  // A link someone else's device claimed, and — only when the couple have
+  // closed the site — a visitor with no working invitation at all.
+  if (state === "blocked" || (INVITE_ONLY && state === "none")) {
+    return <InviteBlocked />;
+  }
 
   return (
     <>

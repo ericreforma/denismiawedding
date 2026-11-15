@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Reveal } from "./Reveal";
+import { useGuest } from "./invite/InviteProvider";
 import { ART, COUPLE, EVENT, RSVP } from "@/data/wedding";
 import { RSVP_ENDPOINT, hasEndpoint } from "@/data/config";
 
@@ -48,11 +49,23 @@ function Choice({
 }
 
 export function Rsvp() {
+  const guest = useGuest();
   const [opened, setOpened] = useState(false);
   const [formShown, setFormShown] = useState(false);
   const [sent, setSent] = useState(false);
 
   const [name, setName] = useState("");
+  /**
+   * A guest who followed their own link has already told us who they are, so
+   * the field arrives filled in. `touched` keeps it from overwriting an edit
+   * if the claim lands after they have started typing.
+   */
+  const [touched, setTouched] = useState(false);
+  useEffect(() => {
+    if (!touched && guest.state === "welcome" && guest.name) {
+      setName(guest.name);
+    }
+  }, [touched, guest.state, guest.name]);
   const [attending, setAttending] = useState("yes");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
@@ -217,7 +230,10 @@ export function Rsvp() {
                         id="rsvp-name"
                         required
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          setTouched(true);
+                          setName(e.target.value);
+                        }}
                         placeholder="Your full name"
                         className={fieldCls}
                       />

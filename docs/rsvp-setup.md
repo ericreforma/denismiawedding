@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 2;
+const SCRIPT_VERSION = 3;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -56,7 +56,18 @@ const SCRIPT_VERSION = 2;
 const DASHBOARD_PASSCODE = "change-me";
 
 const RSVP_SHEET = "RSVPs";
+const INVITE_SHEET = "Invites";
 const RSVP_HEADERS = ["Timestamp", "Name", "Attending", "Message"];
+const INVITE_HEADERS = [
+  "Token",
+  "Name",
+  "Device ID",
+  "Device",
+  "First opened",
+  "Last opened",
+  "Opens",
+  "Created",
+];
 
 /**
  * One tab — found if you already made it, created with its headers if not.
@@ -85,7 +96,7 @@ function getSheet(name, headers) {
   return sheet;
 }
 
-/** Receives one reply from the invitation and appends it. */
+/** Receives one reply from the invitation, or one invitation action. */
 function doPost(e) {
   // Apps Script can run several executions at once, so two guests replying in
   // the same second would otherwise race for the same row.
@@ -94,6 +105,11 @@ function doPost(e) {
 
   try {
     const data = JSON.parse(e.postData.contents);
+
+    // Invitations share this endpoint. A reply carries no `action`, so the
+    // RSVP form goes on posting exactly what it always posted.
+    const action = String(data.action || "").trim();
+    if (action) return json(inviteAction(action, data));
 
     // Honeypot: a field hidden from real users. Bots fill in everything they
     // find, so anything arriving with this set is discarded — and told it
@@ -145,6 +161,142 @@ function allEntries() {
   return out;
 }
 
+// --------------------------------------------------------------- invites
+
+/**
+ * Characters a token is built from: no O/0 or I/l, so a token read aloud or
+ * copied out of a message by hand survives the trip.
+ */
+const TOKEN_ALPHABET = "abcdefghijkmnopqrstuvwxyz23456789";
+
+/** 24 characters out of 33 is ~121 bits — not something anyone guesses. */
+function newToken() {
+  let out = "";
+  for (let i = 0; i < 24; i++) {
+    out += TOKEN_ALPHABET.charAt(
+      Math.floor(Math.random() * TOKEN_ALPHABET.length),
+    );
+  }
+  return out;
+}
+
+/** Row number of a token in the Invites tab, or -1. Row 1 is the header. */
+function inviteRow(sheet, token) {
+  const last = sheet.getLastRow();
+  if (last < 2) return -1;
+  const col = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (let i = 0; i < col.length; i++) {
+    if (String(col[i][0] || "").trim() === token) return i + 2;
+  }
+  return -1;
+}
+
+function iso(v) {
+  return v instanceof Date ? v.toISOString() : String(v || "");
+}
+
+/** Every invitation, for the dashboard. */
+function allInvites() {
+  const sheet = getSheet(INVITE_SHEET, INVITE_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return [];
+
+  const rows = sheet.getRange(2, 1, last - 1, 8).getValues();
+  const out = [];
+  for (let i = 0; i < rows.length; i++) {
+    const token = String(rows[i][0] || "").trim();
+    if (!token) continue;
+    out.push({
+      token: token,
+      name: String(rows[i][1] || ""),
+      // The raw device id never leaves the sheet; the dashboard only needs
+      // to know whether one is set, and what to call it.
+      claimed: Boolean(String(rows[i][2] || "").trim()),
+      device: String(rows[i][3] || ""),
+      firstOpened: iso(rows[i][4]),
+      lastOpened: iso(rows[i][5]),
+      opens: Number(rows[i][6] || 0),
+      created: iso(rows[i][7]),
+    });
+  }
+  return out;
+}
+
+/**
+ * The guest's side of the link, and the only invitation action that is not
+ * passcode-gated — it is the guest who calls it, by opening the link.
+ *
+ * First device through the door claims the invitation. After that the same
+ * device is let in and any other is turned away, which is what makes a
+ * forwarded link useless to whoever it was forwarded to.
+ *
+ * A blocked or unknown token is never told whose invitation it was.
+ */
+function claimInvite(data) {
+  const token = String(data.token || "").trim();
+  const deviceId = String(data.deviceId || "").trim().slice(0, 100);
+  if (!token || !deviceId) return { ok: true, status: "unknown" };
+
+  const sheet = getSheet(INVITE_SHEET, INVITE_HEADERS);
+  const row = inviteRow(sheet, token);
+  if (row < 0) return { ok: true, status: "unknown" };
+
+  const known = String(sheet.getRange(row, 3).getValue() || "").trim();
+  const name = String(sheet.getRange(row, 2).getValue() || "");
+  const now = new Date();
+
+  if (!known) {
+    sheet.getRange(row, 3, 1, 5).setValues([
+      [deviceId, String(data.device || "").trim().slice(0, 200), now, now, 1],
+    ]);
+    return { ok: true, status: "ok", name: name, firstOpen: true };
+  }
+
+  if (known !== deviceId) return { ok: true, status: "blocked" };
+
+  const opens = Number(sheet.getRange(row, 7).getValue() || 0) + 1;
+  sheet.getRange(row, 6).setValue(now);
+  sheet.getRange(row, 7).setValue(opens);
+  return { ok: true, status: "ok", name: name, firstOpen: false };
+}
+
+/** Everything the dashboard does to invitations. All of it passcode-gated. */
+function inviteAction(action, data) {
+  if (action === "invite.claim") return claimInvite(data);
+
+  if (String(data.key || "") !== DASHBOARD_PASSCODE) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const sheet = getSheet(INVITE_SHEET, INVITE_HEADERS);
+
+  if (action === "invite.create") {
+    const name = String(data.name || "").trim().slice(0, 100);
+    if (!name) return { ok: false, error: "Name is required" };
+    const token = newToken();
+    sheet.appendRow([token, name, "", "", "", "", 0, new Date()]);
+    return { ok: true, token: token, name: name };
+  }
+
+  const token = String(data.token || "").trim();
+  const row = token ? inviteRow(sheet, token) : -1;
+  if (row < 0) return { ok: false, error: "No such invitation" };
+
+  // Clearing the device frees the invitation for whoever opens it next —
+  // the fix for a link opened by the wrong person first.
+  if (action === "invite.reset") {
+    sheet.getRange(row, 3, 1, 5).setValues([["", "", "", "", 0]]);
+    return { ok: true, token: token };
+  }
+
+  if (action === "invite.delete") {
+    sheet.deleteRow(row);
+    return { ok: true, token: token };
+  }
+
+  return { ok: false, error: "Unknown action: " + action };
+}
+
 /**
  * Read requests: the dashboard, and a health check.
  *
@@ -155,6 +307,17 @@ function allEntries() {
  */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+
+  if (String(p.board || "") === "invites") {
+    if (String(p.key || "") !== DASHBOARD_PASSCODE) {
+      return json({ ok: false, error: "unauthorized" });
+    }
+    try {
+      return json({ ok: true, invites: allInvites() });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    }
+  }
 
   if (String(p.board || "") === "rsvps") {
     // Compared here rather than in the website, so the passcode is never in
@@ -228,6 +391,8 @@ then delete the test row.
 `/dashboard`. It is not linked from the invitation and carries
 `noindex`, so it is reachable only by someone who knows the address.
 
+It has two tabs: **Replies**, and **Invitations** (above).
+
 - **Three tiles** — replies, attending, and cannot come.
 - **Search** across names and messages.
 - **Filter** by attending / cannot come, and **sort** by newest, oldest or name.
@@ -251,6 +416,68 @@ Change it by editing `DASHBOARD_PASSCODE` and redeploying (see below — editing
 alone does nothing).
 
 ---
+
+## Personal invitation links
+
+Each guest can be sent their own link:
+
+```
+https://denisandmiaarrforever.site/?youareinvited=mfk3rbx7qp2wnh9djc4svt6e
+```
+
+The dashboard's **Invitations** tab makes them. Type a name, press *Create
+link*, and the link is copied ready to paste into a message. The site reads
+the token, asks the script whose invitation it is, and greets them by name.
+
+### The token is not the name encrypted
+
+It cannot be. The site is a static export, so any key it could decrypt with
+would ship inside the JavaScript — and a name anyone can decode is a name
+anyone can forge a link for. The token is a random 24-character string
+instead, and the name sits beside it in the `Invites` tab. Only the script can
+match one to the other.
+
+A second tab appears on first use:
+
+`Invites`:
+
+| A | B | C | D | E | F | G | H |
+|---|---|---|---|---|---|---|---|
+| Token | Name | Device ID | Device | First opened | Last opened | Opens | Created |
+
+### One link, one device
+
+The first device to open a link claims it — its id goes in column C. From then
+on that device is let in and any other is turned away, so forwarding the link
+gives the recipient nothing. A turned-away visitor is never told whose
+invitation it was.
+
+"Device" is as honest as a browser allows: a random id kept in that browser's
+`localStorage`. So it really means *this browser, on this phone, with its
+storage intact*. It will be wrong sometimes:
+
+- **In-app browsers count separately.** Opening the link inside Messenger and
+  again in Chrome looks like two devices. This is the common one — expect it.
+- **Private windows** never remember, so each one claims afresh.
+- **Clearing site data** releases the invitation.
+
+Every one of those ends with a real guest locked out of their own invitation,
+and the cure is the same as for a link the wrong person opened first:
+
+### Reset
+
+In **Invitations**, each guest's card has **Reset device**. It clears columns
+C–G, so the next device to open the link claims it. Send the link again
+afterwards. You can also do it by hand in the sheet — clearing column C alone
+is enough.
+
+The card also shows whether the invitation has been opened at all, what the
+device called itself, and when — which doubles as a quiet read on who has
+actually seen the invitation.
+
+### Deleting
+
+**Delete** removes the row, and the link stops working for good.
 
 ## Dropping the dietary column (sheet already live)
 

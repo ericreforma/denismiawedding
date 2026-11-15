@@ -7,11 +7,13 @@ import { RSVP_ENDPOINT, hasEndpoint, type RsvpEntry } from "@/data/config";
 import { StatTile } from "./StatTile";
 import { PasscodeGate } from "./PasscodeGate";
 import { ReplyTable } from "./ReplyTable";
+import { InviteManager } from "./InviteManager";
 import { toCsv, downloadCsv } from "./csv";
 
 /** Remembered so a refresh does not ask for the passcode again. */
 const PASSCODE_KEY = "dm-rsvp-passcode";
 
+type Tab = "replies" | "invites";
 type Filter = "all" | "yes" | "no";
 type Sort = "newest" | "oldest" | "name";
 
@@ -27,6 +29,7 @@ export function DashboardClient() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("newest");
+  const [tab, setTab] = useState<Tab>("replies");
 
   // Restore a passcode from a previous visit before the first fetch.
   useEffect(() => {
@@ -167,14 +170,16 @@ export function DashboardClient() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => fetchEntries(passcode)}
-              disabled={load.state === "loading"}
-              className="flex-1 rounded-full border border-foreground/25 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-50 sm:flex-none sm:py-2"
-            >
-              {load.state === "loading" ? "Refreshing…" : "Refresh"}
-            </button>
+            {tab === "replies" && (
+              <button
+                type="button"
+                onClick={() => fetchEntries(passcode)}
+                disabled={load.state === "loading"}
+                className="flex-1 rounded-full border border-foreground/25 px-4 py-2.5 font-sans text-[12px] uppercase tracking-[0.18em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-50 sm:flex-none sm:py-2"
+              >
+                {load.state === "loading" ? "Refreshing…" : "Refresh"}
+              </button>
+            )}
             <button
               type="button"
               onClick={signOut}
@@ -185,7 +190,37 @@ export function DashboardClient() {
           </div>
         </header>
 
-        {load.state === "error" && (
+        <div
+          role="tablist"
+          aria-label="Dashboard sections"
+          className="mt-6 grid grid-cols-2 rounded-full border border-foreground/20 p-1 sm:inline-grid sm:w-auto sm:grid-cols-[auto_auto]"
+        >
+          {(
+            [
+              ["replies", "Replies"],
+              ["invites", "Invitations"],
+            ] as [Tab, string][]
+          ).map(([v, label]) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              aria-selected={tab === v}
+              onClick={() => setTab(v)}
+              className={`rounded-full px-5 py-2.5 font-sans text-[12px] uppercase tracking-[0.14em] transition-colors md:py-1.5 ${
+                tab === v
+                  ? "bg-foreground text-background"
+                  : "text-foreground/60 hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "invites" && <InviteManager passcode={passcode} />}
+
+        {tab === "replies" && load.state === "error" && (
           <p
             role="alert"
             className="mt-8 rounded-lg border border-foreground/20 bg-foreground/5 px-5 py-4 font-sans text-[14px] leading-relaxed"
@@ -194,13 +229,13 @@ export function DashboardClient() {
           </p>
         )}
 
-        {load.state === "loading" && entries.length === 0 && (
+        {tab === "replies" && load.state === "loading" && entries.length === 0 && (
           <p className="mt-10 font-sans text-[14px] text-foreground/60">
             Loading replies…
           </p>
         )}
 
-        {load.state === "ready" && (
+        {tab === "replies" && load.state === "ready" && (
           <>
             <section className="mt-8 grid grid-cols-3 gap-2.5 md:gap-4">
               <StatTile label="Replies" value={counts.total} />

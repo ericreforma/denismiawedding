@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import localFont from "next/font/local";
 
+import { SITE_URL } from "@/data/config";
 import { CEREMONY, COUPLE, EVENT, RECEPTION } from "@/data/wedding";
 import "./globals.css";
 
@@ -30,10 +31,6 @@ const doulaise = localFont({
   variable: "--font-doulaise",
   display: "swap",
 });
-
-/** Where the site is published. Override with NEXT_PUBLIC_SITE_URL to move it. */
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://denisandmiaarrforever.site";
 
 const NAMES = `${COUPLE.one.first} & ${COUPLE.two.first}`;
 const DESCRIPTION = `Join ${COUPLE.one.first} and ${COUPLE.two.first} on ${EVENT.dateLong} at ${CEREMONY.name}, with the reception at ${RECEPTION.name}. RSVP online.`;

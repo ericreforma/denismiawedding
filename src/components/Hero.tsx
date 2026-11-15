@@ -1,3 +1,4 @@
+import { GuestGreeting } from "./invite/GuestGreeting";
 import { ART, CEREMONY, COUPLE, EVENT } from "@/data/wedding";
 
 type HeroProps = { visible: boolean };
@@ -20,6 +21,9 @@ export function Hero({ visible }: HeroProps) {
           visible ? "opacity-100" : "opacity-0"
         }`}
       >
+        {/* Renders nothing for an ordinary visitor. */}
+        <GuestGreeting />
+
         <p className="font-display text-foreground text-[17px] md:text-[19px] tracking-wide leading-snug">
           <span className="block">Together with</span>
           <span className="block">their families</span>

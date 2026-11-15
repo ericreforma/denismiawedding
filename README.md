@@ -313,11 +313,33 @@ Paste the `/exec` URL into `src/data/config.ts` (or set
 form thanks the guest without sending anything and the dashboard says it is
 not connected yet.
 
-`/dashboard` reads the replies back — four summary tiles,
-search, filter, sort, and a CSV export of whatever is on screen. It is
-unlinked and `noindex`, and gated by a passcode that is checked **inside the
-Apps Script**, never in the page, so reading the page source gets an attacker
+`/dashboard` reads the replies back — three summary tiles, search, filter,
+sort, and a CSV export of whatever is on screen. It is unlinked and
+`noindex`, and gated by a passcode that is checked **inside the Apps
+Script**, never in the page, so reading the page source gets an attacker
 nothing.
 
 The sheet columns are exactly the form's fields: Timestamp, Name, Attending,
 Message.
+
+## Personal invitation links
+
+The dashboard's second tab makes one link per guest —
+`/?youareinvited=<token>` — which greets them by name and fills in their RSVP.
+
+The token is random, not an encrypted name: a static site can hold no secret,
+so anything it could decrypt, a guest could decrypt and forge. The name lives
+beside the token in the sheet's `Invites` tab, and only the Apps Script can
+match them.
+
+The first device to open a link claims it; any other is turned away, which is
+what makes a forwarded link useless. "Device" means a random id in that
+browser's `localStorage`, so an in-app browser, a private window, or cleared
+site data all read as a different device — a real guest *will* occasionally
+be locked out of their own invitation. **Reset device** on the dashboard
+clears the binding and is the fix for that as well as for a link the wrong
+person opened first.
+
+`src/data/invite.ts` holds the client, the honest limits, and an `INVITE_ONLY`
+switch that would close the site to anyone without a working link. It is off:
+the couple share the plain address too.
