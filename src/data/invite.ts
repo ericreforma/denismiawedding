@@ -77,6 +77,8 @@ export type InviteClaim = {
   status: InviteStatus;
   /** Only ever present on `ok`. */
   name?: string;
+  /** Whether this guest's invitation includes the entourage. */
+  entourage?: boolean;
   /** True the first time this invitation was opened at all. */
   firstOpen?: boolean;
 };
@@ -93,6 +95,12 @@ export type InviteRecord = {
   lastOpened: string;
   opens: number;
   created: string;
+  /**
+   * Which of the two invitations this guest was sent: with the wedding party
+   * listed, or without. Invitations made before the choice existed read as
+   * `true`, because that is what their guests were shown.
+   */
+  entourage: boolean;
 };
 
 /** The link to send a guest. */
@@ -206,6 +214,7 @@ export async function claimInvite(token: string): Promise<InviteClaim> {
       ok: boolean;
       status?: InviteStatus;
       name?: string;
+      entourage?: boolean;
       firstOpen?: boolean;
     }>({
       action: "invite.claim",
@@ -214,10 +223,17 @@ export async function claimInvite(token: string): Promise<InviteClaim> {
       device: deviceLabel(),
     });
     if (!data.ok || !data.status) return { status: "offline" };
-    if (data.status === "ok" && data.name) remember(token, data.name);
+    if (data.status === "ok" && data.name)
+      remember(token, data.name, data.entourage !== false);
     // A token this browser no longer holds should not keep letting it in.
     if (data.status === "blocked") forget();
-    return { status: data.status, name: data.name, firstOpen: data.firstOpen };
+    return {
+      status: data.status,
+      name: data.name,
+      // Absent means an older script that does not know about the choice.
+      entourage: data.entourage !== false,
+      firstOpen: data.firstOpen,
+    };
   } catch {
     return { status: "offline" };
   }
@@ -233,21 +249,28 @@ export async function claimInvite(token: string): Promise<InviteClaim> {
  * entry by hand has devtools open, and devtools already reads the invitation
  * straight out of the bundle.
  */
-function remember(token: string, name: string) {
+function remember(token: string, name: string, entourage: boolean) {
   try {
-    localStorage.setItem(PASSED_KEY, JSON.stringify({ token, name }));
+    localStorage.setItem(PASSED_KEY, JSON.stringify({ token, name, entourage }));
   } catch {
     /* Nothing to remember with; the next visit simply asks again. */
   }
 }
 
-/** The name this browser last passed with, if it was for this same token. */
-export function recall(token: string): string | null {
+/** What this browser last passed with, if it was for this same token. */
+export function recall(token: string) {
   try {
     const raw = localStorage.getItem(PASSED_KEY);
     if (!raw) return null;
-    const saved = JSON.parse(raw) as { token?: string; name?: string };
-    return saved.token === token ? saved.name?.trim() || null : null;
+    const saved = JSON.parse(raw) as {
+      token?: string;
+      name?: string;
+      entourage?: boolean;
+    };
+    if (saved.token !== token) return null;
+    const name = saved.name?.trim();
+    if (!name) return null;
+    return { name, entourage: saved.entourage !== false };
   } catch {
     return null;
   }
@@ -261,17 +284,52 @@ export async function listInvites(key: string): Promise<InviteRecord[]> {
   const data = await res.json().catch(() => null);
   if (data?.error === "unauthorized") throw new Error("unauthorized");
   if (!res.ok || !data?.ok) throw new Error(data?.error || "Request failed");
-  return Array.isArray(data.invites) ? data.invites : [];
+  if (!Array.isArray(data.invites)) return [];
+
+  // A script older than version 5 sends no `entourage` at all. Reading that
+  // as false would label every existing invitation "No entourage" in the
+  // dashboard while the guests holding them still see it — so absent means
+  // true here, exactly as it does on the guest's side.
+  return (data.invites as InviteRecord[]).map((invite) => ({
+    ...invite,
+    entourage: invite.entourage !== false,
+  }));
 }
 
-export async function createInvite(key: string, name: string) {
+export async function createInvite(
+  key: string,
+  name: string,
+  entourage: boolean,
+) {
   const data = await post<{ ok: boolean; token?: string; error?: string }>({
     action: "invite.create",
     key,
     name,
+    entourage,
   });
   if (!data.ok || !data.token) throw new Error(data.error || "Request failed");
   return data.token;
+}
+
+/**
+ * Move one invitation between the two versions.
+ *
+ * The link and the device that holds it are untouched, so a guest who already
+ * has it simply sees the other version next time they open it — no reissuing,
+ * no resending, no reset.
+ */
+export async function setInviteEntourage(
+  key: string,
+  token: string,
+  entourage: boolean,
+) {
+  const data = await post<{ ok: boolean; error?: string }>({
+    action: "invite.entourage",
+    key,
+    token,
+    entourage,
+  });
+  if (!data.ok) throw new Error(data.error || "Request failed");
 }
 
 export async function resetInvite(key: string, token: string) {

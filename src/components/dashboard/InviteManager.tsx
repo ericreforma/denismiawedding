@@ -8,6 +8,7 @@ import {
   inviteLink,
   listInvites,
   resetInvite,
+  setInviteEntourage,
   type InviteRecord,
 } from "@/data/invite";
 import { hasEndpoint } from "@/data/config";
@@ -30,6 +31,14 @@ export function InviteManager({ passcode }: { passcode: string }) {
   const [invites, setInvites] = useState<InviteRecord[]>([]);
   const [load, setLoad] = useState<Load>({ state: "idle" });
   const [name, setName] = useState("");
+  /**
+   * Whether the next link shows the wedding party.
+   *
+   * Off by default: most guests get the shorter invitation, and the entourage
+   * are the exception. It stays as the couple last left it between links, so
+   * doing all the ninongs in a row is one tick rather than twenty.
+   */
+  const [entourage, setEntourage] = useState(false);
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState("");
   /** The token whose row is mid-action, so only that row shows it. */
@@ -89,7 +98,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
     setCreating(true);
     setLoad({ state: "ready" });
     try {
-      const token = await createInvite(passcode, who);
+      const token = await createInvite(passcode, who, entourage);
       const made: InviteRecord = {
         token,
         name: who,
@@ -99,6 +108,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
         lastOpened: "",
         opens: 0,
         created: new Date().toISOString(),
+        entourage,
       };
       setInvites((prev) => [made, ...prev]);
       setFresh(made);
@@ -165,6 +175,29 @@ export function InviteManager({ passcode }: { passcode: string }) {
     }
   };
 
+  const toggleEntourage = async (invite: InviteRecord) => {
+    if (busy) return;
+    setBusy(invite.token);
+    try {
+      await setInviteEntourage(passcode, invite.token, !invite.entourage);
+      setInvites((prev) =>
+        prev.map((i) =>
+          i.token === invite.token ? { ...i, entourage: !i.entourage } : i,
+        ),
+      );
+      setFresh((f) =>
+        f?.token === invite.token ? { ...f, entourage: !f.entourage } : f,
+      );
+    } catch {
+      setLoad({
+        state: "error",
+        message: `Couldn't change ${invite.name}'s invitation. Please try again.`,
+      });
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const remove = async (invite: InviteRecord) => {
     if (busy) return;
     const ok = window.confirm(
@@ -210,6 +243,24 @@ export function InviteManager({ passcode }: { passcode: string }) {
             {creating ? "Creating…" : "Create link"}
           </button>
         </div>
+
+        <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-foreground/15 bg-card px-4 py-3.5">
+          <input
+            type="checkbox"
+            checked={entourage}
+            onChange={(e) => setEntourage(e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[hsl(var(--foreground))]"
+          />
+          <span className="min-w-0">
+            <span className="block font-sans text-[13px] text-foreground">
+              Include the entourage
+            </span>
+            <span className="mt-0.5 block font-sans text-[12px] leading-relaxed text-foreground/55">
+              Tick this for the wedding party themselves. Everyone else gets the
+              invitation without the list of names.
+            </span>
+          </span>
+        </label>
       </form>
 
       {fresh && (
@@ -217,6 +268,11 @@ export function InviteManager({ passcode }: { passcode: string }) {
           <p className="font-sans text-[12px] uppercase tracking-[0.18em] text-foreground/55">
             Link for {fresh.name}
             {copied === fresh.token && " · copied"}
+          </p>
+          <p className="mt-1 font-sans text-[12px] text-foreground/60">
+            {fresh.entourage
+              ? "With the entourage."
+              : "Without the entourage."}
           </p>
           <p className="mt-2 break-all font-mono text-[12px] leading-relaxed text-foreground/80">
             {inviteLink(fresh.token)}
@@ -311,6 +367,8 @@ export function InviteManager({ passcode }: { passcode: string }) {
             </div>
 
             <p className="mt-1.5 font-sans text-[12px] leading-relaxed text-foreground/55">
+              {invite.entourage ? "With entourage" : "No entourage"}
+              {" · "}
               {invite.claimed
                 ? `${invite.device || "Unknown device"} · first opened ${when(invite.firstOpened)}${
                     invite.opens > 1 ? ` · ${invite.opens} visits` : ""
@@ -342,6 +400,19 @@ export function InviteManager({ passcode }: { passcode: string }) {
                 className="rounded-full border border-foreground/25 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-foreground"
               >
                 {busy === invite.token ? "Working…" : "Reset device"}
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleEntourage(invite)}
+                disabled={busy === invite.token}
+                title={
+                  invite.entourage
+                    ? "Send this guest the invitation without the wedding party"
+                    : "Send this guest the invitation with the wedding party"
+                }
+                className="rounded-full border border-foreground/25 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-35"
+              >
+                {invite.entourage ? "Drop entourage" : "Add entourage"}
               </button>
               <button
                 type="button"

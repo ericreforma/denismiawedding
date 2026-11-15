@@ -45,6 +45,15 @@ export type Guest = {
   name: string | null;
   /** The token from the link. */
   token: string | null;
+  /**
+   * Whether this guest's invitation lists the wedding party.
+   *
+   * The couple send two versions: most guests get the shorter one, and the
+   * entourage themselves get the full one. It defaults to `true` everywhere
+   * it is not known, so a missing answer never silently removes a section a
+   * guest was meant to see.
+   */
+  entourage: boolean;
   /** Re-run the check. Only meaningful from `offline`. */
   retry: () => void;
 };
@@ -53,6 +62,7 @@ const GuestContext = createContext<Guest>({
   state: INVITE_ONLY ? "closed" : "welcome",
   name: null,
   token: null,
+  entourage: true,
   retry: () => {},
 });
 
@@ -76,6 +86,7 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GuestState>("checking");
   const [name, setName] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [entourage, setEntourage] = useState(true);
   /** Bumped by `retry` to re-run the effect. */
   const [attempt, setAttempt] = useState(0);
 
@@ -105,13 +116,15 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
       if (claim.status === "offline") {
         const known = recall(found);
         if (known) {
-          setName(known);
+          setName(known.name);
+          setEntourage(known.entourage);
           setState("welcome");
           return;
         }
       }
 
       setName(claim.name?.trim() || null);
+      setEntourage(claim.entourage !== false);
       setState(resolve(claim.status));
     });
     return () => {
@@ -120,8 +133,8 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
   }, [attempt]);
 
   const value = useMemo(
-    () => ({ state, name, token, retry }),
-    [state, name, token, retry],
+    () => ({ state, name, token, entourage, retry }),
+    [state, name, token, entourage, retry],
   );
   return (
     <GuestContext.Provider value={value}>{children}</GuestContext.Provider>

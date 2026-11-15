@@ -349,6 +349,11 @@ so anything it could decrypt, a guest could decrypt and forge. The name lives
 beside the token in the sheet's `Invites` tab, and only the Apps Script can
 match them.
 
+There are two invitations — with the wedding party listed and without — and
+the dashboard picks one per guest when the link is made, or switches it later
+without reissuing the link. Invitations predating the choice read as "with",
+which is what their guests were already shown.
+
 The bare address opens nothing: without a token the sheet recognises, a
 visitor gets a closed screen. The couple need a link of their own to see their
 own site. The gate is client-side — devtools can still read the bundle — so

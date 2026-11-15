@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 4;
+const SCRIPT_VERSION = 5;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -79,6 +79,7 @@ const INVITE_HEADERS = [
   "Last opened",
   "Opens",
   "Created",
+  "Entourage",
 ];
 
 /**
@@ -195,6 +196,34 @@ function newToken() {
   return out;
 }
 
+/**
+ * Add the Entourage header to an Invites tab made before that column existed.
+ *
+ * `getSheet` only writes headers for a tab it created itself, so a sheet from
+ * an earlier version keeps its eight. The rows would still work — the script
+ * writes and reads column I by position either way — but the couple would be
+ * looking at an unlabelled column of Yes and No.
+ */
+function ensureInviteColumns(sheet) {
+  if (String(sheet.getRange(1, 9).getValue() || "").trim()) return;
+  sheet.getRange(1, 9).setValue("Entourage");
+}
+
+/**
+ * Whether an invitation shows the entourage.
+ *
+ * Blank means yes. Every invitation made before this column existed has a
+ * blank there, and those links were sent showing the entourage — so blank has
+ * to keep meaning what it meant, or a guest who was shown the wedding party
+ * last week would find it gone this week. New invitations always write an
+ * explicit Yes or No, so the ambiguity never spreads.
+ */
+function readEntourage(v) {
+  const s = String(v == null ? "" : v).trim().toLowerCase();
+  if (!s) return true;
+  return s !== "no" && s !== "false";
+}
+
 /** Row number of a token in the Invites tab, or -1. Row 1 is the header. */
 function inviteRow(sheet, token) {
   const last = sheet.getLastRow();
@@ -216,7 +245,8 @@ function allInvites() {
   const last = sheet.getLastRow();
   if (last < 2) return [];
 
-  const rows = sheet.getRange(2, 1, last - 1, 8).getValues();
+  ensureInviteColumns(sheet);
+  const rows = sheet.getRange(2, 1, last - 1, 9).getValues();
   const out = [];
   for (let i = 0; i < rows.length; i++) {
     const token = String(rows[i][0] || "").trim();
@@ -232,6 +262,7 @@ function allInvites() {
       lastOpened: iso(rows[i][5]),
       opens: Number(rows[i][6] || 0),
       created: iso(rows[i][7]),
+      entourage: readEntourage(rows[i][8]),
     });
   }
   return out;
@@ -258,13 +289,17 @@ function claimInvite(data) {
 
   const known = String(sheet.getRange(row, 3).getValue() || "").trim();
   const name = String(sheet.getRange(row, 2).getValue() || "");
+  // Which of the two invitations this guest was sent to.
+  const entourage = readEntourage(sheet.getRange(row, 9).getValue());
   const now = new Date();
 
   if (!known) {
     sheet.getRange(row, 3, 1, 5).setValues([
       [deviceId, String(data.device || "").trim().slice(0, 200), now, now, 1],
     ]);
-    return { ok: true, status: "ok", name: name, firstOpen: true };
+    return {
+      ok: true, status: "ok", name: name, entourage: entourage, firstOpen: true,
+    };
   }
 
   if (known !== deviceId) return { ok: true, status: "blocked" };
@@ -272,7 +307,9 @@ function claimInvite(data) {
   const opens = Number(sheet.getRange(row, 7).getValue() || 0) + 1;
   sheet.getRange(row, 6).setValue(now);
   sheet.getRange(row, 7).setValue(opens);
-  return { ok: true, status: "ok", name: name, firstOpen: false };
+  return {
+    ok: true, status: "ok", name: name, entourage: entourage, firstOpen: false,
+  };
 }
 
 /** Everything the dashboard does to invitations. All of it passcode-gated. */
@@ -284,13 +321,17 @@ function inviteAction(action, data) {
   }
 
   const sheet = getSheet(INVITE_SHEET, INVITE_HEADERS);
+  ensureInviteColumns(sheet);
 
   if (action === "invite.create") {
     const name = String(data.name || "").trim().slice(0, 100);
     if (!name) return { ok: false, error: "Name is required" };
     const token = newToken();
-    sheet.appendRow([token, name, "", "", "", "", 0, new Date()]);
-    return { ok: true, token: token, name: name };
+    const entourage = data.entourage === true;
+    sheet.appendRow([
+      token, name, "", "", "", "", 0, new Date(), entourage ? "Yes" : "No",
+    ]);
+    return { ok: true, token: token, name: name, entourage: entourage };
   }
 
   const token = String(data.token || "").trim();
@@ -302,6 +343,15 @@ function inviteAction(action, data) {
   if (action === "invite.reset") {
     sheet.getRange(row, 3, 1, 5).setValues([["", "", "", "", 0]]);
     return { ok: true, token: token };
+  }
+
+  // Switch an invitation between the two versions without reissuing it. The
+  // link and its device are untouched, so a guest already holding it simply
+  // sees the other version next time they open it.
+  if (action === "invite.entourage") {
+    const entourage = data.entourage === true;
+    sheet.getRange(row, 9).setValue(entourage ? "Yes" : "No");
+    return { ok: true, token: token, entourage: entourage };
   }
 
   if (action === "invite.delete") {
@@ -642,9 +692,9 @@ A second tab appears on first use:
 
 `Invites`:
 
-| A | B | C | D | E | F | G | H |
-|---|---|---|---|---|---|---|---|
-| Token | Name | Device ID | Device | First opened | Last opened | Opens | Created |
+| A | B | C | D | E | F | G | H | I |
+|---|---|---|---|---|---|---|---|---|
+| Token | Name | Device ID | Device | First opened | Last opened | Opens | Created | Entourage |
 
 ### The invitation is closed
 
@@ -666,6 +716,23 @@ server, which a static site on Pages is not.
 
 To reopen the site to everyone, set `INVITE_ONLY` to `false` in
 `src/data/invite.ts` and rebuild.
+
+### Two versions, one per guest
+
+Column I decides whether that guest's invitation lists the wedding party.
+**Include the entourage** in the dashboard writes `Yes`; leaving it unticked
+writes `No`. Each card also has **ADD ENTOURAGE** / **DROP ENTOURAGE**, which
+flips column I without touching the link or the device holding it — so a guest
+already carrying the link simply sees the other version next time.
+
+**A blank cell means Yes.** Every invitation made before this column existed
+has one, and those links were sent showing the entourage; blank has to keep
+meaning what it meant, or a guest shown the wedding party last week would find
+it gone this week. New invitations always write an explicit `Yes` or `No`.
+
+The header appears on its own: `ensureInviteColumns` writes `Entourage` into
+I1 the first time version 5 touches an older sheet, because `getSheet` only
+writes headers for a tab it created itself. Nothing else to do by hand.
 
 ### One link, one device
 

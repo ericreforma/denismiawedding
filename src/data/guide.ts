@@ -185,6 +185,40 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: "two-versions",
+    title: "The two versions of your invitation",
+    lead: "There are two invitations, and you choose which one each guest gets when you make their link.",
+    steps: [
+      {
+        action: "The short one, which most guests get.",
+        detail:
+          "Everything except the entourage — no list of ninongs, ninangs, bridesmaids or groomsmen.",
+      },
+      {
+        action: "The full one, with the entourage.",
+        detail:
+          "The same invitation plus the wedding party, for the people who are in it.",
+      },
+      {
+        action: "You pick with one tick box when you make the link.",
+        detail:
+          "It is called Include the entourage. Leave it alone for an ordinary guest; tick it for your wedding party.",
+      },
+    ],
+    notes: [
+      {
+        tone: "tip",
+        title: "You can change your mind later",
+        body: "Every invitation card has a button that says ADD ENTOURAGE or DROP ENTOURAGE. Tapping it switches that one guest to the other version. The link stays exactly the same, so there is nothing to resend — they will just see the other version next time they open it.",
+      },
+      {
+        tone: "tip",
+        title: "Links you made before this existed",
+        body: "Anything you sent before now shows the entourage, the way it always did. Nothing changed under your guests. If you want one of them switched, use DROP ENTOURAGE on their card.",
+      },
+    ],
+  },
+  {
     id: "invite-make",
     title: "Making a link for one guest",
     lead: "This is the thing you will do most. It takes about five seconds per guest.",
@@ -201,6 +235,11 @@ export const GUIDE: GuideSection[] = [
         action: "Type the guest's name in the box that says \"Their name, as it should appear\".",
         detail:
           "Write it the way you want them greeted. \"Tita Baby\" is better than \"Mrs. Ramos\" if that is what you call her.",
+      },
+      {
+        action: "Decide about the tick box underneath: Include the entourage.",
+        detail:
+          "Leave it empty for an ordinary guest. Tick it for someone in your wedding party. It stays how you leave it, so you can do all the ninongs one after another without ticking it each time.",
       },
       { action: "Tap CREATE LINK." },
       {
@@ -249,6 +288,11 @@ export const GUIDE: GuideSection[] = [
         action: "OPENED means they have seen it.",
         detail:
           "Underneath, it tells you what they opened it on — \"iPhone · Safari\", \"Android · Facebook app\" — and when.",
+      },
+      {
+        action: "The first words on each card say which invitation that guest gets.",
+        detail:
+          "\"With entourage\" or \"No entourage\". Tap ADD ENTOURAGE or DROP ENTOURAGE on that card to swap it.",
       },
       {
         action: "The three boxes at the top count them up.",
@@ -363,6 +407,11 @@ export const GUIDE: GuideSection[] = [
       {
         action: "\"A guest says the link does not work.\"",
         detail: "INVITATIONS tab, find their name, RESET DEVICE, send the link again.",
+      },
+      {
+        action: "\"I ticked the wrong thing about the entourage.\"",
+        detail:
+          "INVITATIONS tab, find their card, tap ADD ENTOURAGE or DROP ENTOURAGE. The link does not change and there is nothing to resend.",
       },
       {
         action: "\"I cannot open my own website.\"",

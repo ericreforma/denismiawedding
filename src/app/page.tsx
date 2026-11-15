@@ -31,7 +31,7 @@ export default function Home() {
 }
 
 function Invitation() {
-  const { state } = useGuest();
+  const { state, entourage } = useGuest();
 
   /** The hero text starts fading in under the intro's last beat. */
   const [heroVisible, setHeroVisible] = useState(false);
@@ -63,7 +63,8 @@ function Invitation() {
         <SaveTheDate />
         <Location />
         <TheDay />
-        <Entourage />
+        {/* The couple send two versions; only some guests get this one. */}
+        {entourage && <Entourage />}
         <DressCode />
         <WeddingGift />
         <Rsvp />
