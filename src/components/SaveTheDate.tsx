@@ -109,17 +109,10 @@ export function SaveTheDate() {
               className="absolute inset-0 -z-10 bg-white/45 pointer-events-none"
             />
 
-            {/* Postage stamps, kept from the transportation card — a
-                save-the-date is a thing that arrives in the post. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={ART.transportStamps}
-              alt=""
-              aria-hidden
-              className="block w-[130px] md:w-[170px] h-auto mx-auto -rotate-6 translate-x-[10px]"
-            />
-
-            <h2 className="font-doulaise text-6xl md:text-8xl text-foreground leading-none mt-8">
+            {/* The heading leads the card now. Its `mt-8` went with the
+                stamps that used to sit above it — the card's own padding is
+                the top margin. */}
+            <h2 className="font-doulaise text-6xl md:text-8xl text-foreground leading-none">
               {FILM.heading}
             </h2>
 

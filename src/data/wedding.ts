@@ -482,7 +482,6 @@ export const ART = {
   timelineCurtain: p("/art/timeline-curtain.webp"),
   dressFrame: p("/art/dresscode-frame.webp"),
   transportBg: p("/art/transport-bg.webp"),
-  transportStamps: p("/art/transport-stamps.webp"),
   giftFrame: p("/art/gift-frame.webp"),
   rsvpTopBorder: p("/art/rsvp-top-border.webp"),
   envelopeClosed: p("/art/envelope-closed.webp"),
