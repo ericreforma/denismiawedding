@@ -50,3 +50,8 @@ __pycache__/
 # is committed, the original is not, so a stray `git add -A` cannot park it in
 # history for good.
 /public/art/d_and_m_seal.png
+
+# The full-resolution source behind public/intro/envelope-poster.jpg (2.6MB
+# against 274KB). Same reasoning as the seal and the gallery above: the
+# web-sized copy ships, the original stays out of history.
+/public/intro/Elegant D&M Champagne Wax Seal.png
