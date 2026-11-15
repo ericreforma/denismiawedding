@@ -38,7 +38,8 @@ function Invitation() {
   /** The audio toggle only appears once the intro is out of the way. */
   const [entered, setEntered] = useState(false);
   const { isMuted, startMusic, toggleMute } = useBackgroundMusic();
-  useReveal();
+  // Only once the invitation itself is on the page — see useReveal.
+  useReveal(state === "welcome");
 
   // Anything but a recognised guest — including the moment before the token
   // has been checked, so the invitation is never shown and then taken away.
