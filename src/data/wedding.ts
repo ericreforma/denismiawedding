@@ -512,10 +512,16 @@ export const PHOTOS = {
  *
  * These three are most of what a first-time visitor downloads, so weight
  * matters more here than anywhere else on the page. The envelope clip came
- * back from the generator at 3.8MB against the 1.3MB it replaced — around
- * 7.9 Mbps for four seconds, which is roughly three times the bitrate the
- * rest of the intro was cut to. It wants a compression pass; there was no
- * ffmpeg on hand to give it one.
+ * back from the generator at 3.8MB — 7.9 Mbps for four seconds, about three
+ * times what the rest of the intro was cut to — and was re-encoded to 1.7MB:
+ *
+ *   ffmpeg -i in.mp4 -an -c:v libx264 -preset slow -crf 23  *          -pix_fmt yuv420p -profile:v high -movflags +faststart out.mp4
+ *
+ * SSIM against the source is 0.988 and the two are indistinguishable at 1:1,
+ * so this is weight going, not picture. Anything new that lands here wants
+ * the same pass: the overlay gives a clip 2.5s to show a frame before it
+ * gives up and skips the intro, so a fat file does not just load slowly, it
+ * costs some guests the opening altogether.
  */
 export const INTRO = {
   poster: p("/intro/envelope-poster.jpg"),
