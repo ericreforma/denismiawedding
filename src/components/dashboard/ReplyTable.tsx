@@ -47,8 +47,8 @@ export function ReplyTable({
 
   return (
     <>
-      {/* Cards on small screens: a five-column table cannot be read on a
-          phone, and the couple will check this on a phone. */}
+      {/* Cards on small screens: the table cannot be read on a phone, and
+          the couple will check this on a phone. */}
       <ul className="mt-5 space-y-3 md:hidden">
         {entries.map((e, i) => (
           <li
@@ -64,14 +64,8 @@ export function ReplyTable({
             <p className="mt-1 font-sans text-[12px] text-foreground/45">
               {when(e.timestamp)}
             </p>
-            {e.dietary.trim() && (
-              <p className="mt-3 break-words font-sans text-[13px] leading-relaxed">
-                <span className="text-foreground/50">Dietary · </span>
-                {e.dietary}
-              </p>
-            )}
             {e.message.trim() && (
-              <p className="mt-2 break-words font-sans text-[13px] leading-relaxed text-foreground/80">
+              <p className="mt-3 break-words font-sans text-[13px] leading-relaxed text-foreground/80">
                 “{e.message}”
               </p>
             )}
@@ -88,9 +82,6 @@ export function ReplyTable({
               </th>
               <th scope="col" className="py-3 pr-4 font-normal">
                 Reply
-              </th>
-              <th scope="col" className="py-3 pr-4 font-normal">
-                Dietary
               </th>
               <th scope="col" className="py-3 pr-4 font-normal">
                 Message
@@ -112,10 +103,7 @@ export function ReplyTable({
                 <td className="py-3.5 pr-4">
                   <Badge attending={e.attending} />
                 </td>
-                <td className="py-3.5 pr-4 text-foreground/75">
-                  {e.dietary.trim() || "—"}
-                </td>
-                <td className="max-w-sm py-3.5 pr-4 text-foreground/75">
+                <td className="max-w-md py-3.5 pr-4 text-foreground/75">
                   {e.message.trim() || "—"}
                 </td>
                 <td className="py-3.5 whitespace-nowrap text-foreground/50">

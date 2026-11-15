@@ -247,8 +247,8 @@ and `font-sans` (Jost).
 - **RSVP.** The envelope opens, then the form unfolds 700ms later. A hidden
   `website` field catches bots.
 
-  Seating is by named guest, so the form asks only for a name, attendance, one
-  dietary note and a message. The template's +1 radio and children stepper are
+  Seating is by named guest, so the form asks only for a name, attendance and
+  a message. The template's +1 radio and children stepper are
   gone: keeping controls whose only purpose is to add guests, directly beneath
   a note asking guests not to, would have been a contradiction.
 
@@ -320,4 +320,4 @@ Apps Script**, never in the page, so reading the page source gets an attacker
 nothing.
 
 The sheet columns are exactly the form's fields: Timestamp, Name, Attending,
-Dietary requirements, Message.
+Message.

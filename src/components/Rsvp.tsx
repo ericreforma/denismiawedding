@@ -54,7 +54,6 @@ export function Rsvp() {
 
   const [name, setName] = useState("");
   const [attending, setAttending] = useState("yes");
-  const [diet, setDiet] = useState("");
   const [message, setMessage] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [sending, setSending] = useState(false);
@@ -90,7 +89,6 @@ export function Rsvp() {
         body: JSON.stringify({
           name: name.trim(),
           attending,
-          dietary: diet.trim(),
           message: message.trim(),
           website: honeypot,
         }),
@@ -241,21 +239,6 @@ export function Rsvp() {
                         ))}
                       </div>
                     </div>
-
-                    {attending === "yes" && (
-                      <div>
-                        <label htmlFor="rsvp-diet" className={labelCls}>
-                          Dietary Requirements
-                        </label>
-                        <input
-                          id="rsvp-diet"
-                          value={diet}
-                          onChange={(e) => setDiet(e.target.value)}
-                          placeholder="Allergies or dietary requirements"
-                          className={fieldCls}
-                        />
-                      </div>
-                    )}
 
                     <div>
                       <label htmlFor="rsvp-message" className={labelCls}>

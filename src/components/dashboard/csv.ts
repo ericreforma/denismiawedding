@@ -22,12 +22,11 @@ function stamp(iso: string) {
 }
 
 export function toCsv(entries: RsvpEntry[]) {
-  const head = ["Date", "Name", "Attending", "Dietary requirements", "Message"];
+  const head = ["Date", "Name", "Attending", "Message"];
   const rows = entries.map((e) => [
     stamp(e.timestamp),
     e.name,
     e.attending,
-    e.dietary,
     e.message,
   ]);
   return [head, ...rows].map((r) => r.map(cell).join(",")).join("\r\n");

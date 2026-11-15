@@ -10,8 +10,7 @@
  * Left empty, the site still works: the form acknowledges the reply locally
  * and the dashboard says it has not been connected yet.
  */
-export const RSVP_ENDPOINT =
-  process.env.NEXT_PUBLIC_RSVP_ENDPOINT ?? "https://script.google.com/macros/s/AKfycbx0g8kbrafefpSzgqh6dfxD-v5Vg3TdMoVeqBxHECUtOeD1WvxdCiKjkADeLcQCBIk2/exec";
+export const RSVP_ENDPOINT = "https://script.google.com/macros/s/AKfycbxHk4GuG-ev-f9QiPFrRz_VGyRJia4kOkFtthDRj00dQfTPXllgjB_kE_C3Ql8VpvcB/exec";
 
 export const hasEndpoint = () => RSVP_ENDPOINT.trim().length > 0;
 
@@ -21,6 +20,5 @@ export type RsvpEntry = {
   name: string;
   /** "yes" | "no" as written by the form. */
   attending: string;
-  dietary: string;
   message: string;
 };

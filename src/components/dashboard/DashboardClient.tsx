@@ -115,10 +115,7 @@ export function DashboardClient() {
   const counts = useMemo(() => {
     const yes = entries.filter((e) => isYes(e.attending)).length;
     const no = entries.filter((e) => !isYes(e.attending)).length;
-    const dietary = entries.filter(
-      (e) => isYes(e.attending) && e.dietary.trim(),
-    ).length;
-    return { total: entries.length, yes, no, dietary };
+    return { total: entries.length, yes, no };
   }, [entries]);
 
   const shown = useMemo(() => {
@@ -129,7 +126,6 @@ export function DashboardClient() {
       if (!q) return true;
       return (
         e.name.toLowerCase().includes(q) ||
-        e.dietary.toLowerCase().includes(q) ||
         e.message.toLowerCase().includes(q)
       );
     });
@@ -206,11 +202,10 @@ export function DashboardClient() {
 
         {load.state === "ready" && (
           <>
-            <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            <section className="mt-8 grid grid-cols-3 gap-2.5 md:gap-4">
               <StatTile label="Replies" value={counts.total} />
               <StatTile label="Attending" value={counts.yes} emphasis />
               <StatTile label="Cannot come" value={counts.no} />
-              <StatTile label="Dietary notes" value={counts.dietary} />
             </section>
 
             {/* A phone gets one control per row — search, then the filter as
@@ -222,7 +217,7 @@ export function DashboardClient() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search a name, note or message…"
+                  placeholder="Search a name or message…"
                   className="w-full rounded-full border border-foreground/20 bg-card px-5 py-3 font-sans text-[16px] placeholder:text-foreground/40 focus:border-foreground/50 focus:outline-none md:py-2.5 md:text-[14px]"
                 />
               </label>

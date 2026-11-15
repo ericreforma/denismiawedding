@@ -25,11 +25,11 @@ headers, the first time a reply arrives.
 
 `RSVPs`:
 
-| A | B | C | D | E |
-|---|---|---|---|---|
-| Timestamp | Name | Attending | Dietary requirements | Message |
+| A | B | C | D |
+|---|---|---|---|
+| Timestamp | Name | Attending | Message |
 
-Those five are exactly the RSVP form's fields. If you'd rather make the tab by
+Those four are exactly the RSVP form's fields. If you'd rather make the tab by
 hand, call it `RSVPs` and type the headers into row 1 — the script only writes
 headers for a tab it created itself, because it can't tell an empty sheet from
 one whose first row is already yours.
@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 1;
+const SCRIPT_VERSION = 2;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -56,13 +56,7 @@ const SCRIPT_VERSION = 1;
 const DASHBOARD_PASSCODE = "change-me";
 
 const RSVP_SHEET = "RSVPs";
-const RSVP_HEADERS = [
-  "Timestamp",
-  "Name",
-  "Attending",
-  "Dietary requirements",
-  "Message",
-];
+const RSVP_HEADERS = ["Timestamp", "Name", "Attending", "Message"];
 
 /**
  * One tab — found if you already made it, created with its headers if not.
@@ -117,7 +111,6 @@ function doPost(e) {
       new Date(),
       name.slice(0, 100),
       attending,
-      String(data.dietary || "").trim().slice(0, 500),
       String(data.message || "").trim().slice(0, 1000),
     ]);
 
@@ -135,7 +128,7 @@ function allEntries() {
   const last = sheet.getLastRow();
   if (last < 2) return [];
 
-  const rows = sheet.getRange(2, 1, last - 1, 5).getValues();
+  const rows = sheet.getRange(2, 1, last - 1, 4).getValues();
   const out = [];
   for (let i = 0; i < rows.length; i++) {
     const name = String(rows[i][1] || "").trim();
@@ -146,8 +139,7 @@ function allEntries() {
       timestamp: ts instanceof Date ? ts.toISOString() : String(ts || ""),
       name: name,
       attending: String(rows[i][2] || ""),
-      dietary: String(rows[i][3] || ""),
-      message: String(rows[i][4] || ""),
+      message: String(rows[i][3] || ""),
     });
   }
   return out;
@@ -236,17 +228,16 @@ then delete the test row.
 `/dashboard`. It is not linked from the invitation and carries
 `noindex`, so it is reachable only by someone who knows the address.
 
-- **Four tiles** — replies, attending, cannot come, and how many left a
-  dietary note.
-- **Search** across names, dietary notes and messages.
+- **Three tiles** — replies, attending, and cannot come.
+- **Search** across names and messages.
 - **Filter** by attending / cannot come, and **sort** by newest, oldest or name.
 - **Export CSV** — what is currently on screen, filters and all, so "everyone
   attending" is a filter and a button rather than a spreadsheet formula. It is
   written with a UTF-8 BOM so Excel does not mangle accented names.
 - **Refresh** re-reads the sheet; **Lock** forgets the passcode.
 
-On a phone each reply is a card rather than a row, because a five-column table
-is unreadable at that width and a phone is where this will usually be opened.
+On a phone each reply is a card rather than a row, because the table is
+unreadable at that width and a phone is where this will usually be opened.
 
 ### About the passcode
 
@@ -260,6 +251,23 @@ Change it by editing `DASHBOARD_PASSCODE` and redeploying (see below — editing
 alone does nothing).
 
 ---
+
+## Dropping the dietary column (sheet already live)
+
+The form once asked for a dietary note, and the sheet was five columns wide:
+`Timestamp | Name | Attending | Dietary requirements | Message`. It is four
+now. If your sheet already holds replies in the old layout, **delete column D
+before deploying `SCRIPT_VERSION = 2`** — right-click the `Dietary
+requirements` header → *Delete column*. `Message` shifts left into D, which is
+where the new script both writes it and reads it from.
+
+Deploy the new script without deleting that column and the dashboard shows
+every existing reply's dietary note where its message belongs, because the
+script reads the message out of column D by position. Nothing is lost — it
+reads wrong until the column goes.
+
+Check which copy is live by opening the `/exec` URL: `"version":2` is the new
+one.
 
 ## Troubleshooting
 
