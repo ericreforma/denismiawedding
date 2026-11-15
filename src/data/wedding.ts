@@ -505,10 +505,17 @@ export const PHOTOS = {
  * The opening sequence: a still of the sealed envelope, then two clips —
  * the envelope opening, then the ribboned invitation being unwrapped.
  *
- * These are the original's own files and together they weigh ~34MB, which is
- * most of what a first-time visitor downloads. The wax seal in the envelope
- * clip carries the template couple's monogram; unlike the still seals it
- * cannot be re-lettered, so it still reads "C & J".
+ * The still and the envelope clip are the couple's own, and both now press
+ * their D&M seal — the template's "C & J" monogram is off the invitation
+ * entirely. The bridge clip is still the original's, which is fine: it opens
+ * on the ribboned card and carries no monogram at all.
+ *
+ * These three are most of what a first-time visitor downloads, so weight
+ * matters more here than anywhere else on the page. The envelope clip came
+ * back from the generator at 3.8MB against the 1.3MB it replaced — around
+ * 7.9 Mbps for four seconds, which is roughly three times the bitrate the
+ * rest of the intro was cut to. It wants a compression pass; there was no
+ * ffmpeg on hand to give it one.
  */
 export const INTRO = {
   poster: p("/intro/envelope-poster.jpg"),
