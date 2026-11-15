@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 3;
+const SCRIPT_VERSION = 4;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -57,7 +57,19 @@ const DASHBOARD_PASSCODE = "change-me";
 
 const RSVP_SHEET = "RSVPs";
 const INVITE_SHEET = "Invites";
+const GALLERY_SHEET = "Gallery";
+const GALLERY_FOLDER = "Denis & Mia — Gallery";
 const RSVP_HEADERS = ["Timestamp", "Name", "Attending", "Message"];
+const GALLERY_HEADERS = [
+  "ID",
+  "Label",
+  "Thumb URL",
+  "Full URL",
+  "Width",
+  "Height",
+  "File ID",
+  "Added",
+];
 const INVITE_HEADERS = [
   "Token",
   "Name",
@@ -109,6 +121,9 @@ function doPost(e) {
     // Invitations share this endpoint. A reply carries no `action`, so the
     // RSVP form goes on posting exactly what it always posted.
     const action = String(data.action || "").trim();
+    if (action.indexOf("gallery.") === 0) {
+      return json(galleryAction(action, data));
+    }
     if (action) return json(inviteAction(action, data));
 
     // Honeypot: a field hidden from real users. Bots fill in everything they
@@ -297,6 +312,182 @@ function inviteAction(action, data) {
   return { ok: false, error: "Unknown action: " + action };
 }
 
+// -------------------------------------------------------------- the gallery
+
+/**
+ * The Drive folder the uploads live in, made on first use.
+ *
+ * Photos are too big for a spreadsheet cell, so the sheet holds a row per
+ * photo and Drive holds the file. Everything about a photo except its bytes
+ * is in the row, which is why removing one is a row delete and a trash.
+ */
+function galleryFolder() {
+  const found = DriveApp.getFoldersByName(GALLERY_FOLDER);
+  return found.hasNext() ? found.next() : DriveApp.createFolder(GALLERY_FOLDER);
+}
+
+/**
+ * Google will resize a public Drive image for you if you ask in the URL, so
+ * one upload serves both the strip and the lightbox. `=w900` and `=w1920`
+ * are the two the site asks for.
+ */
+function driveUrl(id, width) {
+  return "https://lh3.googleusercontent.com/d/" + id + "=w" + width;
+}
+
+/** Every photo, in sheet order — which is the order the strip shows them. */
+function allPhotos() {
+  const sheet = getSheet(GALLERY_SHEET, GALLERY_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return [];
+
+  const rows = sheet.getRange(2, 1, last - 1, 8).getValues();
+  const out = [];
+  for (let i = 0; i < rows.length; i++) {
+    const id = String(rows[i][0] || "").trim();
+    const thumb = String(rows[i][2] || "").trim();
+    if (!id || !thumb) continue;
+    out.push({
+      id: id,
+      label: String(rows[i][1] || ""),
+      thumb: thumb,
+      full: String(rows[i][3] || "").trim() || thumb,
+      w: Number(rows[i][4] || 0) || 1000,
+      h: Number(rows[i][5] || 0) || 667,
+    });
+  }
+  return out;
+}
+
+function galleryRow(sheet, id) {
+  const last = sheet.getLastRow();
+  if (last < 2) return -1;
+  const col = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (let i = 0; i < col.length; i++) {
+    if (String(col[i][0] || "").trim() === id) return i + 2;
+  }
+  return -1;
+}
+
+/** Everything the dashboard does to the gallery. All of it passcode-gated. */
+function galleryAction(action, data) {
+  if (String(data.key || "") !== DASHBOARD_PASSCODE) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const sheet = getSheet(GALLERY_SHEET, GALLERY_HEADERS);
+
+  // One photo, already resized by the browser that sent it.
+  if (action === "gallery.add") {
+    const b64 = String(data.image || "");
+    if (!b64) return { ok: false, error: "No image" };
+
+    const label = String(data.label || "photo").trim().slice(0, 120);
+    const type = String(data.type || "image/jpeg");
+    const blob = Utilities.newBlob(
+      Utilities.base64Decode(b64),
+      type,
+      label || "photo",
+    );
+
+    const file = galleryFolder().createFile(blob);
+    // Hotlinked by every guest's browser, so it has to be readable without
+    // a Google account.
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const fileId = file.getId();
+
+    const id = newToken();
+    sheet.appendRow([
+      id,
+      label,
+      driveUrl(fileId, 900),
+      driveUrl(fileId, 1920),
+      Number(data.w || 0) || 1000,
+      Number(data.h || 0) || 667,
+      fileId,
+      new Date(),
+    ]);
+    return {
+      ok: true,
+      photo: {
+        id: id,
+        label: label,
+        thumb: driveUrl(fileId, 900),
+        full: driveUrl(fileId, 1920),
+        w: Number(data.w || 0) || 1000,
+        h: Number(data.h || 0) || 667,
+      },
+    };
+  }
+
+  if (action === "gallery.remove") {
+    const id = String(data.id || "").trim();
+    const row = galleryRow(sheet, id);
+    if (row < 0) return { ok: false, error: "No such photo" };
+
+    const fileId = String(sheet.getRange(row, 7).getValue() || "").trim();
+    sheet.deleteRow(row);
+    // A seeded photo has no file of its own — it is one of the built-in ones.
+    if (fileId) {
+      try {
+        DriveApp.getFileById(fileId).setTrashed(true);
+      } catch (err) {
+        // The row is already gone, which is what the dashboard asked for.
+      }
+    }
+    return { ok: true, id: id };
+  }
+
+  /**
+   * Copy the built-in photoshoot into the sheet so its photos can be removed
+   * and reordered one by one like any other. They keep pointing at the files
+   * the site already ships; nothing is uploaded.
+   */
+  if (action === "gallery.seed") {
+    const photos = data.photos;
+    if (!photos || !photos.length) return { ok: false, error: "No photos" };
+    if (sheet.getLastRow() > 1) {
+      return { ok: false, error: "The gallery already has photos" };
+    }
+    const now = new Date();
+    const rows = photos.map(function (p) {
+      return [
+        newToken(),
+        String(p.label || ""),
+        String(p.thumb || ""),
+        String(p.full || ""),
+        Number(p.w || 0) || 1000,
+        Number(p.h || 0) || 667,
+        "",
+        now,
+      ];
+    });
+    sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+    return { ok: true, added: rows.length };
+  }
+
+  // Back to the built-in photoshoot. Uploaded files go to Drive's bin, where
+  // they can be recovered for 30 days if this was a mistake.
+  if (action === "gallery.clear") {
+    const last = sheet.getLastRow();
+    if (last < 2) return { ok: true, removed: 0 };
+    const ids = sheet.getRange(2, 7, last - 1, 1).getValues();
+    for (let i = 0; i < ids.length; i++) {
+      const fileId = String(ids[i][0] || "").trim();
+      if (!fileId) continue;
+      try {
+        DriveApp.getFileById(fileId).setTrashed(true);
+      } catch (err) {
+        // Already gone; the row goes regardless.
+      }
+    }
+    sheet.deleteRows(2, last - 1);
+    return { ok: true, removed: last - 1 };
+  }
+
+  return { ok: false, error: "Unknown action: " + action };
+}
+
 /**
  * Read requests: the dashboard, and a health check.
  *
@@ -307,6 +498,16 @@ function inviteAction(action, data) {
  */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+
+  // Public on purpose: every guest's browser needs the photo list, and it
+  // is a list of pictures the invitation was going to show them anyway.
+  if (String(p.board || "") === "gallery") {
+    try {
+      return json({ ok: true, photos: allPhotos() });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    }
+  }
 
   if (String(p.board || "") === "invites") {
     if (String(p.key || "") !== DASHBOARD_PASSCODE) {
@@ -499,6 +700,65 @@ actually seen the invitation.
 ### Deleting
 
 **Delete** removes the row, and the link stops working for good.
+
+## The gallery
+
+The **Gallery** tab of the dashboard uploads and removes the strip's photos.
+
+**An empty gallery means the built-in photoshoot.** Until something is
+uploaded the site shows the 123 photos that ship with it, exactly as it
+always has — and emptying the gallery puts them back.
+
+A third tab appears on first use:
+
+`Gallery`:
+
+| A | B | C | D | E | F | G | H |
+|---|---|---|---|---|---|---|---|
+| ID | Label | Thumb URL | Full URL | Width | Height | File ID | Added |
+
+**Row order is the order on the site.** To rearrange the strip, drag rows in
+this tab.
+
+### Where the photos go
+
+Uploads land in a Drive folder called **Denis & Mia — Gallery**, shared
+*anyone with the link can view* — they have to be, because every guest's
+browser loads them directly. The sheet keeps the row; Drive keeps the file.
+
+The browser shrinks each photo to 1920px on its long edge before sending it,
+which takes a phone's 3–8MB original down to a few hundred kilobytes. That is
+not only for the upload: it is what the lightbox shows, and 1920px is more
+than any guest's screen can use. Drawing through a canvas to do it also drops
+the EXIF block, so the **GPS coordinates a phone writes into every photo do
+not go public** with it.
+
+One upload serves both sizes: Google resizes a public Drive image on request,
+so the strip asks for `=w900` and the lightbox for `=w1920`.
+
+### Start from the built-in photos
+
+With the gallery empty, **Start from the built-in photos** copies all 123 into
+the tab so they can be removed and reordered one at a time. Nothing is
+uploaded — the rows point at the files the site already ships, so they stay
+fast.
+
+### Removing
+
+The **×** on a photo removes the row and sends an uploaded file to Drive's
+bin, where Google keeps it for 30 days. **Empty the gallery** does the same
+for all of them and returns the site to the built-in set.
+
+### Two things worth knowing
+
+**Drive sharing has to be allowed.** On a Workspace account whose admin has
+turned off link sharing outside the organisation, `setSharing` fails and the
+photos load for you but for nobody else. The same personal `@gmail.com`
+account that fixes `Anyone` deployments fixes this.
+
+**Drive is not a CDN.** These photos come from Google rather than from the
+site's own domain, so a large uploaded gallery feels slower than the baked-in
+one. For a set of favourites it is not noticeable; for 300 photos it would be.
 
 ## Dropping the dietary column (sheet already live)
 

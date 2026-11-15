@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Portal } from "./Portal";
 import { Reveal } from "./Reveal";
-import { GALLERY, type GalleryPhoto } from "@/data/gallery";
+import { type GalleryPhoto } from "@/data/gallery";
 import { GALLERY_COPY } from "@/data/wedding";
+import { useGallery } from "@/hooks/useGallery";
 
 const ROWS = 2;
 
@@ -40,6 +41,12 @@ function dealIntoRows(photos: GalleryPhoto[], rows: number) {
 }
 
 export function Gallery() {
+  /**
+   * The couple's own set when they have made one, the built-in photoshoot
+   * otherwise. It can change once, a moment after load, so everything below
+   * is derived from it rather than from a module constant.
+   */
+  const photos = useGallery();
   const [open, setOpen] = useState<number | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const hovering = useRef(false);
@@ -48,7 +55,7 @@ export function Gallery() {
   /** Set by the drift effect so the arrow buttons can hold it off. */
   const pause = useRef<(() => void) | null>(null);
 
-  const lanes = useMemo(() => dealIntoRows(GALLERY, ROWS), []);
+  const lanes = useMemo(() => dealIntoRows(photos, ROWS), [photos]);
 
   /**
    * The lightbox walks the photographer's own order, not the order the rows
@@ -57,17 +64,19 @@ export function Gallery() {
    * the strip and the counter mean nothing.
    */
   const indexOf = useCallback(
-    (photo: GalleryPhoto) => GALLERY.indexOf(photo),
-    [],
+    (photo: GalleryPhoto) => photos.indexOf(photo),
+    [photos],
   );
 
-  const photo = open === null ? null : GALLERY[open];
+  // `?? null` because the list can be swapped under an open lightbox, and an
+  // index past the end of the new one must read as closed, not as undefined.
+  const photo = open === null ? null : (photos[open] ?? null);
   const step = useCallback(
     (by: number) =>
       setOpen((i) =>
-        i === null ? i : (i + by + GALLERY.length) % GALLERY.length,
+        i === null ? i : (i + by + photos.length) % photos.length,
       ),
-    [],
+    [photos.length],
   );
 
   useEffect(() => {
@@ -198,7 +207,7 @@ export function Gallery() {
                       identical pixel and the loop is invisible — rewinding to
                       zero instead would be a visible snap back. The second
                       copy is hidden from assistive tech and the tab order so
-                      the 123 photos are not announced twice. */}
+                      the photos are not announced twice. */}
                   {[0, 1].map((copy) =>
                     lane.map((p) => {
                       const i = indexOf(p);
@@ -213,7 +222,7 @@ export function Gallery() {
                           aria-label={
                             dup
                               ? undefined
-                              : `Enlarge photo ${i + 1} of ${GALLERY.length}`
+                              : `Enlarge photo ${i + 1} of ${photos.length}`
                           }
                           className="group relative block h-[150px] shrink-0 cursor-zoom-in overflow-hidden rounded-sm md:h-[230px]"
                           style={{ aspectRatio: `${p.w} / ${p.h}` }}
@@ -275,7 +284,7 @@ export function Gallery() {
             <div
               role="dialog"
               aria-modal="true"
-              aria-label={`Photo ${(open ?? 0) + 1} of ${GALLERY.length}`}
+              aria-label={`Photo ${(open ?? 0) + 1} of ${photos.length}`}
               onClick={() => setOpen(null)}
               className="fixed inset-0 z-50 grid place-items-center bg-foreground/95 p-4 cursor-zoom-out animate-[fadeUp_0.25s_ease-out_both]"
             >
@@ -315,7 +324,7 @@ export function Gallery() {
               </button>
 
               <span className="pointer-events-none fixed bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-[0.3em] text-background/60">
-                {(open ?? 0) + 1} / {GALLERY.length}
+                {(open ?? 0) + 1} / {photos.length}
               </span>
             </div>
           </Portal>

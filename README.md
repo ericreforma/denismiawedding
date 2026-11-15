@@ -322,6 +322,23 @@ nothing.
 The sheet columns are exactly the form's fields: Timestamp, Name, Attending,
 Message.
 
+## The gallery
+
+The strip is built at build time by `scripts/build-gallery.mjs`, which resizes
+`public/gallery/` into `public/gallery-web/` and writes `src/data/gallery.ts`.
+That is the fast path and the default.
+
+The dashboard's **Gallery** tab overrides it. Photos go to the couple's Drive,
+a row per photo lands in the sheet's `Gallery` tab, and the strip reads the
+list at run time — **an empty tab means the built-in photoshoot**, so the site
+is unchanged until they upload something, and emptying it puts the original
+set back. Row order in the sheet is the order on the site.
+
+The browser shrinks each photo to 1920px before upload, which also strips the
+EXIF GPS a phone writes into every picture. `src/data/photos.ts` has the
+client; `src/hooks/useGallery.ts` decides which of the three sources — cache,
+built-in, sheet — the strip is showing at any moment.
+
 ## Personal invitation links
 
 The dashboard's second tab makes one link per guest —
