@@ -385,6 +385,11 @@ export const GUIDE: GuideSection[] = [
     notes: [
       {
         tone: "tip",
+        title: "A box appears while it works",
+        body: "Anything that saves, adds or removes puts a small box over the page with a spinner, and for photos it counts them off — 3 of 12. The page is held still on purpose so nothing is tapped twice by mistake. Wait for it to close, and do not leave the page while it is up.",
+      },
+      {
+        tone: "tip",
         title: "The moment you upload one, your uploads take over",
         body: "The website shows either your uploads or the built-in photoshoot — never both mixed together. An empty gallery means the photoshoot.",
       },

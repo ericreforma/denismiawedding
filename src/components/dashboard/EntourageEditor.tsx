@@ -14,6 +14,7 @@ import {
 } from "@/data/entourage";
 import { ENTOURAGE } from "@/data/wedding";
 import { hasEndpoint } from "@/data/config";
+import { BusyDialog, type BusyTask } from "./BusyDialog";
 
 type Load =
   | { state: "idle" }
@@ -39,6 +40,7 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
   const [custom, setCustom] = useState(false);
   const [load, setLoad] = useState<Load>({ state: "idle" });
   const [open, setOpen] = useState<EntourageSection | null>(null);
+  const [task, setTask] = useState<BusyTask | null>(null);
 
   const refresh = useCallback(async () => {
     if (!hasEndpoint()) {
@@ -128,6 +130,7 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
 
   const save = async () => {
     setLoad({ state: "saving" });
+    setTask({ label: "Saving the entourage…" });
     try {
       const keep = rows.filter(
         (r) => r.title.trim() || r.line.trim() || r.names.length,
@@ -142,6 +145,8 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
         state: "error",
         message: "Couldn't save the entourage. Nothing was changed. Try again.",
       });
+    } finally {
+      setTask(null);
     }
   };
 
@@ -153,6 +158,7 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
     )
       return;
     setLoad({ state: "saving" });
+    setTask({ label: "Restoring the original list…" });
     try {
       await clearEntourage(passcode);
       const start = toRows(ENTOURAGE);
@@ -165,6 +171,8 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
         state: "error",
         message: "Couldn't restore the original list. Please try again.",
       });
+    } finally {
+      setTask(null);
     }
   };
 
@@ -172,6 +180,8 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
 
   return (
     <>
+      <BusyDialog task={task} />
+
       <div className="mt-8 rounded-xl border border-foreground/15 bg-card px-5 py-5">
         <p className="font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
           {custom ? "Your edited list" : "The original list"}

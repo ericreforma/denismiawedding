@@ -13,6 +13,7 @@ import {
 } from "@/data/invite";
 import { hasEndpoint } from "@/data/config";
 import { StatTile } from "./StatTile";
+import { BusyDialog, type BusyTask } from "./BusyDialog";
 
 type Load =
   | { state: "idle" }
@@ -46,6 +47,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
   /** The token just created, held so its link can be shown front and centre. */
   const [fresh, setFresh] = useState<InviteRecord | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [task, setTask] = useState<BusyTask | null>(null);
 
   const refresh = useCallback(async () => {
     if (!hasEndpoint()) {
@@ -97,6 +99,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
     if (!who || creating) return;
     setCreating(true);
     setLoad({ state: "ready" });
+    setTask({ label: `Making a link for ${who}…` });
     try {
       const token = await createInvite(passcode, who, entourage);
       const made: InviteRecord = {
@@ -121,6 +124,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setCreating(false);
+      setTask(null);
     }
   };
 
@@ -149,6 +153,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
     );
     if (!ok) return;
     setBusy(invite.token);
+    setTask({ label: `Resetting ${invite.name}'s link…` });
     try {
       await resetInvite(passcode, invite.token);
       setInvites((prev) =>
@@ -172,12 +177,18 @@ export function InviteManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setBusy(null);
+      setTask(null);
     }
   };
 
   const toggleEntourage = async (invite: InviteRecord) => {
     if (busy) return;
     setBusy(invite.token);
+    setTask({
+      label: invite.entourage
+        ? `Removing the entourage from ${invite.name}'s invitation…`
+        : `Adding the entourage to ${invite.name}'s invitation…`,
+    });
     try {
       await setInviteEntourage(passcode, invite.token, !invite.entourage);
       setInvites((prev) =>
@@ -195,6 +206,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setBusy(null);
+      setTask(null);
     }
   };
 
@@ -205,6 +217,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
     );
     if (!ok) return;
     setBusy(invite.token);
+    setTask({ label: `Deleting ${invite.name}'s invitation…` });
     try {
       await deleteInvite(passcode, invite.token);
       setInvites((prev) => prev.filter((i) => i.token !== invite.token));
@@ -216,11 +229,14 @@ export function InviteManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setBusy(null);
+      setTask(null);
     }
   };
 
   return (
     <>
+      <BusyDialog task={task} />
+
       <form onSubmit={create} className="mt-8">
         <label htmlFor="invite-name" className="block">
           <span className="font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">

@@ -13,6 +13,7 @@ import {
 import { GALLERY } from "@/data/gallery";
 import { hasEndpoint } from "@/data/config";
 import { explain } from "@/data/explain";
+import { BusyDialog, type BusyTask } from "./BusyDialog";
 
 type Load =
   | { state: "idle" }
@@ -30,6 +31,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [seeding, setSeeding] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
+  const [task, setTask] = useState<BusyTask | null>(null);
 
   const refresh = useCallback(async () => {
     if (!hasEndpoint()) {
@@ -68,6 +70,11 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     const chosen = Array.from(files);
     setJobs(chosen.map((f) => ({ name: f.name, state: "waiting" })));
     setLoad({ state: "ready" });
+    setTask({
+      label: chosen.length === 1 ? "Adding your photo…" : "Adding your photos…",
+      done: 0,
+      total: chosen.length,
+    });
 
     for (let i = 0; i < chosen.length; i++) {
       setJobs((prev) =>
@@ -88,7 +95,13 @@ export function GalleryManager({ passcode }: { passcode: string }) {
           message: explain(`Couldn't add ${chosen[i].name}.`, err),
         });
       }
+      setTask({
+        label: chosen.length === 1 ? "Adding your photo…" : "Adding your photos…",
+        done: i + 1,
+        total: chosen.length,
+      });
     }
+    setTask(null);
     // Clear the input, or picking the same file again does nothing.
     if (picker.current) picker.current.value = "";
   };
@@ -100,6 +113,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     );
     if (!ok) return;
     setBusy(photo.id);
+    setTask({ label: "Removing that photo…" });
     try {
       await removePhoto(passcode, photo.id);
       setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
@@ -110,6 +124,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setBusy(null);
+      setTask(null);
     }
   };
 
@@ -120,6 +135,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     );
     if (!ok) return;
     setSeeding(true);
+    setTask({ label: "Copying your photoshoot in…" });
     try {
       await seedBuiltIn(passcode);
       await refresh();
@@ -130,6 +146,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setSeeding(false);
+      setTask(null);
     }
   };
 
@@ -139,6 +156,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     );
     if (!ok) return;
     setBusy("all");
+    setTask({ label: "Emptying the gallery…" });
     try {
       await clearPhotos(passcode);
       setPhotos([]);
@@ -149,6 +167,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
       });
     } finally {
       setBusy(null);
+      setTask(null);
     }
   };
 
@@ -156,6 +175,8 @@ export function GalleryManager({ passcode }: { passcode: string }) {
 
   return (
     <>
+      <BusyDialog task={task} />
+
       <div className="mt-8 rounded-xl border border-foreground/15 bg-card px-4 py-4">
         <p className="font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
           {photos.length === 0 ? "Showing the built-in photoshoot" : "Your gallery"}
