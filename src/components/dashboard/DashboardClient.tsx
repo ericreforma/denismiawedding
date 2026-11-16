@@ -11,19 +11,12 @@ import { InviteManager } from "./InviteManager";
 import { GalleryManager } from "./GalleryManager";
 import { Documentation } from "./Documentation";
 import { EntourageEditor } from "./EntourageEditor";
-import { DressCodeEditor } from "./DressCodeEditor";
 import { toCsv, downloadCsv } from "./csv";
 
 /** Remembered so a refresh does not ask for the passcode again. */
 const PASSCODE_KEY = "dm-rsvp-passcode";
 
-type Tab =
-  | "replies"
-  | "invites"
-  | "gallery"
-  | "dresscode"
-  | "entourage"
-  | "guide";
+type Tab = "replies" | "invites" | "gallery" | "entourage" | "guide";
 type Filter = "all" | "yes" | "no";
 type Sort = "newest" | "oldest" | "name";
 
@@ -210,7 +203,6 @@ export function DashboardClient() {
               ["replies", "Replies"],
               ["invites", "Invitations"],
               ["gallery", "Gallery"],
-              ["dresscode", "Dress code"],
               ["entourage", "Entourage"],
               ["guide", "Documentation"],
             ] as [Tab, string][]
@@ -235,8 +227,6 @@ export function DashboardClient() {
         {tab === "invites" && <InviteManager passcode={passcode} />}
 
         {tab === "gallery" && <GalleryManager passcode={passcode} />}
-
-        {tab === "dresscode" && <DressCodeEditor passcode={passcode} />}
 
         {tab === "entourage" && <EntourageEditor passcode={passcode} />}
 

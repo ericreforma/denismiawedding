@@ -87,15 +87,12 @@ async function post<T>(body: Record<string, unknown>): Promise<T> {
  * The one thing EXIF carries that is worth keeping is orientation, and
  * `createImageBitmap` with `imageOrientation: "from-image"` applies it before
  * the draw, so a portrait photo off an iPhone does not arrive on its side.
- *
- * `maxEdge` is adjustable because a dress-code board is read rather than
- * glanced at — its small print needs more pixels than a gallery thumbnail.
  */
-export async function shrink(file: File, maxEdge: number = MAX_EDGE) {
+export async function shrink(file: File) {
   const bitmap = await createImageBitmap(file, {
     imageOrientation: "from-image",
   });
-  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const w = Math.round(bitmap.width * scale);
   const h = Math.round(bitmap.height * scale);
 

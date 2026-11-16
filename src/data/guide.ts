@@ -94,16 +94,12 @@ export const GUIDE: GuideSection[] = [
   },
   {
     id: "tabs",
-    title: "The four tabs",
-    lead: "Across the top there are four buttons. They just swap what you are looking at. Tapping one never changes anything.",
+    title: "The five tabs",
+    lead: "Across the top there are five buttons. They just swap what you are looking at. Tapping one never changes anything.",
     steps: [
       { action: "REPLIES", detail: "Who has answered your invitation, and what they said." },
       { action: "INVITATIONS", detail: "Make a personal link for each guest, and see who has opened theirs." },
       { action: "GALLERY", detail: "Change the photos on your website." },
-      {
-        action: "DRESS CODE",
-        detail: "Change the pictures that show guests what to wear.",
-      },
       { action: "ENTOURAGE", detail: "Change the names in your wedding party." },
       { action: "DOCUMENTATION", detail: "This guide. You are reading it." },
     ],
@@ -405,63 +401,6 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
-    id: "dresscode",
-    title: "Changing the dress code pictures",
-    lead: "The pictures that show your ninongs, ninangs and entourage what to wear are yours to change. If your designer sends a new version of one, you can put it up yourself.",
-    images: [
-      {
-        src: shot("13-dresscode.webp"),
-        alt: "The Dress code tab, showing both existing pictures with a Change picture button on each",
-        caption: "Both of your pictures are already here, ready to be changed.",
-      },
-    ],
-    steps: [
-      {
-        action: "Tap the DRESS CODE tab.",
-      },
-      {
-        action: "The first time only: tap MAKE THESE EDITABLE.",
-        detail:
-          "That copies your current pictures here so you can change them one at a time. Nothing on your website changes — your guests see exactly what they saw before.",
-      },
-      {
-        action: "To swap one for a new version, tap CHANGE PICTURE under it.",
-        detail:
-          "Pick the new one from your phone. The words above it stay the same, and it stays in the same place in the list. The old picture goes to your Drive bin.",
-      },
-      {
-        action: "To fix the words above a picture, type over them and tap outside the box.",
-        detail:
-          "Like changing \"For the Entourage\" to \"For our Bridesmaids & Groomsmen\".",
-      },
-      {
-        action: "To take one off your website, tap REMOVE THIS PICTURE on it.",
-      },
-      {
-        action: "To add a third, write who it is for in ADD ANOTHER ONE, then tap CHOOSE A PICTURE.",
-        detail:
-          "The button stays grey until you have written who it is for — that is on purpose, so no picture goes up without a label.",
-      },
-    ],
-    notes: [
-      {
-        tone: "tip",
-        title: "Send a big, clear picture",
-        body: "Guests tap these to see them full screen and read the small print. A picture straight from your designer is ideal — a photo of a printed one, or a screenshot, will look blurry when enlarged.",
-      },
-      {
-        tone: "tip",
-        title: "Changing one does not touch the other",
-        body: "Each picture is its own. Changing, renaming or removing one leaves the rest exactly as they were.",
-      },
-      {
-        tone: "tip",
-        title: "Starting over",
-        body: "BACK TO THE ORIGINAL BOARDS puts back the two pictures your website was built with and throws away your changes here. Anything you uploaded goes to your Drive bin, where Google keeps it for 30 days.",
-      },
-    ],
-  },
-  {
     id: "entourage",
     title: "Changing the entourage",
     lead: "The list of names — ninongs, ninangs, bridesmaids, groomsmen, bearers — is yours to edit here. You do not need anyone's help to fix a spelling or add a sponsor.",
@@ -563,11 +502,6 @@ export const GUIDE: GuideSection[] = [
         action: "\"I changed the entourage but my website still shows the old names.\"",
         detail:
           "Check that you tapped SAVE CHANGES. If you did, close the invitation and open it again — it keeps a copy of the last list it saw, and a fresh open picks up the new one.",
-      },
-      {
-        action: "\"I changed a dress code picture but my website shows the old one.\"",
-        detail:
-          "Close the invitation and open it again. It keeps a copy of the last pictures it saw, and a fresh open picks up the new one.",
       },
       {
         action: "\"A photo or a dress code picture will not upload.\"",

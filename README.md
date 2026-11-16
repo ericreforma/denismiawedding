@@ -341,16 +341,12 @@ built-in, sheet — the strip is showing at any moment.
 
 ## The dress code boards
 
-`DRESS_BOARDS` in `src/data/wedding.ts` is what ships. The dashboard's **Dress
-code** tab overrides it through a `Dress code` sheet tab and a Drive folder —
-**empty means the built-in pair**, exactly as the gallery works.
-`src/data/dresscode.ts` holds the client; uploads are resized to 2200px rather
-than the gallery's 1920, because these are read rather than glanced at.
-
-Opening the tab seeds the shipped pair into the sheet, pointing at the files
-the site already serves — a board that is not a row cannot be edited, and with
-two boards that both already exist, editing one is the whole job. Replacing a
-board's picture keeps its label and its position.
+`DRESS_BOARDS` in `src/data/wedding.ts` is the whole of it: a file in
+`public/photos/`, a label, and alt text.
+They are not edited from the dashboard. That tab existed briefly and was
+removed: there are only a handful of boards, they change rarely, and a file in
+`public/` is both faster to serve and simpler to reason about than a row in a
+sheet pointing at Drive. Replace the file, add it to `DRESS_BOARDS`, redeploy.
 
 Alt text for an uploaded board is generated from its label. The built-in two
 carry real descriptions written by hand; an upload cannot, and inventing a

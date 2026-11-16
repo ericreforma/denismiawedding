@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 11;
+const SCRIPT_VERSION = 12;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -130,11 +130,12 @@ const INVITE_HEADERS = [
  * Select it in the editor's function dropdown and press Run.
  */
 function authorizeDrive() {
-  const name = DriveApp.getRootFolder().getName();
-  const folder = dresscodeFolder();
-  Logger.log("Drive is authorised. Root: " + name);
-  Logger.log("Dress code folder ready: " + folder.getName());
-  return name;
+  // Creating a folder is what an upload does first, and it needs the full
+  // Drive permission. Reading the root needs far less, which is why a script
+  // can pass a read test and still refuse every upload.
+  const folder = galleryFolder();
+  Logger.log("Drive is authorised. Folder ready: " + folder.getName());
+  return folder.getName();
 }
 
 /**
@@ -1013,7 +1014,11 @@ function doGet(e) {
   let driveOk = false;
   let driveError = "";
   try {
-    DriveApp.getRootFolder().getId();
+    // The folder, not the root. Reading Drive and writing to it are different
+    // permissions, and an earlier version of this check asked only whether
+    // Drive could be read — which it could, while every upload went on
+    // failing. Ask the question an upload actually asks.
+    galleryFolder().getId();
     driveOk = true;
   } catch (err) {
     driveError = String(err).slice(0, 140);
@@ -1261,48 +1266,16 @@ one. For a set of favourites it is not noticeable; for 300 photos it would be.
 
 ## The dress code boards
 
-The dashboard's **Dress code** tab replaces the pictures that tell guests what
-to wear. Same arrangement as the gallery — a tab beside a Drive folder, read
-at run time — because it is the same kind of thing.
+**Not edited from the dashboard.** The boards are files in
+`public/photos/`, listed in `DRESS_BOARDS` in `src/data/wedding.ts`, and they
+change by replacing the file and redeploying the site. There are two or three
+of them, they change rarely, and they are read rather than glanced at — so
+they are better served from the site's own domain than from Drive.
 
-**An empty tab means the boards built into the site**, and **Back to the
-original boards** empties it again.
-
-`Dress code`:
-
-| A | B | C | D | E | F | G |
-|---|---|---|---|---|---|---|
-| ID | Label | URL | Width | Height | File ID | Added |
-
-`Label` is what guests read above the picture, so the dashboard asks for it
-before it will open the file picker when a board is being *added*: an
-untitled board is worse than none.
-
-### Making the shipped boards editable
-
-**Make these editable** copies the boards the site ships with into the tab,
-pointing at the files the site already serves. Nothing is uploaded and guests
-see exactly what they saw before.
-
-It is a button rather than something that happens on opening the tab, and the
-difference matters. The sheet overrides the site, so seeding freezes whatever
-shipped at that moment: a board added to `DRESS_BOARDS` afterwards never
-appears, and nothing connects the two. Opening a page to look at it should not
-quietly take the list over. Until the button is pressed, the site's own boards
-are what everyone sees and a board added in code still arrives.
-
-To go back to that state, **Back to the original boards** empties the tab.
-
-It matters because a board that is not a row cannot be edited, only replaced
-wholesale along with the other one — and with two boards that both already
-exist, changing one is the whole job. **Change picture** uploads a new file
-into an existing row, keeping its label and its place; a seeded row has no
-file of its own, so nothing of the site's own is trashed when it is swapped.
-
-Uploads go to a Drive folder called **Denis & Mia — Dress code**, shared
-*anyone with the link can view*, and are resized to 2200px rather than the
-gallery's 1920 — a board is read, not glanced at, and the lightbox exists so a
-guest can zoom into the small print.
+The script still carries its `dresscode.*` actions and its `?board=dresscode`
+route from when the dashboard had that tab. Nothing calls them now. They are
+left in place because removing them would mean another redeploy for no gain,
+and because they are what the tab would need if it ever came back.
 
 ## The entourage
 
@@ -1392,8 +1365,15 @@ serves every page happily and fails only at the moment someone uploads.
 
 | What you see | What it means |
 |---|---|
-| `"driveOk":true` | Drive is fine — the problem is elsewhere |
+| `"driveOk":true` | Drive can be written to — the problem is elsewhere |
 | `"driveOk":false` | Not authorised; `driveError` says what Google said |
+
+From version 12 this creates the uploads folder rather than reading the Drive
+root, because those are different permissions. A script granted only the
+narrower read scope passes a read test and still refuses every upload with
+*"Wala kang pahintulot na tumawag kay DriveApp.createFolder"* — permission to
+call `createFolder` — which is the full
+`https://www.googleapis.com/auth/drive`.
 
 **Fix:** open the Apps Script editor, choose **`authorizeDrive`** in the
 function dropdown, and press **Run**. Google asks for the permission; accept
