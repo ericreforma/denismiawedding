@@ -1371,6 +1371,37 @@ Version: New version → Deploy*.
 Running a function by hand is the only way to be asked. Deploying never
 prompts, which is exactly why this bites.
 
+### Run asks for nothing and the log just says "Execution completed"
+
+Then the project is not asking for Drive at all, so there is nothing to
+accept — and the call fails at run time instead. The scopes a script requests
+are normally inferred from its code, but an `oauthScopes` list in the manifest
+overrides that inference, and a list written before `DriveApp` appeared will
+not mention Drive.
+
+**Check it:** in the editor, *⚙ Project Settings* → tick **Show
+"appsscript.json" manifest file in editor** → open `appsscript.json` from the
+file list.
+
+If it has an `oauthScopes` array, it needs the Drive scope in it:
+
+```json
+"oauthScopes": [
+  "https://www.googleapis.com/auth/spreadsheets",
+  "https://www.googleapis.com/auth/drive"
+]
+```
+
+Save, then **Run** again — this time the permission dialog appears. Leave the
+rest of the manifest alone; the `webapp` block there is what governs the
+deployment, and editing it by hand is how a working deployment stops being
+public.
+
+If there is no `oauthScopes` array at all, the inference is working and the
+problem is a stale grant instead: revoke the project at
+[myaccount.google.com/permissions](https://myaccount.google.com/permissions),
+then **Run** again to be asked from scratch.
+
 ### The dashboard says the passcode was not accepted
 
 The deployed script's `DASHBOARD_PASSCODE` is not what you typed. Most often
