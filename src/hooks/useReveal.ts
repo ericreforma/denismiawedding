@@ -17,11 +17,10 @@ export function useReveal(ready: boolean = true) {
   useEffect(() => {
     if (!ready) return;
 
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
-    if (nodes.length === 0) return;
-
     if (!("IntersectionObserver" in window)) {
-      nodes.forEach((n) => n.classList.add("is-visible"));
+      document
+        .querySelectorAll<HTMLElement>(".reveal")
+        .forEach((n) => n.classList.add("is-visible"));
       return;
     }
 
@@ -36,7 +35,40 @@ export function useReveal(ready: boolean = true) {
       { rootMargin: "0px 0px -10% 0px", threshold: 0.05 },
     );
 
-    nodes.forEach((n) => io.observe(n));
-    return () => io.disconnect();
+    const watch = (node: HTMLElement) => {
+      if (node.classList.contains("is-visible")) return;
+      io.observe(node);
+    };
+
+    document.querySelectorAll<HTMLElement>(".reveal").forEach(watch);
+
+    /**
+     * Sections that arrive late have to be caught too.
+     *
+     * The gallery, the entourage and the dress-code boards all paint the
+     * built-in content first and swap to the couple's own a moment later.
+     * A swap changes each item's React key, so the old nodes are thrown away
+     * and new ones take their place — nodes this sweep has already run past.
+     * Unobserved, they keep `.reveal`'s opacity of 0 for good: present in the
+     * page, correct, loaded, and invisible.
+     *
+     * That is what happened to the dress code, and it would have happened to
+     * the other two the first time the couple edited them.
+     */
+    const mo = new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.classList.contains("reveal")) watch(node);
+          node.querySelectorAll<HTMLElement>(".reveal").forEach(watch);
+        }
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      mo.disconnect();
+      io.disconnect();
+    };
   }, [ready]);
 }
