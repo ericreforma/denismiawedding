@@ -170,23 +170,38 @@ export function fromRows(rows: EntourageRow[]): EntourageData {
   };
 }
 
+/** Longer than any name a person actually has. */
+const LONGEST_REAL_NAME = 60;
+
 /**
  * Does this list look like damage rather than a wedding party?
  *
- * One real failure, worth guarding against for good: the script's separator
- * was mangled on its way through a copy and paste, so every name was split
- * into its own letters and the invitation showed 917 single characters where
- * the entourage should be. Nothing about that is a judgement call — a list
- * that is mostly one-letter "names" is broken, and guests are better served
- * by the built-in list than by nonsense.
+ * The separator between names was mangled on its way through a copy and
+ * paste, and it went wrong in two different directions, so this watches for
+ * both:
  *
- * Deliberately narrow. A short list, or one with a couple of initials in it,
- * is left alone.
+ * - **Shattered.** The separator became the empty string on the way *out*, so
+ *   every name was split into its own letters: 917 single characters where
+ *   the entourage should be.
+ * - **Fused.** The separator became the empty string on the way *in*, so a
+ *   whole column arrived as one string — "Mr. Donn Uriel BuenaventuraHon.
+ *   Larry DabuHon. Edwin Policarpio…" — and read back as a single name.
+ *
+ * Neither is a judgement call. A list that is mostly one-letter names is
+ * broken, and a 150-character name is not a name. Guests are better served by
+ * the built-in list than by either.
+ *
+ * Deliberately narrow: a short list, an initial, and the longest real name
+ * here (27 characters) are all left alone.
  */
 export function looksCorrupt(rows: EntourageRow[]) {
-  const names = rows.flatMap((r) => r.names);
+  const names = rows.flatMap((r) => r.names).map((n) => n.trim());
+  if (!names.length) return false;
+
+  if (names.some((n) => n.length > LONGEST_REAL_NAME)) return true;
+
   if (names.length < 20) return false;
-  const single = names.filter((n) => n.trim().length <= 1).length;
+  const single = names.filter((n) => n.length <= 1).length;
   return single > names.length / 2;
 }
 
