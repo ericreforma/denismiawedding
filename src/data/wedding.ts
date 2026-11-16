@@ -391,6 +391,11 @@ export const DRESS_BOARDS: { src: string; label: string; alt: string }[] = [
     label: "For the Entourage",
     alt: "Dress code for the entourage — maid of honor in navy blue, bridesmaids in beige, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
   },
+  {
+    src: p("/photos/dresscode-guests.webp"),
+    label: "Guest Attire",
+    alt: "What to wear as a guest — ladies in formal dresses in navy blue, champagne beige, ivory, taupe, gold or white; gentlemen in formal long sleeves with black trousers. No skirts for the ladies, and no denim",
+  },
 ];
 
 // -------------------------------------------------------- save the date film

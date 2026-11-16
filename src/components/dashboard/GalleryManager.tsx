@@ -211,12 +211,15 @@ export function GalleryManager({ passcode }: { passcode: string }) {
           )}
         </div>
 
+        {/* Off-screen rather than `hidden`: Safari on iOS will not open a
+            file picker for an input that is `display: none`, which fails
+            silently — no dialog, no error, nothing to report. */}
         <input
           ref={picker}
           type="file"
           accept="image/*"
           multiple
-          hidden
+          className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
           onChange={(e) => upload(e.target.files)}
         />
       </div>

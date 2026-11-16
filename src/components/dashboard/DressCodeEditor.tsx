@@ -221,7 +221,10 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
           <span className="font-sans text-[11px] uppercase tracking-[0.16em] text-foreground/55">
             Who is this picture for?
           </span>
-          <input
+          {/* Off-screen rather than `hidden`: Safari on iOS will not open a
+            file picker for an input that is `display: none`, which fails
+            silently — no dialog, no error, nothing to report. */}
+        <input
             id="board-label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
@@ -265,14 +268,14 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
           ref={picker}
           type="file"
           accept="image/*"
-          hidden
+          className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
           onChange={(e) => upload(e.target.files)}
         />
         <input
           ref={swapper}
           type="file"
           accept="image/*"
-          hidden
+          className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
           onChange={(e) => swap(e.target.files)}
         />
       </div>
