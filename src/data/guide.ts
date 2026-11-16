@@ -418,8 +418,11 @@ export const GUIDE: GuideSection[] = [
     steps: [
       {
         action: "Tap the DRESS CODE tab.",
+      },
+      {
+        action: "The first time only: tap MAKE THESE EDITABLE.",
         detail:
-          "Your two pictures are already listed, the same two your guests see.",
+          "That copies your current pictures here so you can change them one at a time. Nothing on your website changes — your guests see exactly what they saw before.",
       },
       {
         action: "To swap one for a new version, tap CHANGE PICTURE under it.",

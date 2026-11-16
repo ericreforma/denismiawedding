@@ -25,11 +25,16 @@ type Load =
 /**
  * The dress-code boards, replaceable.
  *
- * The two the site ships with are copied into the sheet the first time this
- * is opened, so they appear here as ordinary rows. There are only ever a
- * couple of boards and both already exist, so what the couple want is to
- * change one of them — and a board that is not a row cannot be changed, only
- * replaced wholesale along with the other.
+ * Editing one means copying the shipped boards into the sheet first, because
+ * a board that is not a row cannot be changed. That copy used to happen by
+ * itself the moment this tab was opened, which was wrong: it froze whatever
+ * the site shipped at that moment into the sheet, and the sheet overrides the
+ * site — so a board added to the code afterwards could never appear, and
+ * nobody would connect the two. Merely looking at this page should not take
+ * the list over.
+ *
+ * So it is a button now. Until it is pressed the site's own boards are what
+ * everyone sees, and anything added in code still arrives.
  *
  * A label is asked for *before* the file picker opens when adding a new
  * board, because the label is what a guest reads above the picture — "For our
@@ -57,18 +62,7 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
     }
     setLoad({ state: "loading" });
     try {
-      let current = await listBoards();
-      // First visit: copy the shipped boards in so each becomes editable.
-      // Nothing is uploaded and the site shows exactly what it showed before.
-      if (current.length === 0) {
-        try {
-          await seedBuiltInBoards(passcode);
-          current = await listBoards();
-        } catch {
-          /* Left empty, the site still shows the built-in pair. */
-        }
-      }
-      setBoards(current);
+      setBoards(await listBoards());
       setLoad({ state: "ready" });
     } catch {
       setLoad({
@@ -101,6 +95,29 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const takeOver = async () => {
+    if (
+      !window.confirm(
+        `Make these ${DRESS_BOARDS.length} pictures editable?
+
+Nothing changes on your website. They are copied here so you can swap or rename them one at a time.`,
+      )
+    )
+      return;
+    setBusy("all");
+    try {
+      await seedBuiltInBoards(passcode);
+      setBoards(await listBoards());
+    } catch (err) {
+      setLoad({
+        state: "error",
+        message: explain("Couldn't copy the pictures in.", err),
+      });
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -200,7 +217,8 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
           {boards.length === 0 ? (
             <>
               Your website is showing the {DRESS_BOARDS.length} pictures it was
-              built with.
+              built with. To swap or rename one of them yourself, make them
+              editable first.
             </>
           ) : (
             <>
@@ -213,7 +231,18 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
           )}
         </p>
 
-        <p className="mt-4 font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
+        {boards.length === 0 && (
+          <button
+            type="button"
+            onClick={takeOver}
+            disabled={busy === "all"}
+            className="mt-4 rounded-full bg-foreground px-5 py-2.5 font-sans text-[11px] uppercase tracking-[0.18em] text-background transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            {busy === "all" ? "Copying…" : "Make these editable"}
+          </button>
+        )}
+
+        <p className="mt-5 font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
           Add another one
         </p>
 

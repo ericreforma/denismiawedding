@@ -1278,11 +1278,20 @@ original boards** empties it again.
 before it will open the file picker when a board is being *added*: an
 untitled board is worse than none.
 
-### The shipped boards are seeded in
+### Making the shipped boards editable
 
-Opening the tab on an empty sheet copies the two boards the site ships with
-into it, pointing at the files the site already serves. Nothing is uploaded
-and guests see exactly what they saw before.
+**Make these editable** copies the boards the site ships with into the tab,
+pointing at the files the site already serves. Nothing is uploaded and guests
+see exactly what they saw before.
+
+It is a button rather than something that happens on opening the tab, and the
+difference matters. The sheet overrides the site, so seeding freezes whatever
+shipped at that moment: a board added to `DRESS_BOARDS` afterwards never
+appears, and nothing connects the two. Opening a page to look at it should not
+quietly take the list over. Until the button is pressed, the site's own boards
+are what everyone sees and a board added in code still arrives.
+
+To go back to that state, **Back to the original boards** empties the tab.
 
 It matters because a board that is not a row cannot be edited, only replaced
 wholesale along with the other one — and with two boards that both already
