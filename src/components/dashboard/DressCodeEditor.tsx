@@ -8,6 +8,8 @@ import {
   listBoards,
   removeBoard,
   renameBoard,
+  replaceBoardImage,
+  seedBuiltInBoards,
   type DressBoard,
 } from "@/data/dresscode";
 import { DRESS_BOARDS } from "@/data/wedding";
@@ -22,9 +24,15 @@ type Load =
 /**
  * The dress-code boards, replaceable.
  *
- * A label is asked for *before* the file picker opens rather than after the
- * upload, because the label is what a guest reads above the picture — "For
- * our Ninong & Ninang" — and an untitled board is worse than no board.
+ * The two the site ships with are copied into the sheet the first time this
+ * is opened, so they appear here as ordinary rows. There are only ever a
+ * couple of boards and both already exist, so what the couple want is to
+ * change one of them — and a board that is not a row cannot be changed, only
+ * replaced wholesale along with the other.
+ *
+ * A label is asked for *before* the file picker opens when adding a new
+ * board, because the label is what a guest reads above the picture — "For our
+ * Ninong & Ninang" — and an untitled board is worse than no board.
  */
 export function DressCodeEditor({ passcode }: { passcode: string }) {
   const [boards, setBoards] = useState<DressBoard[]>([]);
@@ -33,6 +41,9 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
   const [uploading, setUploading] = useState(false);
   const [label, setLabel] = useState("");
   const picker = useRef<HTMLInputElement>(null);
+  /** The picker for swapping one board's picture, and whose it is. */
+  const swapper = useRef<HTMLInputElement>(null);
+  const swapping = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!hasEndpoint()) {
@@ -45,7 +56,18 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
     }
     setLoad({ state: "loading" });
     try {
-      setBoards(await listBoards());
+      let current = await listBoards();
+      // First visit: copy the shipped boards in so each becomes editable.
+      // Nothing is uploaded and the site shows exactly what it showed before.
+      if (current.length === 0) {
+        try {
+          await seedBuiltInBoards(passcode);
+          current = await listBoards();
+        } catch {
+          /* Left empty, the site still shows the built-in pair. */
+        }
+      }
+      setBoards(current);
       setLoad({ state: "ready" });
     } catch {
       setLoad({
@@ -78,6 +100,29 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const swap = async (files: FileList | null) => {
+    const file = files?.[0];
+    const id = swapping.current;
+    if (swapper.current) swapper.current.value = "";
+    swapping.current = null;
+    if (!file || !id) return;
+
+    setBusy(id);
+    try {
+      const updated = await replaceBoardImage(passcode, id, file);
+      setBoards((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, ...updated } : b)),
+      );
+    } catch {
+      setLoad({
+        state: "error",
+        message: "Couldn't change that picture. Please try again.",
+      });
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -148,26 +193,30 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
     <>
       <div className="mt-8 rounded-xl border border-foreground/15 bg-card px-5 py-5">
         <p className="font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
-          {boards.length === 0 ? "The original boards" : "Your boards"}
+          Dress code pictures
         </p>
         <p className="mt-2 font-sans text-[13px] leading-relaxed text-foreground/70">
           {boards.length === 0 ? (
             <>
-              Your website is showing the {DRESS_BOARDS.length} dress code
-              pictures it was built with. Upload one here and your pictures
-              replace them entirely — the originals come back the moment this
-              is empty again.
+              Your website is showing the {DRESS_BOARDS.length} pictures it was
+              built with.
             </>
           ) : (
             <>
               {boards.length}{" "}
               {boards.length === 1 ? "picture" : "pictures"}, shown in this
-              order. Guests can tap any of them to see it full screen.
+              order. To change one, tap{" "}
+              <span className="text-foreground">Change picture</span> on it.
+              Guests tap any of them to see it full screen.
             </>
           )}
         </p>
 
-        <label htmlFor="board-label" className="mt-5 block">
+        <p className="mt-4 font-sans text-[11px] uppercase tracking-[0.25em] text-foreground/60">
+          Add another one
+        </p>
+
+        <label htmlFor="board-label" className="mt-2 block">
           <span className="font-sans text-[11px] uppercase tracking-[0.16em] text-foreground/55">
             Who is this picture for?
           </span>
@@ -218,6 +267,13 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
           hidden
           onChange={(e) => upload(e.target.files)}
         />
+        <input
+          ref={swapper}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => swap(e.target.files)}
+        />
       </div>
 
       {load.state === "error" && (
@@ -262,14 +318,27 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
               className="mt-3 block w-full rounded-lg border border-foreground/10"
             />
 
-            <button
-              type="button"
-              onClick={() => remove(board)}
-              disabled={busy === board.id}
-              className="mt-3 rounded-full px-4 py-2 font-sans text-[11px] uppercase tracking-[0.16em] text-foreground/45 transition-colors hover:text-foreground disabled:opacity-35"
-            >
-              {busy === board.id ? "Working…" : "Remove this picture"}
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  swapping.current = board.id;
+                  swapper.current?.click();
+                }}
+                disabled={busy === board.id}
+                className="rounded-full border border-foreground/25 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.16em] transition-colors hover:bg-foreground hover:text-background disabled:opacity-35"
+              >
+                {busy === board.id ? "Working…" : "Change picture"}
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(board)}
+                disabled={busy === board.id}
+                className="rounded-full px-4 py-2 font-sans text-[11px] uppercase tracking-[0.16em] text-foreground/45 transition-colors hover:text-foreground disabled:opacity-35"
+              >
+                Remove this picture
+              </button>
+            </div>
           </li>
         ))}
       </ul>

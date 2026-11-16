@@ -347,6 +347,11 @@ code** tab overrides it through a `Dress code` sheet tab and a Drive folder —
 `src/data/dresscode.ts` holds the client; uploads are resized to 2200px rather
 than the gallery's 1920, because these are read rather than glanced at.
 
+Opening the tab seeds the shipped pair into the sheet, pointing at the files
+the site already serves — a board that is not a row cannot be edited, and with
+two boards that both already exist, editing one is the whole job. Replacing a
+board's picture keeps its label and its position.
+
 Alt text for an uploaded board is generated from its label. The built-in two
 carry real descriptions written by hand; an upload cannot, and inventing a
 description of a picture nobody has seen would be worse than saying plainly

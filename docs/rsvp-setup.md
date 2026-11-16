@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 8;
+const SCRIPT_VERSION = 9;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -673,8 +673,84 @@ function dresscodeAction(action, data) {
     };
   }
 
+  /**
+   * Copy the boards the site ships with into the tab, so each one can be
+   * renamed or replaced on its own. Nothing is uploaded — the rows point at
+   * the files the site already serves.
+   *
+   * Without this the only move available is replacing both at once, because
+   * a board that is not a row cannot be edited.
+   */
+  if (action === "dresscode.seed") {
+    const boards = data.boards;
+    if (!boards || !boards.length) return { ok: false, error: "No boards" };
+    if (sheet.getLastRow() > 1) {
+      return { ok: false, error: "The dress code already has pictures" };
+    }
+    const now = new Date();
+    const rows = boards.map(function (b) {
+      return [
+        newToken(),
+        String(b.label || "").trim().slice(0, 120),
+        String(b.src || "").trim(),
+        Number(b.w || 0) || 1200,
+        Number(b.h || 0) || 1600,
+        "",
+        now,
+      ];
+    });
+    sheet.getRange(2, 1, rows.length, 7).setValues(rows);
+    return { ok: true, added: rows.length };
+  }
+
   const id = String(data.id || "").trim();
   const row = id ? boardRow(sheet, id) : -1;
+
+  /**
+   * Swap the picture on a board that already exists, keeping its label and
+   * its place in the order. This is the ordinary way a board changes: the
+   * designer sends a new version of the same thing.
+   */
+  if (action === "dresscode.replace") {
+    if (row < 0) return { ok: false, error: "No such board" };
+    const b64 = String(data.image || "");
+    if (!b64) return { ok: false, error: "No image" };
+
+    const label = String(sheet.getRange(row, 2).getValue() || "board");
+    const blob = Utilities.newBlob(
+      Utilities.base64Decode(b64),
+      String(data.type || "image/jpeg"),
+      label || "board",
+    );
+    const file = dresscodeFolder().createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const fileId = file.getId();
+    const url = driveUrl(fileId, 2000);
+
+    // A seeded row has no file of its own — it points at one the site ships,
+    // which must not be trashed.
+    const old = String(sheet.getRange(row, 6).getValue() || "").trim();
+    sheet.getRange(row, 3, 1, 4).setValues([
+      [url, Number(data.w || 0) || 1200, Number(data.h || 0) || 1600, fileId],
+    ]);
+    if (old) {
+      try {
+        DriveApp.getFileById(old).setTrashed(true);
+      } catch (err) {
+        // Already gone; the row now points at the new file regardless.
+      }
+    }
+    return {
+      ok: true,
+      board: {
+        id: id,
+        label: label,
+        src: url,
+        w: Number(data.w || 0) || 1200,
+        h: Number(data.h || 0) || 1600,
+      },
+    };
+  }
 
   if (action === "dresscode.label") {
     if (row < 0) return { ok: false, error: "No such board" };
@@ -1131,7 +1207,20 @@ original boards** empties it again.
 | ID | Label | URL | Width | Height | File ID | Added |
 
 `Label` is what guests read above the picture, so the dashboard asks for it
-before it will open the file picker: an untitled board is worse than none.
+before it will open the file picker when a board is being *added*: an
+untitled board is worse than none.
+
+### The shipped boards are seeded in
+
+Opening the tab on an empty sheet copies the two boards the site ships with
+into it, pointing at the files the site already serves. Nothing is uploaded
+and guests see exactly what they saw before.
+
+It matters because a board that is not a row cannot be edited, only replaced
+wholesale along with the other one — and with two boards that both already
+exist, changing one is the whole job. **Change picture** uploads a new file
+into an existing row, keeping its label and its place; a seeded row has no
+file of its own, so nothing of the site's own is trashed when it is swapped.
 
 Uploads go to a Drive folder called **Denis & Mia — Dress code**, shared
 *anyone with the link can view*, and are resized to 2200px rather than the

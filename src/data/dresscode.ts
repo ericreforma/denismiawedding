@@ -10,7 +10,7 @@
  * **An empty tab means the boards built into the site.**
  */
 
-import { RSVP_ENDPOINT, hasEndpoint } from "./config";
+import { RSVP_ENDPOINT, SITE_URL, hasEndpoint } from "./config";
 import { shrink } from "./photos";
 import { DRESS_BOARDS } from "./wedding";
 
@@ -102,6 +102,63 @@ async function post<T>(body: Record<string, unknown>): Promise<T> {
   const data = await res.json().catch(() => null);
   if (!res.ok || !data) throw new Error(`Request failed (${res.status})`);
   return data as T;
+}
+
+/**
+ * Copy the boards the site ships with into the sheet.
+ *
+ * Nothing is uploaded: the rows point at the files the site already serves,
+ * so they stay fast and nothing is duplicated into Drive. What it buys is
+ * that each board becomes a row, and only a row can be renamed or have its
+ * picture swapped — which is the thing the couple actually want to do, since
+ * there are two boards and both already exist.
+ */
+export async function seedBuiltInBoards(key: string) {
+  const boards = DRESS_BOARDS.map((b, i) => ({
+    label: b.label,
+    src: absolute(b.src),
+    // The shipped files, measured: a square sponsors board and a landscape
+    // entourage one. Carried so the page can reserve the right space.
+    w: i === 0 ? 1254 : 1536,
+    h: i === 0 ? 1254 : 1024,
+  }));
+  const data = await post<{ ok: boolean; added?: number; error?: string }>({
+    action: "dresscode.seed",
+    key,
+    boards,
+  });
+  if (!data.ok) throw new Error(data.error || "Request failed");
+  return data.added ?? 0;
+}
+
+/** Swap the picture on a board, keeping its label and its place. */
+export async function replaceBoardImage(
+  key: string,
+  id: string,
+  file: File,
+): Promise<DressBoard> {
+  const { base64, w, h, type } = await shrink(file, BOARD_EDGE);
+  const data = await post<{ ok: boolean; board?: DressBoard; error?: string }>({
+    action: "dresscode.replace",
+    key,
+    id,
+    image: base64,
+    type,
+    w,
+    h,
+  });
+  if (!data.ok || !data.board) throw new Error(data.error || "Upload failed");
+  return data.board;
+}
+
+/**
+ * The shipped paths are site-relative, and the sheet is read by browsers on
+ * the live domain. Only the origin is missing, and it has to be the published
+ * one — a seed made from a dev server would write links no guest can open.
+ */
+function absolute(path: string) {
+  if (/^https?:\/\//.test(path)) return path;
+  return `${SITE_URL}${path}`;
 }
 
 export async function addBoard(

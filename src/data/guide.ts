@@ -407,48 +407,40 @@ export const GUIDE: GuideSection[] = [
   {
     id: "dresscode",
     title: "Changing the dress code pictures",
-    lead: "The pictures that show your ninongs, ninangs and entourage what to wear are yours to replace. If your designer sends a new version, you can put it up yourself.",
+    lead: "The pictures that show your ninongs, ninangs and entourage what to wear are yours to change. If your designer sends a new version of one, you can put it up yourself.",
     images: [
       {
         src: shot("13-dresscode.webp"),
-        alt: "The Dress code tab, with a box for the label and a button to choose a picture",
-        caption: "Before you upload anything, the original pictures are what guests see.",
+        alt: "The Dress code tab, showing both existing pictures with a Change picture button on each",
+        caption: "Both of your pictures are already here, ready to be changed.",
       },
     ],
     steps: [
-      { action: "Tap the DRESS CODE tab." },
       {
-        action: "First write who the picture is for.",
+        action: "Tap the DRESS CODE tab.",
         detail:
-          "Like \"For our Ninong & Ninang\". These exact words appear above the picture on your website, so write them the way you want guests to read them.",
+          "Your two pictures are already listed, the same two your guests see.",
       },
       {
-        action: "Tap CHOOSE A PICTURE and pick it from your phone.",
+        action: "To swap one for a new version, tap CHANGE PICTURE under it.",
+        detail:
+          "Pick the new one from your phone. The words above it stay the same, and it stays in the same place in the list. The old picture goes to your Drive bin.",
+      },
+      {
+        action: "To fix the words above a picture, type over them and tap outside the box.",
+        detail:
+          "Like changing \"For the Entourage\" to \"For our Bridesmaids & Groomsmen\".",
+      },
+      {
+        action: "To take one off your website, tap REMOVE THIS PICTURE on it.",
+      },
+      {
+        action: "To add a third, write who it is for in ADD ANOTHER ONE, then tap CHOOSE A PICTURE.",
         detail:
           "The button stays grey until you have written who it is for — that is on purpose, so no picture goes up without a label.",
       },
-      {
-        action: "Wait for it to finish uploading.",
-        detail: "It appears underneath when it is done.",
-      },
-      {
-        action: "Do the same again for your second picture.",
-        detail:
-          "Most couples have two: one for the principal sponsors and one for the entourage. You can have as many or as few as you like.",
-      },
-      {
-        action: "To fix a label later, type over it and tap outside the box.",
-      },
-      {
-        action: "To take one down, tap REMOVE THIS PICTURE on it.",
-      },
     ],
     notes: [
-      {
-        tone: "warning",
-        title: "Your first upload replaces both originals",
-        body: "The website shows either your pictures or the originals, never a mixture. So if you upload one and stop, guests see only that one. Upload both before you walk away, or tap BACK TO THE ORIGINAL BOARDS to undo it.",
-      },
       {
         tone: "tip",
         title: "Send a big, clear picture",
@@ -456,8 +448,13 @@ export const GUIDE: GuideSection[] = [
       },
       {
         tone: "tip",
-        title: "Going back",
-        body: "BACK TO THE ORIGINAL BOARDS restores the pictures your website was built with. Your uploads go to your Drive bin, where Google keeps them for 30 days.",
+        title: "Changing one does not touch the other",
+        body: "Each picture is its own. Changing, renaming or removing one leaves the rest exactly as they were.",
+      },
+      {
+        tone: "tip",
+        title: "Starting over",
+        body: "BACK TO THE ORIGINAL BOARDS puts back the two pictures your website was built with and throws away your changes here. Anything you uploaded goes to your Drive bin, where Google keeps it for 30 days.",
       },
     ],
   },
@@ -565,9 +562,9 @@ export const GUIDE: GuideSection[] = [
           "Check that you tapped SAVE CHANGES. If you did, close the invitation and open it again — it keeps a copy of the last list it saw, and a fresh open picks up the new one.",
       },
       {
-        action: "\"I only uploaded one dress code picture and the other one vanished.\"",
+        action: "\"I changed a dress code picture but my website shows the old one.\"",
         detail:
-          "That is expected — your uploads replace the originals as a set. Upload the second one too, or tap BACK TO THE ORIGINAL BOARDS to get both originals back.",
+          "Close the invitation and open it again. It keeps a copy of the last pictures it saw, and a fresh open picks up the new one.",
       },
       {
         action: "\"A photo will not upload.\"",
