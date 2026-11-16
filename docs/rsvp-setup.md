@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 10;
+const SCRIPT_VERSION = 11;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -113,6 +113,29 @@ const INVITE_HEADERS = [
   "Created",
   "Entourage",
 ];
+
+/**
+ * Run this by hand, once, to be asked for the Drive permission.
+ *
+ * Everywhere else the Drive calls are wrapped, so that a failure reaches the
+ * dashboard as a message rather than as a crash. That is right for the live
+ * site and useless for this: a guarded call cannot force the permission
+ * dialog, and it cannot fail visibly either — the editor simply reports
+ * "Execution completed" and nothing has been asked or learned.
+ *
+ * This one is deliberately unguarded. Either it logs the name of your Drive
+ * root, which means the permission is already granted, or it is refused in
+ * the open, which is what makes Google ask.
+ *
+ * Select it in the editor's function dropdown and press Run.
+ */
+function authorizeDrive() {
+  const name = DriveApp.getRootFolder().getName();
+  const folder = dresscodeFolder();
+  Logger.log("Drive is authorised. Root: " + name);
+  Logger.log("Dress code folder ready: " + folder.getName());
+  return name;
+}
 
 /**
  * One tab — found if you already made it, created with its headers if not.
@@ -1363,13 +1386,19 @@ serves every page happily and fails only at the moment someone uploads.
 | `"driveOk":true` | Drive is fine — the problem is elsewhere |
 | `"driveOk":false` | Not authorised; `driveError` says what Google said |
 
-**Fix:** open the Apps Script editor, pick any function in the dropdown —
-`doGet` will do — and press **Run**. Google asks for the new permissions;
-accept them, including Drive. Then *Deploy → Manage deployments → ✏️ →
-Version: New version → Deploy*.
+**Fix:** open the Apps Script editor, choose **`authorizeDrive`** in the
+function dropdown, and press **Run**. Google asks for the permission; accept
+it. Then *Deploy → Manage deployments → ✏️ → Version: New version → Deploy*.
 
-Running a function by hand is the only way to be asked. Deploying never
+Running a function by hand is the only way to be asked — deploying never
 prompts, which is exactly why this bites.
+
+**It has to be `authorizeDrive`, not any function.** Every other Drive call in
+this script is wrapped so that a failure reaches the dashboard as a message
+instead of a crash, and a guarded call cannot force the dialog: the editor
+runs it, the catch swallows the refusal, and the log says "Execution
+completed" while nothing has been asked. `authorizeDrive` is unguarded for
+exactly that reason.
 
 ### Run asks for nothing and the log just says "Execution completed"
 
