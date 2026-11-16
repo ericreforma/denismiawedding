@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 7;
+const SCRIPT_VERSION = 8;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -59,6 +59,8 @@ const RSVP_SHEET = "RSVPs";
 const INVITE_SHEET = "Invites";
 const GALLERY_SHEET = "Gallery";
 const ENTOURAGE_SHEET = "Entourage";
+const DRESSCODE_SHEET = "Dress code";
+const DRESSCODE_FOLDER = "Denis & Mia — Dress code";
 
 /**
  * What separates one name from the next inside a Names cell.
@@ -78,6 +80,15 @@ const GALLERY_HEADERS = [
   "Label",
   "Thumb URL",
   "Full URL",
+  "Width",
+  "Height",
+  "File ID",
+  "Added",
+];
+const DRESSCODE_HEADERS = [
+  "ID",
+  "Label",
+  "URL",
   "Width",
   "Height",
   "File ID",
@@ -148,6 +159,9 @@ function doPost(e) {
     }
     if (action.indexOf("entourage.") === 0) {
       return json(entourageAction(action, data));
+    }
+    if (action.indexOf("dresscode.") === 0) {
+      return json(dresscodeAction(action, data));
     }
     if (action) return json(inviteAction(action, data));
 
@@ -562,6 +576,149 @@ function galleryAction(action, data) {
   return { ok: false, error: "Unknown action: " + action };
 }
 
+// ----------------------------------------------------------- the dress code
+
+/**
+ * The dress-code boards: the same arrangement as the gallery, a tab beside a
+ * Drive folder, because they are the same kind of thing — a picture the
+ * couple own and may want to swap without a developer.
+ *
+ * **An empty tab means the boards built into the site.**
+ */
+function dresscodeFolder() {
+  const found = DriveApp.getFoldersByName(DRESSCODE_FOLDER);
+  return found.hasNext()
+    ? found.next()
+    : DriveApp.createFolder(DRESSCODE_FOLDER);
+}
+
+/** Every board, in sheet order — the order they appear on the invitation. */
+function allBoards() {
+  const sheet = getSheet(DRESSCODE_SHEET, DRESSCODE_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return [];
+
+  const rows = sheet.getRange(2, 1, last - 1, 7).getValues();
+  const out = [];
+  for (let i = 0; i < rows.length; i++) {
+    const id = String(rows[i][0] || "").trim();
+    const url = String(rows[i][2] || "").trim();
+    if (!id || !url) continue;
+    out.push({
+      id: id,
+      label: String(rows[i][1] || ""),
+      src: url,
+      w: Number(rows[i][3] || 0) || 1200,
+      h: Number(rows[i][4] || 0) || 1600,
+    });
+  }
+  return out;
+}
+
+function boardRow(sheet, id) {
+  const last = sheet.getLastRow();
+  if (last < 2) return -1;
+  const col = sheet.getRange(2, 1, last - 1, 1).getValues();
+  for (let i = 0; i < col.length; i++) {
+    if (String(col[i][0] || "").trim() === id) return i + 2;
+  }
+  return -1;
+}
+
+/** Everything the dashboard does to the boards. All of it passcode-gated. */
+function dresscodeAction(action, data) {
+  if (String(data.key || "") !== DASHBOARD_PASSCODE) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const sheet = getSheet(DRESSCODE_SHEET, DRESSCODE_HEADERS);
+
+  if (action === "dresscode.add") {
+    const b64 = String(data.image || "");
+    if (!b64) return { ok: false, error: "No image" };
+
+    const label = String(data.label || "Dress code").trim().slice(0, 120);
+    const blob = Utilities.newBlob(
+      Utilities.base64Decode(b64),
+      String(data.type || "image/jpeg"),
+      label || "board",
+    );
+
+    const file = dresscodeFolder().createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const fileId = file.getId();
+    // Wider than the gallery asks for: a board is read, not glanced at, and
+    // the lightbox lets a guest zoom into the small print on a phone.
+    const url = driveUrl(fileId, 2000);
+
+    const id = newToken();
+    sheet.appendRow([
+      id,
+      label,
+      url,
+      Number(data.w || 0) || 1200,
+      Number(data.h || 0) || 1600,
+      fileId,
+      new Date(),
+    ]);
+    return {
+      ok: true,
+      board: {
+        id: id,
+        label: label,
+        src: url,
+        w: Number(data.w || 0) || 1200,
+        h: Number(data.h || 0) || 1600,
+      },
+    };
+  }
+
+  const id = String(data.id || "").trim();
+  const row = id ? boardRow(sheet, id) : -1;
+
+  if (action === "dresscode.label") {
+    if (row < 0) return { ok: false, error: "No such board" };
+    sheet.getRange(row, 2).setValue(
+      String(data.label || "").trim().slice(0, 120),
+    );
+    return { ok: true, id: id };
+  }
+
+  if (action === "dresscode.remove") {
+    if (row < 0) return { ok: false, error: "No such board" };
+    const fileId = String(sheet.getRange(row, 6).getValue() || "").trim();
+    sheet.deleteRow(row);
+    if (fileId) {
+      try {
+        DriveApp.getFileById(fileId).setTrashed(true);
+      } catch (err) {
+        // The row is gone, which is what was asked for.
+      }
+    }
+    return { ok: true, id: id };
+  }
+
+  // Back to the boards the site was built with.
+  if (action === "dresscode.clear") {
+    const last = sheet.getLastRow();
+    if (last < 2) return { ok: true, removed: 0 };
+    const ids = sheet.getRange(2, 6, last - 1, 1).getValues();
+    for (let i = 0; i < ids.length; i++) {
+      const fileId = String(ids[i][0] || "").trim();
+      if (!fileId) continue;
+      try {
+        DriveApp.getFileById(fileId).setTrashed(true);
+      } catch (err) {
+        // Already gone; the row goes regardless.
+      }
+    }
+    sheet.deleteRows(2, last - 1);
+    return { ok: true, removed: last - 1 };
+  }
+
+  return { ok: false, error: "Unknown action: " + action };
+}
+
 // ------------------------------------------------------------- the entourage
 
 /**
@@ -660,6 +817,15 @@ function entourageAction(action, data) {
  */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+
+  // Public for the same reason the gallery is.
+  if (String(p.board || "") === "dresscode") {
+    try {
+      return json({ ok: true, boards: allBoards() });
+    } catch (err) {
+      return json({ ok: false, error: String(err) });
+    }
+  }
 
   // Public for the same reason the gallery is: every guest's browser needs
   // it, and it is the wedding party the invitation was going to show them.
@@ -948,6 +1114,29 @@ account that fixes `Anyone` deployments fixes this.
 **Drive is not a CDN.** These photos come from Google rather than from the
 site's own domain, so a large uploaded gallery feels slower than the baked-in
 one. For a set of favourites it is not noticeable; for 300 photos it would be.
+
+## The dress code boards
+
+The dashboard's **Dress code** tab replaces the pictures that tell guests what
+to wear. Same arrangement as the gallery — a tab beside a Drive folder, read
+at run time — because it is the same kind of thing.
+
+**An empty tab means the boards built into the site**, and **Back to the
+original boards** empties it again.
+
+`Dress code`:
+
+| A | B | C | D | E | F | G |
+|---|---|---|---|---|---|---|
+| ID | Label | URL | Width | Height | File ID | Added |
+
+`Label` is what guests read above the picture, so the dashboard asks for it
+before it will open the file picker: an untitled board is worse than none.
+
+Uploads go to a Drive folder called **Denis & Mia — Dress code**, shared
+*anyone with the link can view*, and are resized to 2200px rather than the
+gallery's 1920 — a board is read, not glanced at, and the lightbox exists so a
+guest can zoom into the small print.
 
 ## The entourage
 

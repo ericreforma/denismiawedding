@@ -339,6 +339,19 @@ EXIF GPS a phone writes into every picture. `src/data/photos.ts` has the
 client; `src/hooks/useGallery.ts` decides which of the three sources — cache,
 built-in, sheet — the strip is showing at any moment.
 
+## The dress code boards
+
+`DRESS_BOARDS` in `src/data/wedding.ts` is what ships. The dashboard's **Dress
+code** tab overrides it through a `Dress code` sheet tab and a Drive folder —
+**empty means the built-in pair**, exactly as the gallery works.
+`src/data/dresscode.ts` holds the client; uploads are resized to 2200px rather
+than the gallery's 1920, because these are read rather than glanced at.
+
+Alt text for an uploaded board is generated from its label. The built-in two
+carry real descriptions written by hand; an upload cannot, and inventing a
+description of a picture nobody has seen would be worse than saying plainly
+what is known.
+
 ## The entourage
 
 The wedding party lives in `ENTOURAGE` in `src/data/wedding.ts`, and that is

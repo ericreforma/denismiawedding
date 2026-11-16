@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Portal } from "./Portal";
 import { Reveal } from "./Reveal";
-import { DRESS_BOARDS } from "@/data/wedding";
+import { useDressBoards } from "@/hooks/useDressBoards";
 
 /**
  * The couple's dress-code boards, shown whole and openable full screen.
@@ -14,8 +14,14 @@ import { DRESS_BOARDS } from "@/data/wedding";
  * nobody can read does not do its job.
  */
 export function DressBoards() {
+  /**
+   * The couple's own boards once they have uploaded any, the built-in pair
+   * until then. The list can change a moment after load.
+   */
+  const DRESS_BOARDS = useDressBoards();
   const [open, setOpen] = useState<number | null>(null);
-  const board = open === null ? null : DRESS_BOARDS[open];
+  // `?? null` because the list can be swapped while the lightbox is open.
+  const board = open === null ? null : (DRESS_BOARDS[open] ?? null);
 
   // Close on Escape, and stop the page scrolling behind the overlay.
   useEffect(() => {

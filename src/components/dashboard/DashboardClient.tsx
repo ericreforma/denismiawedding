@@ -11,12 +11,19 @@ import { InviteManager } from "./InviteManager";
 import { GalleryManager } from "./GalleryManager";
 import { Documentation } from "./Documentation";
 import { EntourageEditor } from "./EntourageEditor";
+import { DressCodeEditor } from "./DressCodeEditor";
 import { toCsv, downloadCsv } from "./csv";
 
 /** Remembered so a refresh does not ask for the passcode again. */
 const PASSCODE_KEY = "dm-rsvp-passcode";
 
-type Tab = "replies" | "invites" | "gallery" | "entourage" | "guide";
+type Tab =
+  | "replies"
+  | "invites"
+  | "gallery"
+  | "dresscode"
+  | "entourage"
+  | "guide";
 type Filter = "all" | "yes" | "no";
 type Sort = "newest" | "oldest" | "name";
 
@@ -196,13 +203,14 @@ export function DashboardClient() {
         <div
           role="tablist"
           aria-label="Dashboard sections"
-          className="mt-6 grid grid-cols-2 gap-1 rounded-[1.5rem] border border-foreground/20 p-1 sm:inline-grid sm:w-auto sm:grid-cols-[auto_auto_auto_auto_auto] sm:gap-0 sm:rounded-full"
+          className="mt-6 flex flex-wrap gap-1 rounded-[1.5rem] border border-foreground/20 p-1 sm:w-auto"
         >
           {(
             [
               ["replies", "Replies"],
               ["invites", "Invitations"],
               ["gallery", "Gallery"],
+              ["dresscode", "Dress code"],
               ["entourage", "Entourage"],
               ["guide", "Documentation"],
             ] as [Tab, string][]
@@ -213,7 +221,7 @@ export function DashboardClient() {
               role="tab"
               aria-selected={tab === v}
               onClick={() => setTab(v)}
-              className={`rounded-full px-3 py-2.5 font-sans text-[11px] uppercase tracking-[0.1em] transition-colors sm:px-5 sm:text-[12px] sm:tracking-[0.14em] md:py-1.5 ${
+              className={`grow whitespace-nowrap rounded-full px-3 py-2.5 text-center font-sans text-[11px] uppercase tracking-[0.1em] transition-colors sm:grow-0 sm:px-4 sm:text-[12px] sm:tracking-[0.12em] md:py-1.5 ${
                 tab === v
                   ? "bg-foreground text-background"
                   : "text-foreground/60 hover:text-foreground"
@@ -227,6 +235,8 @@ export function DashboardClient() {
         {tab === "invites" && <InviteManager passcode={passcode} />}
 
         {tab === "gallery" && <GalleryManager passcode={passcode} />}
+
+        {tab === "dresscode" && <DressCodeEditor passcode={passcode} />}
 
         {tab === "entourage" && <EntourageEditor passcode={passcode} />}
 

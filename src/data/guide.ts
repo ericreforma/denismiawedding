@@ -100,6 +100,10 @@ export const GUIDE: GuideSection[] = [
       { action: "REPLIES", detail: "Who has answered your invitation, and what they said." },
       { action: "INVITATIONS", detail: "Make a personal link for each guest, and see who has opened theirs." },
       { action: "GALLERY", detail: "Change the photos on your website." },
+      {
+        action: "DRESS CODE",
+        detail: "Change the pictures that show guests what to wear.",
+      },
       { action: "ENTOURAGE", detail: "Change the names in your wedding party." },
       { action: "DOCUMENTATION", detail: "This guide. You are reading it." },
     ],
@@ -401,6 +405,63 @@ export const GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: "dresscode",
+    title: "Changing the dress code pictures",
+    lead: "The pictures that show your ninongs, ninangs and entourage what to wear are yours to replace. If your designer sends a new version, you can put it up yourself.",
+    images: [
+      {
+        src: shot("13-dresscode.webp"),
+        alt: "The Dress code tab, with a box for the label and a button to choose a picture",
+        caption: "Before you upload anything, the original pictures are what guests see.",
+      },
+    ],
+    steps: [
+      { action: "Tap the DRESS CODE tab." },
+      {
+        action: "First write who the picture is for.",
+        detail:
+          "Like \"For our Ninong & Ninang\". These exact words appear above the picture on your website, so write them the way you want guests to read them.",
+      },
+      {
+        action: "Tap CHOOSE A PICTURE and pick it from your phone.",
+        detail:
+          "The button stays grey until you have written who it is for — that is on purpose, so no picture goes up without a label.",
+      },
+      {
+        action: "Wait for it to finish uploading.",
+        detail: "It appears underneath when it is done.",
+      },
+      {
+        action: "Do the same again for your second picture.",
+        detail:
+          "Most couples have two: one for the principal sponsors and one for the entourage. You can have as many or as few as you like.",
+      },
+      {
+        action: "To fix a label later, type over it and tap outside the box.",
+      },
+      {
+        action: "To take one down, tap REMOVE THIS PICTURE on it.",
+      },
+    ],
+    notes: [
+      {
+        tone: "warning",
+        title: "Your first upload replaces both originals",
+        body: "The website shows either your pictures or the originals, never a mixture. So if you upload one and stop, guests see only that one. Upload both before you walk away, or tap BACK TO THE ORIGINAL BOARDS to undo it.",
+      },
+      {
+        tone: "tip",
+        title: "Send a big, clear picture",
+        body: "Guests tap these to see them full screen and read the small print. A picture straight from your designer is ideal — a photo of a printed one, or a screenshot, will look blurry when enlarged.",
+      },
+      {
+        tone: "tip",
+        title: "Going back",
+        body: "BACK TO THE ORIGINAL BOARDS restores the pictures your website was built with. Your uploads go to your Drive bin, where Google keeps them for 30 days.",
+      },
+    ],
+  },
+  {
     id: "entourage",
     title: "Changing the entourage",
     lead: "The list of names — ninongs, ninangs, bridesmaids, groomsmen, bearers — is yours to edit here. You do not need anyone's help to fix a spelling or add a sponsor.",
@@ -502,6 +563,11 @@ export const GUIDE: GuideSection[] = [
         action: "\"I changed the entourage but my website still shows the old names.\"",
         detail:
           "Check that you tapped SAVE CHANGES. If you did, close the invitation and open it again — it keeps a copy of the last list it saw, and a fresh open picks up the new one.",
+      },
+      {
+        action: "\"I only uploaded one dress code picture and the other one vanished.\"",
+        detail:
+          "That is expected — your uploads replace the originals as a set. Upload the second one too, or tap BACK TO THE ORIGINAL BOARDS to get both originals back.",
       },
       {
         action: "\"A photo will not upload.\"",
