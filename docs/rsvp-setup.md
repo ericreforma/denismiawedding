@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 9;
+const SCRIPT_VERSION = 10;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -459,6 +459,14 @@ function galleryRow(sheet, id) {
 
 /** Everything the dashboard does to the gallery. All of it passcode-gated. */
 function galleryAction(action, data) {
+  try {
+    return galleryWork(action, data);
+  } catch (err) {
+    return { ok: false, error: "Drive: " + String(err).slice(0, 200) };
+  }
+}
+
+function galleryWork(action, data) {
   if (String(data.key || "") !== DASHBOARD_PASSCODE) {
     return { ok: false, error: "unauthorized" };
   }
@@ -625,8 +633,22 @@ function boardRow(sheet, id) {
   return -1;
 }
 
-/** Everything the dashboard does to the boards. All of it passcode-gated. */
+/**
+ * Everything the dashboard does to the boards. All of it passcode-gated.
+ *
+ * Wrapped so a Drive failure reaches the dashboard as its own message rather
+ * than as a bare "couldn't upload". The usual cause is a deployment that was
+ * never re-authorised for Drive, and the error text says so plainly.
+ */
 function dresscodeAction(action, data) {
+  try {
+    return dresscodeWork(action, data);
+  } catch (err) {
+    return { ok: false, error: "Drive: " + String(err).slice(0, 200) };
+  }
+}
+
+function dresscodeWork(action, data) {
   if (String(data.key || "") !== DASHBOARD_PASSCODE) {
     return { ok: false, error: "unauthorized" };
   }
@@ -953,11 +975,34 @@ function doGet(e) {
   } catch (err) {
     // Stays false, which is the thing worth reporting.
   }
+
+  /**
+   * Whether this deployment may actually touch Drive.
+   *
+   * Uploading a photo or a dress-code board needs the Drive permission, and
+   * that permission is granted to the script, not written into it. A script
+   * that gained DriveApp in a later version and was redeployed without being
+   * re-authorised will serve every page happily and fail only at the moment
+   * someone uploads — which is both the latest and the least convenient
+   * moment to find out. This says so up front, and says it to anyone who
+   * opens the /exec URL, without exposing anything.
+   */
+  let driveOk = false;
+  let driveError = "";
+  try {
+    DriveApp.getRootFolder().getId();
+    driveOk = true;
+  } catch (err) {
+    driveError = String(err).slice(0, 140);
+  }
+
   return json({
     ok: true,
     service: "rsvp",
     version: SCRIPT_VERSION,
     rsvpOk: rsvpOk,
+    driveOk: driveOk,
+    driveError: driveError,
   });
 }
 
@@ -1303,6 +1348,28 @@ browser reports a network failure on top of it.
 account whose admin has restricted publishing outside the organisation.
 Recreate the sheet under a personal `@gmail.com` account; the site doesn't
 care which account it is.
+
+### Uploading a photo or a dress-code board fails
+
+The script needs Google's permission to use Drive, and that permission is
+granted to the script rather than written into it. A deployment that gained
+`DriveApp` in a later version and was redeployed without being re-authorised
+serves every page happily and fails only at the moment someone uploads.
+
+**Check it:** open the `/exec` URL. From version 10 the health check says so:
+
+| What you see | What it means |
+|---|---|
+| `"driveOk":true` | Drive is fine — the problem is elsewhere |
+| `"driveOk":false` | Not authorised; `driveError` says what Google said |
+
+**Fix:** open the Apps Script editor, pick any function in the dropdown —
+`doGet` will do — and press **Run**. Google asks for the new permissions;
+accept them, including Drive. Then *Deploy → Manage deployments → ✏️ →
+Version: New version → Deploy*.
+
+Running a function by hand is the only way to be asked. Deploying never
+prompts, which is exactly why this bites.
 
 ### The dashboard says the passcode was not accepted
 

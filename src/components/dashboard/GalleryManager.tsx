@@ -12,6 +12,7 @@ import {
 } from "@/data/photos";
 import { GALLERY } from "@/data/gallery";
 import { hasEndpoint } from "@/data/config";
+import { explain } from "@/data/explain";
 
 type Load =
   | { state: "idle" }
@@ -78,10 +79,14 @@ export function GalleryManager({ passcode }: { passcode: string }) {
         setJobs((prev) =>
           prev.map((j, n) => (n === i ? { ...j, state: "done" } : j)),
         );
-      } catch {
+      } catch (err) {
         setJobs((prev) =>
           prev.map((j, n) => (n === i ? { ...j, state: "failed" } : j)),
         );
+        setLoad({
+          state: "error",
+          message: explain(`Couldn't add ${chosen[i].name}.`, err),
+        });
       }
     }
     // Clear the input, or picking the same file again does nothing.
@@ -98,10 +103,10 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     try {
       await removePhoto(passcode, photo.id);
       setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't remove that photo. Please try again.",
+        message: explain("Couldn't remove that photo.", err),
       });
     } finally {
       setBusy(null);
@@ -118,10 +123,10 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     try {
       await seedBuiltIn(passcode);
       await refresh();
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't copy the built-in photos. Please try again.",
+        message: explain("Couldn't copy the built-in photos.", err),
       });
     } finally {
       setSeeding(false);
@@ -137,10 +142,10 @@ export function GalleryManager({ passcode }: { passcode: string }) {
     try {
       await clearPhotos(passcode);
       setPhotos([]);
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't empty the gallery. Please try again.",
+        message: explain("Couldn't empty the gallery.", err),
       });
     } finally {
       setBusy(null);

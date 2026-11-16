@@ -567,9 +567,9 @@ export const GUIDE: GuideSection[] = [
           "Close the invitation and open it again. It keeps a copy of the last pictures it saw, and a fresh open picks up the new one.",
       },
       {
-        action: "\"A photo will not upload.\"",
+        action: "\"A photo or a dress code picture will not upload.\"",
         detail:
-          "Try one photo on its own, on wifi. If it still fails, it may be an unusual file type — screenshot it and upload the screenshot.",
+          "Read the red message — it now says what went wrong. If it mentions Drive, the website has lost Google's permission to store pictures and whoever set it up needs to give it back; trying again will not help. Anything else: try one picture on its own, on wifi.",
       },
     ],
     notes: [

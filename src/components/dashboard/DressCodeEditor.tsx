@@ -14,6 +14,7 @@ import {
 } from "@/data/dresscode";
 import { DRESS_BOARDS } from "@/data/wedding";
 import { hasEndpoint } from "@/data/config";
+import { explain } from "@/data/explain";
 
 type Load =
   | { state: "idle" }
@@ -93,10 +94,10 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
       const board = await addBoard(passcode, file, label.trim() || "Dress code");
       setBoards((prev) => [...prev, board]);
       setLabel("");
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't upload that picture. Please try again.",
+        message: explain("Couldn't add that picture.", err),
       });
     } finally {
       setUploading(false);
@@ -116,10 +117,10 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
       setBoards((prev) =>
         prev.map((b) => (b.id === id ? { ...b, ...updated } : b)),
       );
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't change that picture. Please try again.",
+        message: explain("Couldn't change that picture.", err),
       });
     } finally {
       setBusy(null);
@@ -158,10 +159,10 @@ export function DressCodeEditor({ passcode }: { passcode: string }) {
     try {
       await removeBoard(passcode, board.id);
       setBoards((prev) => prev.filter((b) => b.id !== board.id));
-    } catch {
+    } catch (err) {
       setLoad({
         state: "error",
-        message: "Couldn't remove that board. Please try again.",
+        message: explain("Couldn't remove that picture.", err),
       });
     } finally {
       setBusy(null);
