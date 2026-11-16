@@ -19,10 +19,13 @@ const COPY: Record<
   { eyebrow: string; lead: string; body: string }
 > = {
   checking: {
-    eyebrow: "One moment",
-    lead: "Opening your invitation…",
+    eyebrow: "Private Invitation",
+    lead: "Opening your invitation.",
     body: "",
   },
+  // Never read: the greeting puts the guest's name where the lead goes, so
+  // it is built below rather than taken from here.
+  greeting: { eyebrow: "Private Invitation", lead: "", body: "" },
   closed: {
     eyebrow: "By Invitation Only",
     lead: "This invitation is personal.",
@@ -46,11 +49,12 @@ const COPY: Record<
 };
 
 export function InviteGate() {
-  const { state, retry } = useGuest();
+  const { state, name, retry } = useGuest();
   if (state === "welcome") return null;
 
   const copy = COPY[state];
-  const waiting = state === "checking";
+  const greeting = state === "greeting";
+  const waiting = state === "checking" || greeting;
 
   return (
     <main className="relative grid min-h-[100svh] place-items-center overflow-hidden bg-background px-6 py-16 text-foreground">
@@ -66,7 +70,7 @@ export function InviteGate() {
 
       <div
         className={`relative w-full max-w-[29rem] text-center transition-opacity duration-1000 ${
-          waiting ? "opacity-70" : "opacity-100"
+          state === "checking" ? "opacity-70" : "opacity-100"
         }`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,7 +79,7 @@ export function InviteGate() {
           alt=""
           aria-hidden
           className={`mx-auto w-[108px] select-none md:w-[124px] ${
-            waiting ? "animate-pulse" : ""
+            state === "checking" ? "animate-pulse" : ""
           }`}
           draggable={false}
         />
@@ -98,9 +102,20 @@ export function InviteGate() {
           <span className="h-px flex-1 bg-foreground/25" />
         </div>
 
-        <p className="mt-7 font-display text-[22px] leading-snug text-foreground md:text-[25px]">
-          {copy.lead}
-        </p>
+        {greeting ? (
+          <>
+            <p className="mt-7 font-display text-[17px] leading-snug text-foreground/70 md:text-[19px]">
+              Opening the invitation for
+            </p>
+            <p className="mt-2.5 text-balance font-display text-[1.9rem] leading-[1.2] tracking-[0.01em] text-foreground sm:text-[2.2rem]">
+              {name}
+            </p>
+          </>
+        ) : (
+          <p className="mt-7 font-display text-[22px] leading-snug text-foreground md:text-[25px]">
+            {copy.lead}
+          </p>
+        )}
 
         {copy.body && (
           <p className="mx-auto mt-4 max-w-[26rem] font-sans text-[13px] leading-[1.85] text-foreground/65 md:text-[13.5px]">

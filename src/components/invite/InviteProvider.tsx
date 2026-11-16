@@ -22,6 +22,8 @@ import {
  *
  * - `checking` — the token is being verified. Nothing of the invitation is
  *   shown yet: a closed site that flashes its contents first is not closed.
+ * - `greeting` — the token is theirs and their name is known, held for a beat
+ *   so the guest sees the invitation is addressed to them before it opens.
  * - `welcome` — a real token, held by this device. The invitation proper.
  * - `closed` — no token at all. Someone has the bare address.
  * - `invalid` — a token the sheet does not know. A link edited, truncated by
@@ -33,6 +35,7 @@ import {
  */
 export type GuestState =
   | "checking"
+  | "greeting"
   | "welcome"
   | "closed"
   | "invalid"
@@ -118,19 +121,35 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
         if (known) {
           setName(known.name);
           setEntourage(known.entourage);
-          setState("welcome");
+          setState(known.name ? "greeting" : "welcome");
           return;
         }
       }
 
-      setName(claim.name?.trim() || null);
+      const who = claim.name?.trim() || null;
+      setName(who);
       setEntourage(claim.entourage !== false);
-      setState(resolve(claim.status));
+      const next = resolve(claim.status);
+      // A recognised guest is greeted by name first. Everyone else — and a
+      // guest whose name somehow came back empty — goes straight through.
+      setState(next === "welcome" && who ? "greeting" : next);
     });
     return () => {
       live = false;
     };
   }, [attempt]);
+
+  /**
+   * How long the guest's name is held on screen before the invitation opens.
+   *
+   * Long enough to read a name and feel addressed, short enough that nobody
+   * waiting to get in notices they were made to wait.
+   */
+  useEffect(() => {
+    if (state !== "greeting") return;
+    const t = setTimeout(() => setState("welcome"), 1600);
+    return () => clearTimeout(t);
+  }, [state]);
 
   const value = useMemo(
     () => ({ state, name, token, entourage, retry }),
