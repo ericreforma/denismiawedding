@@ -1397,10 +1397,42 @@ rest of the manifest alone; the `webapp` block there is what governs the
 deployment, and editing it by hand is how a working deployment stops being
 public.
 
-If there is no `oauthScopes` array at all, the inference is working and the
-problem is a stale grant instead: revoke the project at
-[myaccount.google.com/permissions](https://myaccount.google.com/permissions),
-then **Run** again to be asked from scratch.
+If there is no `oauthScopes` array at all, inference is supposed to be doing
+the work — and if it still does not ask, stop diagnosing and say the scopes
+out loud. An explicit list is requested whatever the inference decides:
+
+```json
+{
+  "timeZone": "Asia/Manila",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+  ],
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  }
+}
+```
+
+Those two are all the script needs: the Sheet, and Drive for the pictures.
+`Utilities`, `LockService` and `ContentService` need no permission. Keep the
+`webapp` block exactly as it is — those two values are what make the
+deployment public.
+
+Be aware that an explicit list replaces the inferred one entirely, so anything
+added to the script later that needs a new permission has to be added here
+too, or it will fail the same quiet way.
+
+Save, **Run** again — the dialog appears — then redeploy and check `driveOk`.
+
+A stale grant is the other possibility worth knowing about: revoking the
+project at
+[myaccount.google.com/permissions](https://myaccount.google.com/permissions)
+and running again asks from scratch.
 
 ### The dashboard says the passcode was not accepted
 
