@@ -193,12 +193,12 @@ export const GUIDE: GuideSection[] = [
       {
         action: "The short one, which most guests get.",
         detail:
-          "Everything except the entourage — no list of ninongs, ninangs, bridesmaids or groomsmen.",
+          "The whole invitation, and the entourage page shows you and your parents only — no ninongs, ninangs, bridesmaids, groomsmen, secondary sponsors or bearers.",
       },
       {
-        action: "The full one, with the entourage.",
+        action: "The full one, with everyone.",
         detail:
-          "The same invitation plus the wedding party, for the people who are in it.",
+          "The same invitation with the whole wedding party listed, for the people who are in it.",
       },
       {
         action: "You pick with one tick box when you make the link.",
@@ -465,8 +465,8 @@ export const GUIDE: GuideSection[] = [
       },
       {
         tone: "tip",
-        title: "Only some guests see this",
-        body: "Remember the two versions — a guest whose link was made without the entourage will not see any of these names, however you edit them.",
+        title: "Only some guests see all of this",
+        body: "Remember the two versions. A guest whose link was made without the entourage still sees you and your parents, but none of the other names here, however you edit them.",
       },
     ],
   },

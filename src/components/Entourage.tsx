@@ -1,11 +1,7 @@
 "use client";
 
 import { Reveal } from "./Reveal";
-import {
-  ART,
-  type EntourageGroup,
-  type EntourageRole,
-} from "@/data/wedding";
+import { ART, type EntourageGroup, type EntourageRole } from "@/data/wedding";
 import { useEntourage } from "@/hooks/useEntourage";
 
 /** The divider the love story uses, repeated here to separate the blocks. */
@@ -35,7 +31,13 @@ function RoleLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Names({ names, size = "base" }: { names: string[]; size?: "base" | "lead" }) {
+function Names({
+  names,
+  size = "base",
+}: {
+  names: string[];
+  size?: "base" | "lead";
+}) {
   return (
     <ul className="mt-3 space-y-1">
       {names.map((name) => (
@@ -126,7 +128,17 @@ function Role({ role, i }: { role: EntourageRole; i: number }) {
   );
 }
 
-export function Entourage() {
+/**
+ * The wedding party.
+ *
+ * `full` is what the couple chose for this guest when they made their link.
+ * Off, the section is not removed — the couple and their parents stay, which
+ * is the part of it that is addressed to everyone. What goes is the roll call
+ * the wedding party itself needs and nobody else reads: the sponsors, the
+ * attendants, the groomsmen and bridesmaids, the secondary sponsors and the
+ * bearers.
+ */
+export function Entourage({ full = true }: { full?: boolean }) {
   /**
    * The couple's own list once they have saved one, the built-in list until
    * then. It can change a moment after load, so everything below reads from
@@ -153,41 +165,45 @@ export function Entourage() {
             <PearlRule />
             <Pair groups={ENTOURAGE.parents} />
 
-            <PearlRule />
-            <Reveal shift={20}>
-              <RoleLabel>{ENTOURAGE.principalSponsors.title}</RoleLabel>
-            </Reveal>
-            {/* The ninong and ninang lists are the longest on the page, so
+            {full && (
+              <>
+                <PearlRule />
+                <Reveal shift={20}>
+                  <RoleLabel>{ENTOURAGE.principalSponsors.title}</RoleLabel>
+                </Reveal>
+                {/* The ninong and ninang lists are the longest on the page, so
                 they keep their own sub-headings inside the pair. */}
-            <div className="mt-8">
-              <Pair groups={ENTOURAGE.principalSponsors.columns} />
-            </div>
+                <div className="mt-8">
+                  <Pair groups={ENTOURAGE.principalSponsors.columns} />
+                </div>
 
-            <PearlRule />
-            <Pair groups={ENTOURAGE.honorAttendants} />
+                <PearlRule />
+                <Pair groups={ENTOURAGE.honorAttendants} />
 
-            <PearlRule />
-            <Pair groups={ENTOURAGE.weddingParty} />
+                <PearlRule />
+                <Pair groups={ENTOURAGE.weddingParty} />
 
-            <PearlRule />
-            <Reveal shift={20}>
-              <RoleLabel>{ENTOURAGE.secondarySponsors.title}</RoleLabel>
-            </Reveal>
-            <div className="mt-8 grid gap-10 md:grid-cols-3 md:gap-8">
-              {ENTOURAGE.secondarySponsors.roles.map((role, i) => (
-                <Role key={role.line} role={role} i={i} />
-              ))}
-            </div>
+                <PearlRule />
+                <Reveal shift={20}>
+                  <RoleLabel>{ENTOURAGE.secondarySponsors.title}</RoleLabel>
+                </Reveal>
+                <div className="mt-8 grid gap-10 md:grid-cols-3 md:gap-8">
+                  {ENTOURAGE.secondarySponsors.roles.map((role, i) => (
+                    <Role key={role.line} role={role} i={i} />
+                  ))}
+                </div>
 
-            <PearlRule />
-            <Reveal shift={20}>
-              <RoleLabel>{ENTOURAGE.bearers.title}</RoleLabel>
-            </Reveal>
-            <div className="mt-8 grid gap-10 md:grid-cols-2 md:gap-12">
-              {ENTOURAGE.bearers.roles.map((role, i) => (
-                <Role key={role.line} role={role} i={i} />
-              ))}
-            </div>
+                <PearlRule />
+                <Reveal shift={20}>
+                  <RoleLabel>{ENTOURAGE.bearers.title}</RoleLabel>
+                </Reveal>
+                <div className="mt-8 grid gap-10 md:grid-cols-2 md:gap-12">
+                  {ENTOURAGE.bearers.roles.map((role, i) => (
+                    <Role key={role.line} role={role} i={i} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

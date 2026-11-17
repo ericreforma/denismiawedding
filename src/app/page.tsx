@@ -63,8 +63,9 @@ function Invitation() {
         <SaveTheDate />
         <Location />
         <TheDay />
-        {/* The couple send two versions; only some guests get this one. */}
-        {entourage && <Entourage />}
+        {/* Always shown. On the short version it carries the couple and
+            their parents only — see Entourage. */}
+        <Entourage full={entourage} />
         <DressCode />
         <WeddingGift />
         <Rsvp />

@@ -272,8 +272,9 @@ export function InviteManager({ passcode }: { passcode: string }) {
               Include the entourage
             </span>
             <span className="mt-0.5 block font-sans text-[12px] leading-relaxed text-foreground/55">
-              Tick this for the wedding party themselves. Everyone else gets the
-              invitation without the list of names.
+              Tick this for the wedding party themselves. Everyone else still
+              sees the couple and their parents — just not the sponsors,
+              attendants, groomsmen, bridesmaids or bearers.
             </span>
           </span>
         </label>

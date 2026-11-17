@@ -377,7 +377,9 @@ match them.
 
 There are two invitations — with the wedding party listed and without — and
 the dashboard picks one per guest when the link is made, or switches it later
-without reissuing the link. Invitations predating the choice read as "with",
+without reissuing the link. The short one keeps the couple and their parents,
+since that much is addressed to everyone; what it drops is the roll call the
+wedding party itself needs and nobody else reads. Invitations predating the choice read as "with",
 which is what their guests were already shown.
 
 The bare address opens nothing: without a token the sheet recognises, a
