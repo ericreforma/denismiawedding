@@ -389,7 +389,7 @@ export const DRESS_BOARDS: { src: string; label: string; alt: string }[] = [
   {
     src: p("/photos/dresscode-entourage.webp"),
     label: "For the Entourage",
-    alt: "Dress code for the entourage — maid of honor in navy blue, bridesmaids in beige, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
+    alt: "Dress code for the entourage — maid of honor in beige, bridesmaids in navy blue, best man in a beige suit, and groomsmen in white long sleeves with a navy blue vest and beige tie",
   },
   {
     src: p("/photos/dresscode-guests.webp"),
