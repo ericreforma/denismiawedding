@@ -113,7 +113,7 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
   const removeBlock = (index: number) => {
     const row = rows[index];
     const what = row.title || row.line || "this block";
-    if (!window.confirm(`Remove ${what}?\n\nNothing is saved until you tap Save.`))
+    if (!window.confirm(`Are you sure you want to remove ${what}?\n\nNothing changes on your website until you tap Save.`))
       return;
     setRows((prev) => prev.filter((_, i) => i !== index));
   };
@@ -153,7 +153,7 @@ export function EntourageEditor({ passcode }: { passcode: string }) {
   const revert = async () => {
     if (
       !window.confirm(
-        "Go back to the list the website was built with?\n\nEverything you have saved here is removed, and the original list comes back.",
+        "Are you sure you want to go back to the original list?\n\nEverything you have saved here is removed, and the list your website was built with comes back.",
       )
     )
       return;

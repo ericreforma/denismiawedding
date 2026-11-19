@@ -149,7 +149,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
   const reset = async (invite: InviteRecord) => {
     if (busy) return;
     const ok = window.confirm(
-      `Reset ${invite.name}'s link?\n\nThe device that opened it loses access, and the next device to open the link claims it instead. Send the link again afterwards.`,
+      `Are you sure you want to reset this link?\n\nThe phone that opened ${invite.name}'s link loses access, and the next one to open it takes its place. Send them the link again afterwards.`,
     );
     if (!ok) return;
     setBusy(invite.token);
@@ -213,7 +213,7 @@ export function InviteManager({ passcode }: { passcode: string }) {
   const remove = async (invite: InviteRecord) => {
     if (busy) return;
     const ok = window.confirm(
-      `Delete ${invite.name}'s invitation?\n\nThe link stops working for good. This cannot be undone.`,
+      `Are you sure you want to delete this invitation?\n\n${invite.name}'s link stops working for good. This cannot be undone.`,
     );
     if (!ok) return;
     setBusy(invite.token);

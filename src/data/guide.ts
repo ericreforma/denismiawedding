@@ -148,12 +148,12 @@ export const GUIDE: GuideSection[] = [
       {
         tone: "warning",
         title: "You cannot edit a reply, only remove it",
-        body: "If a guest made a mistake, ask them to send the form again, or fix the row yourself in the Google Sheet. REMOVE deletes the whole reply.",
+        body: "If a guest made a mistake, the simplest thing is to ask them to send the form again and REMOVE the old one. REMOVE takes the whole reply off, it does not change it.",
       },
       {
         tone: "tip",
         title: "If you remove the wrong one",
-        body: "It is gone from the dashboard, but your Google Sheet keeps a history. Open the sheet, then File → Version history → See version history, and you can look back at how the list was before.",
+        body: "Ask the guest to fill in the form again — that is the quickest fix and it is their own words either way. If it matters that the original is recovered exactly, whoever set up your website can get it back for you.",
       },
     ],
   },
@@ -406,12 +406,12 @@ export const GUIDE: GuideSection[] = [
       {
         tone: "tip",
         title: "To change the order",
-        body: "Open your Google Sheet, go to the Gallery tab, and drag the rows. The order there is the order on your website.",
+        body: "Remove them and upload them again in the order you want — they appear in the order they were added. For a long gallery, ask whoever set up your website; they can reorder it for you in a minute.",
       },
       {
         tone: "warning",
         title: "Do not upload hundreds",
-        body: "These photos come from Google Drive rather than from the website itself, so a very large gallery makes the page slow for guests. A few dozen favourites is the sweet spot.",
+        body: "Photos you upload are fetched from elsewhere rather than being part of the website, so a very large gallery makes the page slow for guests. A few dozen favourites is the sweet spot.",
       },
     ],
   },
@@ -511,7 +511,7 @@ export const GUIDE: GuideSection[] = [
       },
       {
         action: "\"A reply is wrong.\"",
-        detail: "Fix the row in the Google Sheet, then tap REFRESH here.",
+        detail: "Ask them to send the form again, then REMOVE the old reply. The form is the only thing that writes a reply, so it is the only thing that can correct one.",
       },
       {
         action: "\"I changed the entourage but my website still shows the old names.\"",
@@ -519,9 +519,9 @@ export const GUIDE: GuideSection[] = [
           "Check that you tapped SAVE CHANGES. If you did, close the invitation and open it again — it keeps a copy of the last list it saw, and a fresh open picks up the new one.",
       },
       {
-        action: "\"A photo or a dress code picture will not upload.\"",
+        action: "\"A photo will not upload.\"",
         detail:
-          "Read the red message — it now says what went wrong. If it mentions Drive, the website has lost Google's permission to store pictures and whoever set it up needs to give it back; trying again will not help. Anything else: try one picture on its own, on wifi.",
+          "Read the red message — it says what went wrong. If it mentions permission, the website has lost its access to where pictures are stored and only whoever set it up can give it back; trying again will not help. Anything else: try one photo on its own, on wifi.",
       },
     ],
     notes: [

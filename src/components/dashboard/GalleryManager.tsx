@@ -109,7 +109,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
   const remove = async (photo: Photo) => {
     if (busy) return;
     const ok = window.confirm(
-      `Remove this photo from the gallery?\n\nAn uploaded one goes to your Drive bin, where it can be recovered for 30 days.`,
+      `Are you sure you want to remove this photo?\n\nIt comes off your website. If you change your mind, it can be put back for the next 30 days.`,
     );
     if (!ok) return;
     setBusy(photo.id);
@@ -131,7 +131,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
   const seed = async () => {
     if (seeding) return;
     const ok = window.confirm(
-      `Copy the ${GALLERY.length} built-in photos into the gallery?\n\nNothing is uploaded — they keep using the files the site already ships. You can then remove them one at a time.`,
+      `Make your ${GALLERY.length} original photos editable?\n\nNothing on your website changes. They are copied here so you can remove them one at a time.`,
     );
     if (!ok) return;
     setSeeding(true);
@@ -152,7 +152,7 @@ export function GalleryManager({ passcode }: { passcode: string }) {
 
   const clear = async () => {
     const ok = window.confirm(
-      `Empty the gallery?\n\nThe site goes back to showing the built-in photoshoot. Uploaded photos go to your Drive bin, recoverable for 30 days.`,
+      `Are you sure you want to empty the gallery?\n\nYour website goes back to showing your original photoshoot. Anything you uploaded can be put back for the next 30 days.`,
     );
     if (!ok) return;
     setBusy("all");

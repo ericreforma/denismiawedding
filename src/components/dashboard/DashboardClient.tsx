@@ -136,9 +136,9 @@ export function DashboardClient() {
     // nullable here even though this can only be reached once it is set.
     if (!passcode || removing) return;
     const ok = window.confirm(
-      `Remove ${entry.name}'s reply?
+      `Are you sure you want to remove this entry?
 
-It is deleted from your spreadsheet. If it turns out to be a mistake, Google Sheets keeps a version history under File → Version history.`,
+${entry.name}'s reply will be taken off the list. This cannot be undone.`,
     );
     if (!ok) return;
 
