@@ -48,7 +48,7 @@ silent failure that saves you from.
 // with. The health check prints it, so "is the deployed copy current?" stops
 // being something you have to remember and becomes something the /exec URL
 // tells you.
-const SCRIPT_VERSION = 12;
+const SCRIPT_VERSION = 13;
 
 // CHANGE THIS. It is the only thing standing between a public URL and the
 // guest list. It never appears in the website's code — the dashboard asks the
@@ -187,6 +187,7 @@ function doPost(e) {
     if (action.indexOf("dresscode.") === 0) {
       return json(dresscodeAction(action, data));
     }
+    if (action === "rsvp.remove") return json(removeReply(data));
     if (action) return json(inviteAction(action, data));
 
     // Honeypot: a field hidden from real users. Bots fill in everything they
@@ -229,6 +230,10 @@ function allEntries() {
     if (!name) continue;
     const ts = rows[i][0];
     out.push({
+      // Which row this is, so the dashboard can ask for it to be deleted.
+      // A reply has no id of its own — the form never gave it one — and
+      // adding a column now would leave every existing reply without one.
+      row: i + 2,
       // ISO so the browser can parse and re-format it in the reader's locale.
       timestamp: ts instanceof Date ? ts.toISOString() : String(ts || ""),
       name: name,
@@ -328,6 +333,57 @@ function allInvites() {
     });
   }
   return out;
+}
+
+/**
+ * Delete one reply.
+ *
+ * The row number comes from the dashboard, which got it from `allEntries` —
+ * but a row number is only true for as long as nothing above it moves, and a
+ * guest replying between the dashboard loading and the couple pressing
+ * Remove moves everything. So the name is checked before anything is
+ * deleted, and if it does not match, the row is found by name and timestamp
+ * instead. Deleting the wrong guest's reply would be both silent and
+ * unrecoverable, which is not a risk worth taking to save a lookup.
+ */
+function removeReply(data) {
+  if (String(data.key || "") !== DASHBOARD_PASSCODE) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const sheet = getSheet(RSVP_SHEET, RSVP_HEADERS);
+  const last = sheet.getLastRow();
+  if (last < 2) return { ok: false, error: "No such reply" };
+
+  const name = String(data.name || "").trim();
+  const stamp = String(data.timestamp || "").trim();
+  if (!name) return { ok: false, error: "No such reply" };
+
+  const asked = Number(data.row || 0);
+  let row = -1;
+
+  if (asked >= 2 && asked <= last) {
+    const there = String(sheet.getRange(asked, 2).getValue() || "").trim();
+    if (there === name) row = asked;
+  }
+
+  if (row < 0) {
+    const rows = sheet.getRange(2, 1, last - 1, 2).getValues();
+    for (let i = 0; i < rows.length; i++) {
+      if (String(rows[i][1] || "").trim() !== name) continue;
+      const ts = rows[i][0];
+      const iso = ts instanceof Date ? ts.toISOString() : String(ts || "");
+      // With a timestamp, insist on it. Without one, the name will do.
+      if (!stamp || iso === stamp) {
+        row = i + 2;
+        break;
+      }
+    }
+  }
+
+  if (row < 0) return { ok: false, error: "No such reply" };
+  sheet.deleteRow(row);
+  return { ok: true, name: name };
 }
 
 /**

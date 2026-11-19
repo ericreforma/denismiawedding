@@ -138,12 +138,22 @@ export const GUIDE: GuideSection[] = [
         action: "Tap REFRESH to check for new replies.",
         detail: "The page does not update by itself while you are staring at it.",
       },
+      {
+        action: "To take a reply off the list, tap REMOVE on it.",
+        detail:
+          "For a test entry, or somebody who replied twice. It asks you first, and names the guest so you can be sure it is the right one.",
+      },
     ],
     notes: [
       {
         tone: "warning",
-        title: "You cannot edit a reply here",
-        body: "If a guest made a mistake, ask them to send the form again, or fix the row yourself in the Google Sheet. This page only reads.",
+        title: "You cannot edit a reply, only remove it",
+        body: "If a guest made a mistake, ask them to send the form again, or fix the row yourself in the Google Sheet. REMOVE deletes the whole reply.",
+      },
+      {
+        tone: "tip",
+        title: "If you remove the wrong one",
+        body: "It is gone from the dashboard, but your Google Sheet keeps a history. Open the sheet, then File → Version history → See version history, and you can look back at how the list was before.",
       },
     ],
   },

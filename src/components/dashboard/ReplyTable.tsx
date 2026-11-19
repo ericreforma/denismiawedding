@@ -3,6 +3,11 @@
 import type { RsvpEntry } from "@/data/config";
 import { isYes } from "./DashboardClient";
 
+/** Identifies one reply well enough to mark it busy. */
+export function keyOf(e: RsvpEntry) {
+  return `${e.timestamp}|${e.name}`;
+}
+
 function when(ts: string) {
   const d = new Date(ts);
   if (Number.isNaN(d.getTime())) return ts || "—";
@@ -31,9 +36,15 @@ function Badge({ attending }: { attending: string }) {
 export function ReplyTable({
   entries,
   total,
+  onRemove,
+  removing,
 }: {
   entries: RsvpEntry[];
   total: number;
+  /** Delete one reply. The confirming is the caller's to do. */
+  onRemove: (entry: RsvpEntry) => void;
+  /** The reply currently being deleted, so only its own row says so. */
+  removing: string | null;
 }) {
   if (entries.length === 0) {
     return (
@@ -69,6 +80,15 @@ export function ReplyTable({
                 “{e.message}”
               </p>
             )}
+
+            <button
+              type="button"
+              onClick={() => onRemove(e)}
+              disabled={removing === keyOf(e)}
+              className="mt-3 rounded-full px-3.5 py-1.5 font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground disabled:opacity-40"
+            >
+              {removing === keyOf(e) ? "Removing…" : "Remove"}
+            </button>
           </li>
         ))}
       </ul>
@@ -86,8 +106,11 @@ export function ReplyTable({
               <th scope="col" className="py-3 pr-4 font-normal">
                 Message
               </th>
-              <th scope="col" className="py-3 font-normal whitespace-nowrap">
+              <th scope="col" className="py-3 pr-4 font-normal whitespace-nowrap">
                 Received
+              </th>
+              <th scope="col" className="py-3 font-normal">
+                <span className="sr-only">Remove</span>
               </th>
             </tr>
           </thead>
@@ -106,8 +129,18 @@ export function ReplyTable({
                 <td className="max-w-md py-3.5 pr-4 text-foreground/75">
                   {e.message.trim() || "—"}
                 </td>
-                <td className="py-3.5 whitespace-nowrap text-foreground/50">
+                <td className="py-3.5 pr-4 whitespace-nowrap text-foreground/50">
                   {when(e.timestamp)}
+                </td>
+                <td className="py-3.5 text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => onRemove(e)}
+                    disabled={removing === keyOf(e)}
+                    className="rounded-full px-3 py-1.5 font-sans text-[11px] uppercase tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    {removing === keyOf(e) ? "Removing…" : "Remove"}
+                  </button>
                 </td>
               </tr>
             ))}

@@ -6,7 +6,10 @@ import { COUPLE, EVENT } from "@/data/wedding";
 import { RSVP_ENDPOINT, hasEndpoint, type RsvpEntry } from "@/data/config";
 import { StatTile } from "./StatTile";
 import { PasscodeGate } from "./PasscodeGate";
-import { ReplyTable } from "./ReplyTable";
+import { ReplyTable, keyOf } from "./ReplyTable";
+import { removeReply } from "@/data/rsvp";
+import { BusyDialog, type BusyTask } from "./BusyDialog";
+import { explain } from "@/data/explain";
 import { InviteManager } from "./InviteManager";
 import { GalleryManager } from "./GalleryManager";
 import { Documentation } from "./Documentation";
@@ -33,6 +36,9 @@ export function DashboardClient() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("newest");
   const [tab, setTab] = useState<Tab>("replies");
+  const [task, setTask] = useState<BusyTask | null>(null);
+  /** The reply being deleted, keyed as the table keys it. */
+  const [removing, setRemoving] = useState<string | null>(null);
 
   // Restore a passcode from a previous visit before the first fetch.
   useEffect(() => {
@@ -118,6 +124,48 @@ export function DashboardClient() {
 
   const entries = load.state === "ready" ? load.entries : [];
 
+  /**
+   * Delete one reply, and take it out of the list in place.
+   *
+   * Refetching afterwards would be tidier but would also throw away whatever
+   * the couple had searched or filtered for, which is a poor trade for a
+   * change this small and this certain.
+   */
+  const remove = async (entry: RsvpEntry) => {
+    // Defined above the gate's early return, so the passcode is still
+    // nullable here even though this can only be reached once it is set.
+    if (!passcode || removing) return;
+    const ok = window.confirm(
+      `Remove ${entry.name}'s reply?
+
+It is deleted from your spreadsheet. If it turns out to be a mistake, Google Sheets keeps a version history under File → Version history.`,
+    );
+    if (!ok) return;
+
+    const id = keyOf(entry);
+    setRemoving(id);
+    setTask({ label: `Removing ${entry.name}'s reply…` });
+    try {
+      await removeReply(passcode, entry);
+      setLoad((prev) =>
+        prev.state === "ready"
+          ? {
+              ...prev,
+              entries: prev.entries.filter((e) => keyOf(e) !== id),
+            }
+          : prev,
+      );
+    } catch (err) {
+      setLoad({
+        state: "error",
+        message: explain(`Couldn't remove ${entry.name}'s reply.`, err),
+      });
+    } finally {
+      setRemoving(null);
+      setTask(null);
+    }
+  };
+
   const counts = useMemo(() => {
     const yes = entries.filter((e) => isYes(e.attending)).length;
     const no = entries.filter((e) => !isYes(e.attending)).length;
@@ -155,6 +203,7 @@ export function DashboardClient() {
 
   return (
     <main className="min-h-[100svh] bg-background text-foreground">
+      <BusyDialog task={task} />
       <div className="mx-auto max-w-5xl px-5 py-10 md:px-8 md:py-14">
         {/* Stacked on a phone, shoulder to shoulder from sm up: the title and
             the two actions never fit on one narrow line without the buttons
@@ -340,7 +389,12 @@ export function DashboardClient() {
               })}
             </p>
 
-            <ReplyTable entries={shown} total={entries.length} />
+            <ReplyTable
+              entries={shown}
+              total={entries.length}
+              onRemove={remove}
+              removing={removing}
+            />
           </>
         )}
       </div>

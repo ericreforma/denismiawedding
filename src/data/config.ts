@@ -27,6 +27,14 @@ export const SITE_URL = (
 
 /** One reply, as the dashboard reads it back from the sheet. */
 export type RsvpEntry = {
+  /**
+   * Which row of the sheet this came from, so it can be deleted.
+   *
+   * A reply has no id of its own — the form never gave it one — and older
+   * replies predate this field entirely, so it may be missing. The script
+   * falls back to finding the row by name and timestamp when it is.
+   */
+  row?: number;
   timestamp: string;
   name: string;
   /** "yes" | "no" as written by the form. */
